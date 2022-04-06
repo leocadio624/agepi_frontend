@@ -1,0 +1,62 @@
+/*
+.active{
+  background-color:crimson!important;
+  color:white!important;
+  text-decoration:none;
+}
+*/
+.logo{
+  font-family: Proxima Nova,Verdana,Avenir Next!important;
+  font-size: 20px!important;
+  line-height: 1.6!important;
+}
+body{
+  background-image: url("./assetss/images/greyzz.png");
+}
+
+.bg-primary{
+  background:linear-gradient(180deg, rgba(0,85,128,1) 0%, rgba(0,102,153,1) 75%, rgba(0,153,230,1) 100%)!important;
+}
+
+.panel{
+  margin-top:45px;
+  border: 1px solid rgba(0,85,128,1);
+  border-radius:3px 3px 0px 0px;
+  background-color:rgb(242,242,242);
+}
+.panel-header{
+  background-color:rgb(0,85,128);
+}
+.panel-footer{
+  background-color:#e5f2ff;
+  margin-top:10px;
+}
+.title{
+  font-family: roboto condensed,sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  color:aliceblue;
+}
+.row-form{
+  margin-top:10px!important;
+}
+.label-form{
+  font-size:12px;
+  margin-top:8px;
+  font-weight:bold;
+}
+.form-control, .form-select{
+  font-size:0.7rem!important;
+}
+.image{
+  cursor:pointer;
+  margin-top:5px;
+}
+
+
+
+
+
+
+
+  
