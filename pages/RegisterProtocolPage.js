@@ -3,6 +3,11 @@ import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import save from '../assetss/images/save-file.png';
+import cancel from '../assetss/images/cancelar.png';
+import add from '../assetss/images/plus.png';
+
+
+
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 export default function RegisterPage(){
@@ -27,6 +32,7 @@ export default function RegisterPage(){
     const [period, setPeriod] = useState(-1);
     const [typeRegister, setTypeRegister] = useState(-1);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [keyList, setKeyList] = useState( [ {key:""} ] );
 
     
 
@@ -81,10 +87,28 @@ export default function RegisterPage(){
         if( event.target.name === 'sumary')
             updateContadorTa(sumary.current, countSumary.current, 4000);
         
-        
-        
-        
     }
+    const handleAddKey = () => {
+        setKeyList([...keyList, {key:""}])
+    }
+
+    const handleRemoveKey = (index) => {
+        const list = [...keyList];
+        list.splice(index, 1);
+        setKeyList(list);
+
+    }
+    const handleKeyChange = (e, index) =>{
+        const {name, value} = e.target;
+        const list = [...keyList];
+        list[index][name] = value;
+        setKeyList(list);
+
+        console.log(keyList);
+        
+
+    }
+
     function updateContadorTa(ta, contador, max){
 
         contador.innerHTML = "0/" + max;
@@ -100,6 +124,9 @@ export default function RegisterPage(){
 
     const guardarProtocolo = () => {
         
+        
+
+
         var formData = new FormData( form_ref.current );
         formData.append('protocol_state', 1);
         
@@ -269,8 +296,47 @@ export default function RegisterPage(){
                         />
                     </div>
                 </div>
-
             </form>
+            {/*
+            const [keyList, setKeyList] = useState( [ {key:""} ] );
+            */}
+
+
+            <form className = "" autoComplete = "off">
+                <div className = "">
+
+                    <div className = "row row-form">
+                        <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
+                            <div className = "label-form" >Palabra(s) clave</div>
+                        </div>
+                    </div>
+                    
+                    {keyList.map((singleKey, index) =>(
+
+                        <div key = {index} className = "row" >
+                            <div className = "col-3" style = {{marginTop:5}} >
+                                <input name = "key" className = "form-control" type = "text" id = "key" required
+                                value = {singleKey.key}
+                                onChange = {(e) => handleKeyChange(e, index)}
+
+                                />
+                                {keyList.length - 1 === index && keyList.length < 6 &&(
+                                    <img className="image" src={add} onClick = {handleAddKey} width = "30" height = "30" alt="User Icon" title= "Agregar palabra clave" />
+                                )}
+                            </div>
+                            <div className = "col-3" >
+                                {keyList.length > 1 &&(
+                                    <img className="image" src={cancel} onClick = {() => handleRemoveKey(index)} width = "30" height = "30" alt="User Icon" title= "Quitar palabra clave" />
+                                )}
+                            </div>
+                        </div>
+
+                    ))}
+
+                </div>
+            </form>
+
+
             <div className = "row panel-footer">
                 <div className = "col-12 d-flex justify-content-center">
                     <img className="image" src={save} onClick = {guardarProtocolo} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" />
