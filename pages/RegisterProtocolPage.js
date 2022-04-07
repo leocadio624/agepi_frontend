@@ -104,7 +104,7 @@ export default function RegisterPage(){
         list[index][name] = value;
         setKeyList(list);
 
-        console.log(keyList);
+        
         
 
     }
@@ -124,11 +124,12 @@ export default function RegisterPage(){
 
     const guardarProtocolo = () => {
         
-        
-
+        var keyWords = [];
+        keyList.forEach(function(i){ keyWords.push(i.key) });
 
         var formData = new FormData( form_ref.current );
         formData.append('protocol_state', 1);
+        formData.append('keyWords', keyWords);
         
 
         axios.post(
@@ -143,12 +144,6 @@ export default function RegisterPage(){
 
         })
         
-        
-        /*
-        console.log(period);
-        console.log(typeRegister);
-        console.log(selectedFile);
-        */
 
     }
 
@@ -297,10 +292,6 @@ export default function RegisterPage(){
                     </div>
                 </div>
             </form>
-            {/*
-            const [keyList, setKeyList] = useState( [ {key:""} ] );
-            */}
-
 
             <form className = "" autoComplete = "off">
                 <div className = "">
