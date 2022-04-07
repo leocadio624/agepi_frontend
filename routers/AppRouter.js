@@ -9,7 +9,9 @@ import Register from '../pages/RegisterPage';
 
 //import Notifications from '../components/NotificationsPage';
 //import ProtocolState from '../components/ProtocolStatePage';
+
 import RegisterSign from '../pages/RegisterSignPage';
+import Protocols from '../pages/ProtocolsPage';
 import RegisterProtocol from '../pages/RegisterProtocolPage';
 import RegisterTeam from '../pages/RegisterTeamPage';
 import SigningRequest from '../pages/SigningRequestPage';
@@ -56,6 +58,7 @@ export default function AppRouter(){
                     */}
 
                     <PrivateRoute exact path = "/registar_firma"  component = {RegisterSign} />
+                    <PrivateRoute exact path = "/protocolos"  component = {Protocols}/>
                     <PrivateRoute exact path = "/registro_protocolo"  component = {RegisterProtocol}/>
                     <PrivateRoute exact path = "/registrar_equipo"  component = {RegisterTeam}/>
                     <PrivateRoute exact path = "/solicitudes_firma"  component = {SigningRequest}/>

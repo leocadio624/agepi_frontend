@@ -47,6 +47,9 @@ export default function Navbar(){
                                 <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
                             </li>
                             <li className = "nav-item">
+                                <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
+                            </li>
+                            <li className = "nav-item">
                                 <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
                             </li>
                             <li className = "nav-item">
