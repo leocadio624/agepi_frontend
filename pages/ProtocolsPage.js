@@ -1,48 +1,34 @@
 import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
+
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Modal, Button} from 'react-bootstrap';
+
+
+
+
+
+
 import axios from 'axios';
 import ver from '../assetss/images/ver.png';
+import save from '../assetss/images/save-file.png';
+import cancel from '../assetss/images/cancelar.png';
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
 export default function ProtocolsPage(){
 
+    const [show, setShow] = useState(false);
     const [protocols, setProtocols] = useState([]);
-    /*
-    const datos = [
-        {id:1, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:2, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:3, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:4, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:5, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:6, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:7, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:8, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:9, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:10, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:11, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:12, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:13, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:14, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:15, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:16, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:17, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:18, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:19, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:20, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:21, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'},
-        {id:22, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:23, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'},
-        {id:24, anio:'2001', campeon:'Bercelona', subcampeon:'Valencia'}
-        
-    ]
+    const [keyList, setKeyList] = useState([
+        {id:1, word:'a'},
+        {id:2, word:'b'},
+        {id:3, word:'c'}
 
-
-    const datos = [
-        {id:1, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'}
-    ]
-    */
-    const [datos, setDatos] = useState([{id:1, anio:'2000', campeon:'Real madrid', subcampeon:'Valencia'}]);
+    ]);
+    
+    
 
     const columnas = [
         /*
@@ -53,20 +39,22 @@ export default function ProtocolsPage(){
         },
         */
         {
-            name:'anio',
-            selector:row => row.anio,
-            sortable:true
-        },
-        {
-            name:'campeon',
-            selector:row => row.campeon,
-            sortable:true
-        },
-        {
-            name:'subcampeon',
-            selector:row => row.subcampeon,
+            name:'Numero',
+            selector:row => row.number,
             sortable:true,
-            right:true
+            center:true
+        },
+        {
+            name:'Titulo',
+            selector:row => row.title,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Resumen',
+            selector:row => row.sumary,
+            sortable:true,
+            left:true
 
         },
         {   
@@ -84,49 +72,118 @@ export default function ProtocolsPage(){
 
     ];
     useEffect(() => {
-        //console.log('ready');    
-
+        
         axios.get(
             baseURL+'/protocolos/protocolos/'
         )
         .then(response => {
-            //console.log(response.data);
             setProtocols(response.data);
         }).catch(error => {
-    
+            setProtocols([]);
         })
-
+        
         
 
-
-    });
+    }, []);
 
     const updTable = () => {
+
         
-        console.log(protocols);
+        axios.get(
+            baseURL+'/protocolos/protocolos/'
+        )
+        .then(response => {
+            setProtocols(response.data);
+        }).catch(error => {
+            setProtocols([]);
+        })
         
+    }
+
+    const descarga = () =>{
         
+        const config = { responseType: 'blob' };
+        
+        axios.get(baseURL+'/downloadFile/',
+        config).
+        then(response => {
+
+            
+            //console.log(response);
+
+            
+            /*
+            let url = window.URL.createObjectURL(response.data);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = 'descarga.pdf';
+            a.click();
+            */
+
+
+
+            
+
+            
+            
+            
+            /*
+            console.log(response)
+            console.log(response.data)
+            */
+
+
+            var file = new Blob([response.data], {type: 'application/pdf'});
+            var fileURL = URL.createObjectURL(file);
+            window.open(fileURL);
+            //window.open(fileURL, '_blank');
+
+            //window.open(fileURL, "width=200,height=100");
+
+            /*
+            var anchor = document.createElement('a');
+            anchor.download = "descarga.pdf";
+            anchor.href = (window.webkitURL || window.URL).createObjectURL(response.data);
+            anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
+            anchor.click();
+            */
+
+            
+
+        });
+
 
     }
     const clickHandler = (id) => {
 
         console.log(id);
         
+    }
+
+    const handleClose = () =>{
+        setShow(false);
+        //console.log('cerrar')
+
+    } 
+    const handleShow = () =>{
+        setShow(true);
+
         /*
-        setDatos([
-            {id:1, anio:'2000', campeon:'Mariana', subcampeon:'Angel'},
-            {id:2, anio:'2000', campeon:'Mariana', subcampeon:'Angel'},
-            {id:3, anio:'2000', campeon:'Mariana', subcampeon:'Angel'},
-            {id:4, anio:'2000', campeon:'Mariana', subcampeon:'Angel'}
-    
-        ])
+        axios.get(
+            baseURL+'/protocolos/palabras_clave/'
+        )
+        .then(response => {
+            console.log(response.data);
+            
+        }).catch(error => {
+            
+        })
         */
 
+
         
-    
+    } 
 
-
-    }
     const paginacionOpcciones = {
         rowsPerPageText         : 'Filas por pagina',
         rangeSeparatorText      : 'de',
@@ -143,60 +200,83 @@ export default function ProtocolsPage(){
                     <div className = "title" >Protocolos registrados</div>
                 </div>
             </div>
-            {/*
-            <div>{JSON.stringify(protocols)}</div>
-            */}
+            
+            
 
                 
-            {/* 
-                <table class="table">
-                <thead>
-                    <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Numero</th>
-                    <th scope="col">Titulo</th>
-                    <th scope="col">Resumen</th>
-                    <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {protocols.map((protocol, index) =>(
-                        <tr>
-                            <th scope="row">{protocol.id}</th>
-                            <td>{protocol.number}</td>
-                            <td>{protocol.title}</td>
-                            <td>{protocol.sumary}</td>
-                            <td>
-                                
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-                </table>
-            */}
+            
 
             <div className = "table-responsive" style={{marginTop:20, marginBottom:20}}>
 
-            <DataTable
-            columns = {columnas}
-            data = {datos}
-            title = "Prueba"
-            pagination
-            paginationComponentOptions = {paginacionOpcciones}
-            fixedHeaderScrollHeight = "600px"
-            />
+                <DataTable
+                columns = {columnas}
+                data = {protocols}
+                title = ""
+                pagination
+                paginationComponentOptions = {paginacionOpcciones}
+                fixedHeaderScrollHeight = "600px"
+                />
             </div>
-
-
-            
-            
 
             <div className = "row panel-footer">
                 <div className = "col-12 d-flex justify-content-center">
                     <button onClick ={updTable} >Update</button>
+                    <button onClick ={descarga} >Descarga</button>
                 </div>
             </div>
+            
+            
+        
+            
+            
+
+            <Button className="nextButton" onClick={handleShow}>
+                Open Modal
+            </Button>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton  className = "bg-primary" >
+                <Modal.Title >
+                    <div className = "title" >Palaras clave</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col" style = {{textAlign:"center"}} >Palabra clave</th>
+                                <th scope="col" style = {{textAlign:"center"}} >Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {keyList.map((i, index) =>(
+                                <tr scope = "row" key = {index}>
+                                    <td  style = {{textAlign:"center"}}>
+                                        {i.word}
+                                    </td>
+                                    <td style = {{textAlign:"center"}}>
+                                        {i.word}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {/* 
+                    */}
+                
+                </Modal.Body>
+                <Modal.Footer className = "panel-footer">
+                    <img className="image" src={cancel} width = "30" height = "30" alt="User Icon" title= "Cerrar" />
+                </Modal.Footer>
+            </Modal>
+
+          
+
+
         </div>
+
+
+
 
 
 
