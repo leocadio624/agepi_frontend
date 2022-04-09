@@ -11,8 +11,11 @@ import {Modal, Button} from 'react-bootstrap';
 
 
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import ver from '../assetss/images/ver.png';
 import save from '../assetss/images/save-file.png';
+import folder from '../assetss/images/folder.png';
+
 import cancel from '../assetss/images/cancelar.png';
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
@@ -59,8 +62,13 @@ export default function ProtocolsPage(){
         },
         {   
             name:'Acciones',
-            cell:(row) => <img  className = "image" src = {ver} width = "30" height = "30" alt="User Icon" title= "Ver detalle" 
-                                onClick = {() => clickHandler(row.id)} id={row.id} />,
+            cell:(row) =>  <>
+                            <img  className = "image" src = {ver} width = "30" height = "30" alt="User Icon" title= "Ver detalle" 
+                                onClick = {() => watchWordsHandler(row.id)}  style = {{marginRight:7}}/>
+                            <img  className = "image" src = {folder} width = "30" height = "30" alt="User Icon" title= "Ver protocolo" 
+                                onClick = {() => watchProtocolHandler(row.fileProtocol)} id={row.id} />
+                            </> 
+                            ,
             ignoreRowClick: true,
             allowOverflow: true,
             button: true,
@@ -108,45 +116,34 @@ export default function ProtocolsPage(){
         config).
         then(response => {
 
+
             
-            //console.log(response);
+            
 
             
             /*
             let url = window.URL.createObjectURL(response.data);
             let a = document.createElement("a");
             a.href = url;
-            a.download = 'descarga.pdf';
+            a.download = 'lm555.pdf';
             a.click();
             */
 
 
 
-            
+
+           var file = new Blob([response.data], {type: 'application/pdf'});
+           var fileURL = URL.createObjectURL(file);
+           var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+           window.open(fileURL, "_blank", strWindowFeatures);
+           /*
+           */
 
             
+
             
             
-            /*
-            console.log(response)
-            console.log(response.data)
-            */
-
-
-            var file = new Blob([response.data], {type: 'application/pdf'});
-            var fileURL = URL.createObjectURL(file);
-            window.open(fileURL);
-            //window.open(fileURL, '_blank');
-
-            //window.open(fileURL, "width=200,height=100");
-
-            /*
-            var anchor = document.createElement('a');
-            anchor.download = "descarga.pdf";
-            anchor.href = (window.webkitURL || window.URL).createObjectURL(response.data);
-            anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
-            anchor.click();
-            */
+            
 
             
 
@@ -154,10 +151,81 @@ export default function ProtocolsPage(){
 
 
     }
-    const clickHandler = (id) => {
+    const watchWordsHandler = (id) => {
 
-        console.log(id);
         
+        
+        
+        axios.get(
+            baseURL+'/protocolos/palabras_clave_list/',{
+            params: {
+                'key': id
+            }
+        }
+        )
+        .then(response => {
+            //console.log(response.data)            
+            setKeyList(response.data)
+            setShow(true);
+
+        }).catch(error => {
+        
+        })
+        
+
+
+        
+        
+
+        
+
+        /*
+        axios.get(baseURL+'/protocolos/palabras_clave_list/', {
+        params: {
+            'key': 34
+        }
+        });
+        */
+
+        
+    }
+
+    const watchProtocolHandler = (pathProtocol) =>{
+
+        
+        if(pathProtocol === ''){
+            onError()
+            
+
+        }else{
+
+            const config = { responseType: 'blob' };
+            axios.post(
+            baseURL+'/downloadFile/',
+            {
+                'pathProtocol'      : pathProtocol
+            },
+            config
+            ).
+            then(response => {
+    
+                var file = new Blob([response.data], {type: 'application/pdf'});
+                var fileURL = URL.createObjectURL(file);
+                var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+                window.open(fileURL, "_blank", strWindowFeatures);
+    
+                
+                
+    
+    
+            });
+        }
+        
+        
+        
+        
+
+
     }
 
     const handleClose = () =>{
@@ -191,6 +259,24 @@ export default function ProtocolsPage(){
         selectAllRowsItemText   : 'Todos'
     }
 
+    function onError(){
+        Swal.fire({
+        title: 'Error',
+        icon: 'error',
+        html : 'Ocurri&oacute; una interrupci\u00F3n en la conexi\u00F3n, favor de reintentar la operaci\u00F3n.',
+        showCancelButton: false,
+        focusConfirm: false,
+        allowEscapeKey : false,
+        allowOutsideClick: false,
+        confirmButtonText:'Aceptar',
+        confirmButtonColor: '#39ace7',
+        preConfirm: () => {
+    
+        }
+        })
+
+    }
+
     return(
         
 
@@ -202,7 +288,7 @@ export default function ProtocolsPage(){
             </div>
             
             
-
+            <div>{JSON.stringify(protocols)}</div>
                 
             
 
