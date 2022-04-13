@@ -1,3 +1,5 @@
+import React, {useEffect} from 'react';
+
 //import {BrowserRouter as Router, Route} from 'react-router-dom';
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
@@ -27,6 +29,13 @@ import PublicRoute from './PublicRoute';
 
 
 export default function AppRouter(){
+    
+    useEffect(() => {
+        
+        //console.log('use effect');
+        
+
+    });
     return(
         
             <Router>

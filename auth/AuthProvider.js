@@ -17,7 +17,6 @@ const AuthProvider = ({children}) => {
             localStorage.remove('user');
         }
     },[user]);
-
     /*
     Nombre autor : Eduardo Bernal
     Fecha creacion : 23/03/2021
@@ -38,13 +37,17 @@ const AuthProvider = ({children}) => {
             })
             .then(response =>{
                 
-               setUser({    'token'     :response.data.token,
-                            'username'  :response.data.user.username,
-                            'email'     :response.data.user.email,
-                            'name'      :response.data.user.name,
-                            'last_name' :response.data.user.last_name
+                setUser({   'token'             :response.data.token,
+                            'refresh_token'     :response.data.refresh_token,
+                            'username'          :response.data.user.username,
+                            'email'             :response.data.user.email,
+                            'name'              :response.data.user.name,
+                            'last_name'         :response.data.user.last_name
                         })                
-    
+                
+                //console.log('token '+response.data.token);
+                //console.log('refresh token '+response.data.refresh_token);
+                        
             }).catch(error => {
                 
                 
@@ -92,6 +95,18 @@ const AuthProvider = ({children}) => {
         },
         isLogged(){
             return !!user;
+        },
+        refreshToken(token){
+
+            setUser({   
+                    'token'             :token,
+                    'refresh_token'     :user.refresh_token,
+                    'username'          :user.username,
+                    'email'             :user.email,
+                    'name'              :user.name,
+                    'last_name'         :user.last_name
+                    })
+
         }
     }
 

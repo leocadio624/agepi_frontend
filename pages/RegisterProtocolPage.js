@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import useAuth from '../auth/useAuth';
 import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -6,13 +7,12 @@ import save from '../assetss/images/save-file.png';
 import cancel from '../assetss/images/cancelar.png';
 import add from '../assetss/images/plus.png';
 
-
-
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 export default function RegisterPage(){
 
     
+    const auth = useAuth();
     const sumary = useRef();
     const countSumary = useRef();
     const file_ref = useRef();
@@ -62,16 +62,19 @@ export default function RegisterPage(){
     */
 
     useEffect(() => {
+        //auth.refreshToken();
         //updateContadorTa(sumary.current, countSumary.current, 4000);
         //setPeriod(-1);
 
-    });
+    },[]);
 
 
     /*
     const [estado, setEstado] = useState(false);
     */
         
+    
+   
     
     
 

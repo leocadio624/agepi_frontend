@@ -1,12 +1,10 @@
 import React, {useState, useEffect, useRef} from 'react';
+import useAuth from '../auth/useAuth';
 import DataTable from 'react-data-table-component';
-
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Modal, Button} from 'react-bootstrap';
-
-
-
+import { fetchWithoutToken, fetchWithToken } from "../helpers/fetch";
 
 
 
@@ -15,24 +13,32 @@ import Swal from 'sweetalert2';
 import ver from '../assetss/images/ver.png';
 import save from '../assetss/images/save-file.png';
 import folder from '../assetss/images/folder.png';
-
 import cancel from '../assetss/images/cancelar.png';
+import delete_icon from '../assetss/images/delete.png';
+
+
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
 export default function ProtocolsPage(){
 
+    const auth = useAuth();
     const [show, setShow] = useState(false);
     const [protocols, setProtocols] = useState([]);
-    const [keyList, setKeyList] = useState([
-        {id:1, word:'a'},
-        {id:2, word:'b'},
-        {id:3, word:'c'}
-
-    ]);
+    const [keyList, setKeyList] = useState([]);
     
     
-
+    /*
+    * Descripcion:	Cambia idioma del data table
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const paginacionOpcciones = {
+        rowsPerPageText         : 'Filas por pagina',
+        rangeSeparatorText      : 'de',
+        selectAllRowsItem       : true,
+        selectAllRowsItemText   : 'Todos'
+    }
     const columnas = [
         /*
         {
@@ -73,151 +79,301 @@ export default function ProtocolsPage(){
             allowOverflow: true,
             button: true,
         }
-
-        
-
-
-
     ];
+
+  
+
+    
     useEffect(() => {
+
         
-        axios.get(
-            baseURL+'/protocolos/protocolos/'
-        )
-        .then(response => {
-            setProtocols(response.data);
+        
+        //console.log('use effect');
+
+        //var token = auth.user.token;
+        /*
+        const fetchData = async () => {
+              
+            const data = await axios.get(baseURL+'/refresh-token/',{
+                                              headers: {
+                                              'Authorization': `Token ${ token }`
+                                              }
+                                            })
+            return data;
+        }
+
+        const response = fetchData()
+        console.log(response['value']);
+        */
+        
+    
+        /*
+        var user = JSON.parse(localStorage.getItem('user'));
+        console.log(user.token);
+
+
+        
+
+        
+
+        
+
+        
+        
+         
+        
+        
+        
+        axios({
+            method: 'get',
+            url: baseURL+'/protocolos/protocolos/',
+            headers: {
+                'Authorization': `Token ${ user.token }`
+            }
+        })
+        .then(response =>{
+            setProtocols(response.data);      
+            
+            
         }).catch(error => {
             setProtocols([]);
+            if(!error.status)
+            onError()
+            
+        });
+
+        
+        */
+        
+        //getResponse();
+        
+        //sendGetRequest();
+        
+
+        updTable()
+        
+
+        
+        
+
+    },[]);
+
+    const sendGetRequest = async () => {
+        try {
+            
+            var user = JSON.parse(localStorage.getItem('user'));
+            const response = await axios({
+                method: 'get',
+                url: baseURL+'/refresh-token/',
+                headers: {
+                    'Authorization': `Token ${ user.token }`
+                }
+            })
+            .then(response =>{
+                user = {    
+                        'token'     :response.data.token,
+                        'username'  :response.data.user.username,
+                        'email'     :response.data.user.email,
+                        'name'      :response.data.user.name,
+                        'last_name' :response.data.user.last_name
+                        }
+                localStorage.setItem('user', JSON.stringify(user));
+                console.log('response refresh')
+
+    
+            }).catch(error => {
+                            
+            });
+    
+            
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    
+    /*
+    * Descripcion:	Muestra lista de protocolos
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const updTable = async () => {
+
+        
+        const  user = JSON.parse(localStorage.getItem('user'));    
+        const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        const body = await response.json();
+        const token = body.access || '';
+        auth.refreshToken(token);
+        
+
+        
+        axios({
+            method: 'get',
+            url: baseURL+'/protocolos/protocolos/'
         })
-        
-        
-
-    }, []);
-
-    const updTable = () => {
-
-        
-        axios.get(
-            baseURL+'/protocolos/protocolos/'
-        )
-        .then(response => {
+        .then(response =>{
             setProtocols(response.data);
+
         }).catch(error => {
             setProtocols([]);
+            if(!error.status)
+                onError()
+                        
+        });
+
+        /*
+        axios({
+            method: 'get',
+            url: baseURL+'/protocolos/protocolos/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            }
         })
+        .then(response =>{
+            setProtocols(response.data);
+
+        }).catch(error => {
+            setProtocols([]);
+            if(!error.status)
+                onError()
+                        
+        });
+        */
+        
+        
+
+        
+
         
     }
 
-    const descarga = () =>{
-        
-        const config = { responseType: 'blob' };
-        
-        axios.get(baseURL+'/downloadFile/',
-        config).
-        then(response => {
+    /*
+    * Descripcion:	Eliminacion de palabra clave.
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const deleteWord = async (id) =>{
 
+    
+    
+        const  user = JSON.parse(localStorage.getItem('user'));    
+        const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        const body = await response.json();
+        const token = body.access || '';
+        auth.refreshToken(token);
 
+        axios({
+            method: 'delete',
+            url: baseURL+'/protocolos/palabras_clave/'+encodeURIComponent(id)+'/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            }
             
-            
-
-            
-            /*
-            let url = window.URL.createObjectURL(response.data);
-            let a = document.createElement("a");
-            a.href = url;
-            a.download = 'lm555.pdf';
-            a.click();
-            */
-
-
-
-
-           var file = new Blob([response.data], {type: 'application/pdf'});
-           var fileURL = URL.createObjectURL(file);
-           var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
-           window.open(fileURL, "_blank", strWindowFeatures);
-           /*
-           */
-
-            
-
-            
-            
+        })
+        .then(response =>{
+            Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Registro eliminado',
+            showConfirmButton: false,
+            timer: 1500
+            }).then(function() {
+                watchWordsHandler(response.data.fk_protocol);
+            })
             
 
-            
-
+        }).catch(error => {
+            if(!error.status)
+                onError()
+            onErrorMessage(error.response.data.message);
+                        
         });
 
 
-    }
-    const watchWordsHandler = (id) => {
 
+    }
+
+    /*
+    * Descripcion:	Muestra lista de palabras clave por protocolo
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const watchWordsHandler = async (id) => {
         
-        
-        
-        axios.get(
-            baseURL+'/protocolos/palabras_clave_list/',{
+
+        const  user = JSON.parse(localStorage.getItem('user'));    
+        const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        const body = await response.json();
+        const token = body.access || '';
+        auth.refreshToken(token);
+
+
+        axios({
+            method: 'get',
+            url: baseURL+'/protocolos/palabras_clave_list/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            },
             params: {
                 'key': id
             }
-        }
-        )
-        .then(response => {
-            //console.log(response.data)            
+        })
+        .then(response =>{
             setKeyList(response.data)
             setShow(true);
 
         }).catch(error => {
-        
-        })
-        
-
-
-        
-        
-
-        
-
-        /*
-        axios.get(baseURL+'/protocolos/palabras_clave_list/', {
-        params: {
-            'key': 34
-        }
+            if(!error.status)
+                onError()
+                        
         });
-        */
-
         
+                
     }
-
-    const watchProtocolHandler = (pathProtocol) =>{
+    /*
+    * Descripcion:	Descarga de protocolo en ventana emergente.
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const watchProtocolHandler = async (pathProtocol) =>{
 
         
+
+
         if(pathProtocol === ''){
             onError()
-            
 
         }else{
 
-            const config = { responseType: 'blob' };
-            axios.post(
-            baseURL+'/downloadFile/',
-            {
-                'pathProtocol'      : pathProtocol
-            },
-            config
-            ).
-            then(response => {
-    
+            const  user = JSON.parse(localStorage.getItem('user'));    
+            const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            const body = await response.json();
+            const token = body.access || '';
+            auth.refreshToken(token);
+
+
+            axios({
+                method: 'post',
+                url: baseURL+'/downloadFile/',
+                responseType: 'blob',
+                headers: {
+                    'Authorization': `Bearer ${ token }`
+                },
+                data : {
+                    'pathProtocol'      : pathProtocol
+                }
+            })
+            .then(response =>{
                 var file = new Blob([response.data], {type: 'application/pdf'});
                 var fileURL = URL.createObjectURL(file);
                 var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
                 window.open(fileURL, "_blank", strWindowFeatures);
     
-                
-                
-    
-    
+            }).catch(error => {
+                if(!error.status)
+                    onError()
+                            
             });
         }
         
@@ -228,37 +384,21 @@ export default function ProtocolsPage(){
 
     }
 
-    const handleClose = () =>{
-        setShow(false);
-        //console.log('cerrar')
-
-    } 
-    const handleShow = () =>{
-        setShow(true);
-
-        /*
-        axios.get(
-            baseURL+'/protocolos/palabras_clave/'
-        )
-        .then(response => {
-            console.log(response.data);
-            
-        }).catch(error => {
-            
-        })
-        */
+    /*
+    * Descripcion:	Despliegue y cierre de centana modal
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const handleClose = () =>{ setShow(false); } 
+    const handleShow = () =>{ setShow(true); } 
 
 
-        
-    } 
 
-    const paginacionOpcciones = {
-        rowsPerPageText         : 'Filas por pagina',
-        rangeSeparatorText      : 'de',
-        selectAllRowsItem       : true,
-        selectAllRowsItemText   : 'Todos'
-    }
-
+    /*
+    * Descripcion:	Se muestra en error 500
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
     function onError(){
         Swal.fire({
         title: 'Error',
@@ -276,6 +416,28 @@ export default function ProtocolsPage(){
         })
 
     }
+    /*
+    * Descripcion:	Se muestra en errores controlados por la API
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    function onErrorMessage(str){
+        Swal.fire({
+        title: 'Error',
+        icon: 'error',
+        html : str,
+        showCancelButton: false,
+        focusConfirm: false,
+        allowEscapeKey : false,
+        allowOutsideClick: false,
+        confirmButtonText:'Aceptar',
+        confirmButtonColor: '#39ace7',
+        preConfirm: () => {
+
+        }
+        })
+
+    }
 
     return(
         
@@ -287,8 +449,9 @@ export default function ProtocolsPage(){
                 </div>
             </div>
             
-            
+            {/*
             <div>{JSON.stringify(protocols)}</div>
+            */}
                 
             
 
@@ -306,8 +469,15 @@ export default function ProtocolsPage(){
 
             <div className = "row panel-footer">
                 <div className = "col-12 d-flex justify-content-center">
+
+                    
                     <button onClick ={updTable} >Update</button>
-                    <button onClick ={descarga} >Descarga</button>
+                    {/*
+                    <button onClick ={sendGetRequest} >sendGetRequest</button>
+                        <button onClick ={deleteWord} >deleteWord</button>
+                    */}
+                    
+                    
                 </div>
             </div>
             
@@ -315,10 +485,11 @@ export default function ProtocolsPage(){
         
             
             
-
+            {/*
             <Button className="nextButton" onClick={handleShow}>
                 Open Modal
             </Button>
+            */}
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton  className = "bg-primary" >
@@ -341,7 +512,7 @@ export default function ProtocolsPage(){
                                         {i.word}
                                     </td>
                                     <td style = {{textAlign:"center"}}>
-                                        {i.word}
+                                        <img className="image" src={delete_icon} onClick = {() => deleteWord(i.id)} width = "30" height = "30" alt="User Icon" title= "Eliminar palabra clave" />
                                     </td>
                                 </tr>
                             ))}
@@ -352,7 +523,7 @@ export default function ProtocolsPage(){
                 
                 </Modal.Body>
                 <Modal.Footer className = "panel-footer">
-                    <img className="image" src={cancel} width = "30" height = "30" alt="User Icon" title= "Cerrar" />
+                    <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" />
                 </Modal.Footer>
             </Modal>
 
