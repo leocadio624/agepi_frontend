@@ -36,17 +36,19 @@ const AuthProvider = ({children}) => {
                 }
             })
             .then(response =>{
+
                 
                 setUser({   'token'             :response.data.token,
                             'refresh_token'     :response.data.refresh_token,
+                            'id'                :response.data.user.id,
                             'username'          :response.data.user.username,
                             'email'             :response.data.user.email,
                             'name'              :response.data.user.name,
                             'last_name'         :response.data.user.last_name
                         })                
                 
-                //console.log('token '+response.data.token);
-                //console.log('refresh token '+response.data.refresh_token);
+                
+                
                         
             }).catch(error => {
                 
@@ -96,16 +98,66 @@ const AuthProvider = ({children}) => {
         isLogged(){
             return !!user;
         },
+        /*
+        * Descripcion:	Actualiza el token de acceso en el estado y local storage
+        * Fecha de la creacion:		13/04/2022
+        * Author:					Eduardo B 
+        */
         refreshToken(token){
 
             setUser({   
                     'token'             :token,
                     'refresh_token'     :user.refresh_token,
+                    'id'                :user.id,
                     'username'          :user.username,
                     'email'             :user.email,
                     'name'              :user.name,
                     'last_name'         :user.last_name
                     })
+
+        },
+        /*
+        * Descripcion:	Se muestra en error 500
+        * Fecha de la creacion:		08/04/2022
+        * Author:					Eduardo B 
+        */
+        onError(){
+            Swal.fire({
+            title: 'Error',
+            icon: 'error',
+            html : 'Ocurri&oacute; una interrupci\u00F3n en la conexi\u00F3n, favor de reintentar la operaci\u00F3n.',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+        
+            }
+            })
+
+        },
+        /*
+        * Descripcion:	Se muestra en errores controlados por la API
+        * Fecha de la creacion:		08/04/2022
+        * Author:					Eduardo B 
+        */
+        onErrorMessage(str){
+            Swal.fire({
+            title: 'Error',
+            icon: 'error',
+            html : str,
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+
+            }
+            })
 
         }
     }

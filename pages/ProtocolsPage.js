@@ -1,15 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react';
-import useAuth from '../auth/useAuth';
 import DataTable from 'react-data-table-component';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Modal, Button} from 'react-bootstrap';
-import { fetchWithoutToken, fetchWithToken } from "../helpers/fetch";
+import Swal from 'sweetalert2';
 
 
 
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import useAuth from '../auth/useAuth';
+import { fetchWithoutToken, fetchWithToken } from "../helpers/fetch";
+
+
 import ver from '../assetss/images/ver.png';
 import save from '../assetss/images/save-file.png';
 import folder from '../assetss/images/folder.png';
@@ -86,112 +88,12 @@ export default function ProtocolsPage(){
     
     useEffect(() => {
 
-        
-        
-        //console.log('use effect');
-
-        //var token = auth.user.token;
-        /*
-        const fetchData = async () => {
-              
-            const data = await axios.get(baseURL+'/refresh-token/',{
-                                              headers: {
-                                              'Authorization': `Token ${ token }`
-                                              }
-                                            })
-            return data;
-        }
-
-        const response = fetchData()
-        console.log(response['value']);
-        */
-        
-    
-        /*
-        var user = JSON.parse(localStorage.getItem('user'));
-        console.log(user.token);
-
-
-        
-
-        
-
-        
-
-        
-        
-         
-        
-        
-        
-        axios({
-            method: 'get',
-            url: baseURL+'/protocolos/protocolos/',
-            headers: {
-                'Authorization': `Token ${ user.token }`
-            }
-        })
-        .then(response =>{
-            setProtocols(response.data);      
-            
-            
-        }).catch(error => {
-            setProtocols([]);
-            if(!error.status)
-            onError()
-            
-        });
-
-        
-        */
-        
-        //getResponse();
-        
-        //sendGetRequest();
-        
-
         updTable()
         
-
         
-        
-
     },[]);
 
-    const sendGetRequest = async () => {
-        try {
-            
-            var user = JSON.parse(localStorage.getItem('user'));
-            const response = await axios({
-                method: 'get',
-                url: baseURL+'/refresh-token/',
-                headers: {
-                    'Authorization': `Token ${ user.token }`
-                }
-            })
-            .then(response =>{
-                user = {    
-                        'token'     :response.data.token,
-                        'username'  :response.data.user.username,
-                        'email'     :response.data.user.email,
-                        'name'      :response.data.user.name,
-                        'last_name' :response.data.user.last_name
-                        }
-                localStorage.setItem('user', JSON.stringify(user));
-                console.log('response refresh')
 
-    
-            }).catch(error => {
-                            
-            });
-    
-            
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    
     /*
     * Descripcion:	Muestra lista de protocolos
     * Fecha de la creacion:		08/04/2022
@@ -200,29 +102,15 @@ export default function ProtocolsPage(){
     const updTable = async () => {
 
         
+        
         const  user = JSON.parse(localStorage.getItem('user'));    
         const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         const body = await response.json();
         const token = body.access || '';
         auth.refreshToken(token);
-        
 
         
-        axios({
-            method: 'get',
-            url: baseURL+'/protocolos/protocolos/'
-        })
-        .then(response =>{
-            setProtocols(response.data);
-
-        }).catch(error => {
-            setProtocols([]);
-            if(!error.status)
-                onError()
-                        
-        });
-
-        /*
+        
         axios({
             method: 'get',
             url: baseURL+'/protocolos/protocolos/',
@@ -232,20 +120,14 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
             setProtocols(response.data);
-
+            
         }).catch(error => {
             setProtocols([]);
             if(!error.status)
-                onError()
-                        
+                auth.onError()
+            
         });
-        */
-        
-        
-
-        
-
-        
+            
     }
 
     /*
@@ -285,10 +167,12 @@ export default function ProtocolsPage(){
 
         }).catch(error => {
             if(!error.status)
-                onError()
-            onErrorMessage(error.response.data.message);
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
                         
         });
+
+        
 
 
 
@@ -325,7 +209,7 @@ export default function ProtocolsPage(){
 
         }).catch(error => {
             if(!error.status)
-                onError()
+                auth.onError();
                         
         });
         
@@ -342,7 +226,7 @@ export default function ProtocolsPage(){
 
 
         if(pathProtocol === ''){
-            onError()
+            auth.onError();
 
         }else{
 
@@ -372,7 +256,7 @@ export default function ProtocolsPage(){
     
             }).catch(error => {
                 if(!error.status)
-                    onError()
+                    auth.onError();
                             
             });
         }
@@ -392,52 +276,6 @@ export default function ProtocolsPage(){
     const handleClose = () =>{ setShow(false); } 
     const handleShow = () =>{ setShow(true); } 
 
-
-
-    /*
-    * Descripcion:	Se muestra en error 500
-    * Fecha de la creacion:		08/04/2022
-    * Author:					Eduardo B 
-    */
-    function onError(){
-        Swal.fire({
-        title: 'Error',
-        icon: 'error',
-        html : 'Ocurri&oacute; una interrupci\u00F3n en la conexi\u00F3n, favor de reintentar la operaci\u00F3n.',
-        showCancelButton: false,
-        focusConfirm: false,
-        allowEscapeKey : false,
-        allowOutsideClick: false,
-        confirmButtonText:'Aceptar',
-        confirmButtonColor: '#39ace7',
-        preConfirm: () => {
-    
-        }
-        })
-
-    }
-    /*
-    * Descripcion:	Se muestra en errores controlados por la API
-    * Fecha de la creacion:		08/04/2022
-    * Author:					Eduardo B 
-    */
-    function onErrorMessage(str){
-        Swal.fire({
-        title: 'Error',
-        icon: 'error',
-        html : str,
-        showCancelButton: false,
-        focusConfirm: false,
-        allowEscapeKey : false,
-        allowOutsideClick: false,
-        confirmButtonText:'Aceptar',
-        confirmButtonColor: '#39ace7',
-        preConfirm: () => {
-
-        }
-        })
-
-    }
 
     return(
         
@@ -465,6 +303,7 @@ export default function ProtocolsPage(){
                 paginationComponentOptions = {paginacionOpcciones}
                 fixedHeaderScrollHeight = "600px"
                 />
+                
             </div>
 
             <div className = "row panel-footer">

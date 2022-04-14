@@ -25,10 +25,7 @@ export default function RegisterPage(){
         file        : ''
     })
 
-    /*
-    */
-
-
+    
     const [period, setPeriod] = useState(-1);
     const [typeRegister, setTypeRegister] = useState(-1);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -39,43 +36,12 @@ export default function RegisterPage(){
     
     
 
-    
-            
-    
-    
-
-    //const {register, handleSubmit} = useForm();
-
-   
-
-    /*
     useEffect(() => {
-        (async () =>{
-            console.log('use effect')
-            return;
-            
-        })();
         
-        
-        
-    },[estado]);
-    */
-
-    useEffect(() => {
-        //auth.refreshToken();
-        //updateContadorTa(sumary.current, countSumary.current, 4000);
-        //setPeriod(-1);
-
     },[]);
 
 
-    /*
-    const [estado, setEstado] = useState(false);
-    */
         
-    
-   
-    
     
 
 
