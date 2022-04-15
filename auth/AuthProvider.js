@@ -146,7 +146,7 @@ const AuthProvider = ({children}) => {
         onErrorMessage(str){
             Swal.fire({
             title: 'Error',
-            icon: 'error',
+            icon: 'warning',
             html : str,
             showCancelButton: false,
             focusConfirm: false,
