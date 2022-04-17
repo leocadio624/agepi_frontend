@@ -42,7 +42,9 @@ export default function Navbar(){
                         {auth.isLogged() && (
                         <>
                         
-
+                            <li className = "nav-item">
+                                <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
+                            </li>
                             <li className = "nav-item">
                                 <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
                             </li>

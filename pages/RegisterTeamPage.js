@@ -5,8 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Modal} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 
-
-
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
@@ -18,7 +16,6 @@ import check from '../assetss/images/comprobado.png';
 import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import edit_icon from '../assetss/images/lapiz.png';
-
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
@@ -82,7 +79,7 @@ export default function RegisterTeam(){
         },
         {
             name:'Integrantes',
-            selector:row => 0,
+            selector:row => row.integrantes,
             sortable:true,
             left:true
 
@@ -114,7 +111,6 @@ export default function RegisterTeam(){
     */
     const updTableTeam = async () => {
 
-    
         const  user = JSON.parse(localStorage.getItem('user'));    
         var response = null;
         try {
@@ -153,17 +149,6 @@ export default function RegisterTeam(){
 
             
     }
-
-    
-
-
-
-
-    
-
-
-    
-
     /*
     * Descripcion:	Borra el equipo
     * Fecha de la creacion:		13/04/2022
@@ -214,21 +199,13 @@ export default function RegisterTeam(){
             
 
         });
-        
-
-
-
-
     }
-
     /*
     * Descripcion:	Edita el nombre del equipo
     * Fecha de la creacion:		13/04/2022
     * Author:					Eduardo B 
     */
     const editTeamHandler = async (id) =>{
-
-        
 
         const  user = JSON.parse(localStorage.getItem('user'));    
         var response = null;
@@ -339,8 +316,6 @@ export default function RegisterTeam(){
     */
     const handleUpdate = async () =>{
 
-        
-        
         if(datos.name_team.trim() === ''){
             setEstado(true);
             return;
@@ -357,10 +332,7 @@ export default function RegisterTeam(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-        
-        
-        
-        
+            
         let team = teams[0];
         axios({
             method: 'put',
