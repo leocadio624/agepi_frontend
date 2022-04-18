@@ -346,23 +346,34 @@ export default function ComunidadPage(){
         .then(response =>{
 
             
-            Swal.fire({
-            icon: 'success',
-            html : response.data.message,
-            showCancelButton: false,
-            focusConfirm: false,
-            allowEscapeKey : false,
-            allowOutsideClick: false,
-            confirmButtonText:'Aceptar',
-            confirmButtonColor: '#39ace7',
-            preConfirm: () => {
-                
-                loadAlumnos();
-                resetFormAlumn();
+            if(response.status === 226 && response.data.campo === 'email' ){
+                setEstado({error:true, message_error:response.data.message});
+                email_al.current.focus();
 
+            }else if(response.status === 226 && response.data.campo === 'boleta'){
+                setEstado({error:true, message_error:response.data.message});
+                boleta.current.focus();
 
+            }else{
+
+                Swal.fire({
+                icon: 'success',
+                html : response.data.message,
+                showCancelButton: false,
+                focusConfirm: false,
+                allowEscapeKey : false,
+                allowOutsideClick: false,
+                confirmButtonText:'Aceptar',
+                confirmButtonColor: '#39ace7',
+                preConfirm: () => {
+                    
+                    loadAlumnos();
+                    resetFormAlumn();
+    
+    
+                }
+                })
             }
-            })
             
             
                  
@@ -387,6 +398,7 @@ export default function ComunidadPage(){
     const resetFormAlumn = () => {
         setAlumno({'id':0, 'boleta':'', 'email_al':'', 'programa':-1});
         setEditAlum(false);
+        setEstado({error:false, message_error:''});
     }
     /*
     * Descripcion:	Setea alumno en formulario desde tabla
@@ -395,8 +407,9 @@ export default function ComunidadPage(){
     */
     const setAlumnForm = (id, boleta, email, programa) => {
 
-        setAlumno({'id':id, 'boleta':boleta, 'email_al':email, 'programa':programa}); 
         setEditAlum(true);
+        setAlumno({'id':id, 'boleta':boleta, 'email_al':email, 'programa':programa});
+        
 
     }
     /*
@@ -537,17 +550,28 @@ export default function ComunidadPage(){
         })
         .then(response =>{
 
+            if(response.status === 226 && response.data.campo === 'email' ){
+                setEstado({error:true, message_error:response.data.message});
+                email_al.current.focus();
+
+            }else if(response.status === 226 && response.data.campo === 'boleta'){
+                setEstado({error:true, message_error:response.data.message});
+                boleta.current.focus();
+
+            }else{
+                Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: response.data.message,
+                showConfirmButton: false,
+                timer: 1500
+                }).then(function() {
+                    loadAlumnos();
+                    resetFormAlumn();
+                })
+            }
             
-            Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: response.data.message,
-            showConfirmButton: false,
-            timer: 1500
-            }).then(function() {
-                loadAlumnos();
-                resetFormAlumn();
-            })
+            
 
                  
         }).catch(error => {
@@ -555,10 +579,7 @@ export default function ComunidadPage(){
             resetFormAlumn();
             if(!error.status)
                 auth.onError()
-            auth.onErrorMessage(error.response.data.message);
-            
-            
-            
+                
         });
 
 
@@ -594,7 +615,7 @@ export default function ComunidadPage(){
                             <div className = "label-form" >Boleta</div>
                         </div>
                         <div className = "col-lg-4 col-md-4 col-sm-6"> 
-                            <input className = "form-control" type="text" ref = {boleta} name = "boleta" value = {alumno.boleta} placeholder = "N&uacute;mero de boleta" onChange = {handleInputChange} />
+                            <input className = "form-control" type="text" ref = {boleta} name = "boleta" value = {alumno.boleta} placeholder = "N&uacute;mero de boleta" onChange = {handleInputChange} disabled = {editAlum} />
                         </div>
                         <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                             <div className = "label-form" >Correo electr&oacute;nico</div>
