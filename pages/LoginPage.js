@@ -67,7 +67,7 @@ export default function LoginPage(){
 
                 {estado.error === true &&
                     <div className = "alert alert-danger" role="alert" >
-                        {estado.message_error}  
+                        {estado.message_error}
                     </div>
                 }
             </div>
