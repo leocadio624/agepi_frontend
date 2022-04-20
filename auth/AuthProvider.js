@@ -1,9 +1,12 @@
 import {createContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-const baseURL = `${process.env.REACT_APP_API_URL}`;
 
+
+
+const baseURL = `${process.env.REACT_APP_API_URL}`;
 export const AuthContext = createContext();
+
 
 const AuthProvider = ({children}) => {
     const [user, setUser] = useState(
@@ -12,6 +15,7 @@ const AuthProvider = ({children}) => {
     useEffect(() => {
         try{
             localStorage.setItem('user', JSON.stringify(user));
+            
 
         }catch(error){
             localStorage.remove('user');
@@ -42,10 +46,13 @@ const AuthProvider = ({children}) => {
                             'refresh_token'     :response.data.refresh_token,
                             'id'                :response.data.user.id,
                             'username'          :response.data.user.username,
+                            'rol_user'          :response.data.user.rol_user,
+                            'is_staff'          :response.data.user.is_staff,
                             'email'             :response.data.user.email,
                             'name'              :response.data.user.name,
                             'last_name'         :response.data.user.last_name
-                        })                
+                        })
+                
                 
                 
                 
@@ -98,18 +105,72 @@ const AuthProvider = ({children}) => {
         isLogged(){
             return !!user;
         },
+        is_Staff(){
+
+            //return '/';
+
+            try{
+                if(user.is_staff)
+                    return '/comunidad';
+                else
+                    return '/activar_usuario';
+            }catch(error){
+                return '/activar_usuario';
+            }
+          
+        },
+        is_active(){
+            //return user.is_staff;
+
+            //console.log('is_active');
+
+            try{
+                return user.is_staff;
+            }catch(error){
+                return false;
+            }
+            
+        },
+        getRolUser(){
+
+            
+            try{
+                return user.rol_user;
+            }catch(error){
+                return 0;
+            }
+            
+            
+
+            
+
+            /*
+            console.log(user.is_staff);
+            
+
+            if(user.staff == true)
+                return '/comunidad';
+            else
+                return '/activar_usuario';
+            
+            else
+                return '/activar_usuario';
+            */
+        },
         /*
         * Descripcion:	Actualiza el token de acceso en el estado y local storage
         * Fecha de la creacion:		13/04/2022
         * Author:					Eduardo B 
         */
         refreshToken(token){
-
+            
             setUser({   
                     'token'             :token,
                     'refresh_token'     :user.refresh_token,
                     'id'                :user.id,
                     'username'          :user.username,
+                    'rol_user'          :user.rol_user,
+                    'is_staff'          :user.is_staff,
                     'email'             :user.email,
                     'name'              :user.name,
                     'last_name'         :user.last_name

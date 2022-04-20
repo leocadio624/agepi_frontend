@@ -88,7 +88,9 @@ export default function ProtocolsPage(){
     
     useEffect(() => {
 
-        updTable()
+        
+        
+        //updTable()
         
         
     },[]);
@@ -102,11 +104,23 @@ export default function ProtocolsPage(){
     const updTable = async () => {
 
         
-        
+        /*
         const  user = JSON.parse(localStorage.getItem('user'));    
         const response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         const body = await response.json();
         const token = body.access || '';
+        auth.refreshToken(token);
+        */
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
         auth.refreshToken(token);
 
         

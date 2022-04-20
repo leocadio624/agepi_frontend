@@ -15,9 +15,6 @@ export default function Navbar(){
                 <div className = "navbar-header">
                     <ul className = "navbar-nav">
                         <li className = "nav-item" >
-                            {/* 
-                            <img src = {require('/home/hsu/Documentos/entornos_virtuales/react_front/aplicacion/src/assetss/images/log.png')} alt="" width="30" height="24" />
-                            */}
                             <NavLink exact to = "/" className = "nav-link logo" activeClassName = "active" >
                                 <img src={logo} width = "40" height = "40" alt="User Icon" />
                                 AGEPI
@@ -28,69 +25,105 @@ export default function Navbar(){
 
                 <div className="collapse navbar-collapse justify-content-end" id="navbarNav" >
                     <ul className = "navbar-nav">
-                        {!auth.isLogged() && (
-                            <>
+
+                        
+
+                        
+                        
+                        {!auth.isLogged() &&
+                        <>
                             <li className = "nav-item">
                                 <NavLink exact to = "/iniciar_sesion" className = "nav-link" activeClassName = "active" ><span className = "glyphicon glyphicon-user"></span>Iniciar sesion</NavLink>
                             </li>
                             <li className = "nav-item" >
                                 <NavLink exact to = "/registrarce" className = "nav-link" activeClassName = "active" >Registrarce</NavLink>                                
                             </li>
-                            </>
-                        )}
-                    
-                        {auth.isLogged() && (
-                        <>
-                        
-                            <li className = "nav-item">
-                                <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
-                            </li>
-                            <li className = "nav-item">
-                                <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
-                            </li>
-                            <li className = "nav-item">
-                                <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
-                            </li>
-                            <li className = "nav-item">
-                                <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
-                            </li>
-                            <li className = "nav-item">
-                                <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
-                            </li>
-                            <li className = "nav-item" >
-                                <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
-                            </li>
-                            <li className = "nav-item" >
-                                <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
-                            </li>
-                            <li className = "nav-item" >
-                                <NavLink exact to = "/validar_firmas" className = "nav-link" activeClassName = "active" >Validar firmas</NavLink>
-                            </li>
-                            
-                            <li className = "nav-item dropdown" >
-                                <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Opcciones
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <li>
-                                        <div className = "dropdown-item">
-                                            Salir
-                                        </div>
-                                    </li>
-                                </ul>
-
-                                <button onClick = {auth.logout}>Logout</button>
-                            </li>
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
-                            &nbsp;
                         </>
-                        )}
+                        }
+                        {auth.isLogged() && 
+                        <>  
+                            {/*
+                            <div>{JSON.stringify(auth.user.is_staff)}</div>
+                            */}
+                            {auth.user.is_staff === true && 
+                            <>
+                            
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
+                                </li>
+
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
+                                
+                                </li>
+                                
+
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
+                                </li>
+                                <li className = "nav-item" >
+                                    <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
+                                </li>
+                                <li className = "nav-item" >
+                                    <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
+                                </li>
+                                <li className = "nav-item" >
+                                    <NavLink exact to = "/validar_firmas" className = "nav-link" activeClassName = "active" >Validar firmas</NavLink>
+                                </li>
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
+                                </li>
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
+                                </li>
+                                <li className = "nav-item dropdown" style = {{marginRight:45}} >
+                                    <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Opcciones
+                                    </a>
+                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <li>
+                                            <div className = "dropdown-item" onClick = {auth.logout}>
+                                                Mi perfil
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div className = "dropdown-item" onClick = {auth.logout}>
+                                                Salir
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                            </>
+                            }
+                            {auth.user.is_staff === false && 
+                            <>
+                            
+                                <li className = "nav-item">
+                                    <NavLink exact to = "/activar_usuario" className = "nav-link" activeClassName = "active" >Activar usuario</NavLink>
+                                </li>
+                                <li className = "nav-item dropdown" style = {{marginRight:45}} >
+                                    <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Opcciones
+                                    </a>
+                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <li>
+                                            <div className = "dropdown-item" onClick = {auth.logout}>
+                                                Salir
+                                            </div>
+                                            </li>
+                                    </ul>
+                                </li>
+                                <button onClick = {auth.logout} >cerrar</button>
+
+                            </>
+                            }
+
+                        
+                            
+
+                        </>
+                        }
                     </ul>
                 </div>
             </div>

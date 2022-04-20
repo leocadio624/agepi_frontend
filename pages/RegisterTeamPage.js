@@ -111,16 +111,19 @@ export default function RegisterTeam(){
     */
     const updTableTeam = async () => {
 
-        const  user = JSON.parse(localStorage.getItem('user'));    
-        var response = null;
-        try {
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        //console.log(user);
+        //return;
+
+        let response = null;
+        try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         }catch(error){
             if(!error.status)
                 auth.onError()
         }
         const body = await response.json();
-        const token = body.access || '';
+        const  token = body.access || '';
         auth.refreshToken(token);
 
         

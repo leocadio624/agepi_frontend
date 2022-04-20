@@ -2,16 +2,20 @@ import React, {useState, useEffect} from 'react';
 import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useHistory } from 'react-router-dom';
+
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
-export default function RegisterPage(){
 
+export default function RegisterPage(){
+    
+    const history = useHistory();
     const [datos, setDatos] = useState({
-        name:'',
-        lastname:'',
-        email:'',
-        password:'',
-        confirm_password:''  
+        nombre:'',
+        apellidos:'',
+        correo:'',
+        pass:'',
+        confirm_pass:''  
     })
     
     const [estado, setEstado] = useState({
@@ -28,66 +32,96 @@ export default function RegisterPage(){
         })
         setEstado({error:false, message_error:''});
         
+        
     }
 
 
     const registarUsuario = (event) => {
+
+        history.push('/iniciar_sesion');
+        return;
+
+
         event.preventDefault();
 
-    
-        var is_student = false;
-        var is_employe = false;
+        let is_student = false;
+        let is_employe = false;
+        let rol_user = 0;
         
-        var RegExPatternProfesor = /^[\w-\.]{3,}@ipn\.mx$/;
-        var RegExPatternAlumno = /^[\w-\.]{3,}@alumno.ipn\.mx$/;
+        let RegExPatternProfesor = /^[\w-\.]{3,}@ipn\.mx$/;
+        let RegExPatternAlumno = /^[\w-\.]{3,}@alumno.ipn\.mx$/;
         
 
         
-        if( datos.name.trim() === '' ){
+        if( datos.nombre.trim() === '' ){
             setEstado({error:true, message_error:'Ingrese su nombre completo'});
             return;
-        }else if( datos.lastname.trim() === '' ){
+        }else if( datos.apellidos.trim() === '' ){
             setEstado({error:true, message_error:'Ingrese sus apellidos'});
             return;
-        }else if( datos.email.trim() === '' ){
+        }else if( datos.correo.trim() === '' ){
             setEstado({error:true, message_error:'Ingrese su correo electr\u00F3nico institucional'});
             return;
-        }else if( (datos.email).match(RegExPatternProfesor) == null && (datos.email).match(RegExPatternAlumno) == null ){
+        }else if( (datos.correo).match(RegExPatternProfesor) == null && (datos.correo).match(RegExPatternAlumno) == null ){
             setEstado({error:true, message_error:'El correo electr\u00F3nico proporcionado no es un correo institucional'});
             return;
-        }else if( datos.password.trim() === '' ){
+        }else if( datos.pass.trim() === '' ){
             setEstado({error:true, message_error:'Ingrese una contrase\u00F1a'});
             return;
-        }else if( datos.confirm_password.trim() === '' ){
+        }else if( datos.confirm_pass.trim() === '' ){
             setEstado({error:true, message_error:'Confirme su contrase\u00F1a'});
             return;
-        }else if( datos.password !== datos.confirm_password ){
+        }else if( datos.pass !== datos.confirm_pass ){
             setEstado({error:true, message_error:'Las contrase\u00F1as no coinciden'});
             return;
         }
         
 
 
-        is_student = Array.isArray( datos.email.match(RegExPatternAlumno) ) ? true : false;
+        is_student = Array.isArray( datos.correo.match(RegExPatternAlumno) ) ? true : false;
         is_employe = !is_student;
+        rol_user = is_student ? 1 : 2;
+        
+
 
         axios.post(
             baseURL+'/usuario/usuario/',
             {
-            "password"      : datos.password,
+            "password"      : datos.pass,
             "is_superuser"  : true,
-            "username"      : datos.email,
-            "email"         : datos.email,
-            "name"          : datos.name,
-            "last_name"     : datos.lastname,
+            "username"      : datos.correo,
+            "email"         : datos.correo,
+            "name"          : datos.nombre,
+            "last_name"     : datos.apellidos,
             "is_student"    : is_student,
             "is_employe"    : is_employe,
             "is_active"     : true,
-            "is_staff"      : true
+            "is_staff"      : false,
+            "rol_user"      : rol_user
             }
         )
         .then(response => {
 
+            if(response.status === 206 || response.status === 226){
+                setEstado({error:true, message_error:response.data.message});
+            }else if(response.status === 201){
+                
+                Swal.fire({
+                icon: 'success',
+                html : response.data.message,
+                showCancelButton: false,
+                focusConfirm: false,
+                allowEscapeKey : false,
+                allowOutsideClick: false,
+                confirmButtonText:'Aceptar',
+                confirmButtonColor: '#39ace7',
+                preConfirm: () => {
+                    
+                }
+                })
+
+            }
+            /*
             if(response.status === 200){
                 Swal.fire({
                 icon: 'success',
@@ -118,6 +152,7 @@ export default function RegisterPage(){
                 })
 
             }
+            */
             
 
         }).catch(error => {
@@ -168,18 +203,16 @@ export default function RegisterPage(){
                     <img src={logo} width = "50" height = "50" alt="User Icon" />
                     <br/>
                 </div>
-                <form onSubmit = {registarUsuario} >
+                <form onSubmit = {registarUsuario}  >
                     
-                    
-                    <input type="text" className="entry_text fadeIn first" name="name"  placeholder="Nombre completo" onChange = {handleInputChange} />
-                    <input type="text" className="entry_text fadeIn second" name="lastname"  placeholder="Apellidos" onChange = {handleInputChange} />
-                    <input type="text" className="entry_text fadeIn second" name="email"  placeholder="Correo electr&oacute;nico institucional" onChange = {handleInputChange} />
-                    <input type="password" className="entry_psw fadeIn third" name="password" placeholder="Contrase&ntilde;a" onChange = {handleInputChange} />
-                    <input type="password" className="entry_psw fadeIn third" name="confirm_password" placeholder="Confirmaci&oacute;n contrase&ntilde;a" onChange = {handleInputChange} />
-
+                    <input type="text" className="entry_text fadeIn first" name="nombre"  placeholder="Nombre completo" onChange = {handleInputChange} />
+                    <input type="text" className="entry_text fadeIn second" name="apellidos"  placeholder="Apellidos" onChange = {handleInputChange} />
+                    <input type="text" className="entry_text fadeIn second"  name="correo"  placeholder="Correo electr&oacute;nico institucional" onChange = {handleInputChange} />
+                    <input type="password" className="entry_psw fadeIn third" name="pass" placeholder="Contrase&ntilde;a" onChange = {handleInputChange} />
+                    <input type="password" className="entry_psw fadeIn third" name="confirm_pass" placeholder="Confirmaci&oacute;n contrase&ntilde;a" onChange = {handleInputChange} />
                     <input type="submit" className="fadeIn fourth" value="Registrarce"  /> 
                     
-
+                    
                 </form>
 
                 {estado.error === true &&

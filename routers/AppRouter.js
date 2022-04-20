@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 
 //import {BrowserRouter as Router, Route} from 'react-router-dom';
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import useAuth from '../auth/useAuth';
 
 import Home from '../pages/HomePage';
 import NotFound from '../pages/NotFoundPage';
@@ -10,10 +11,9 @@ import Register from '../pages/RegisterPage';
 
 
 //import Notifications from '../components/NotificationsPage';
-//import ProtocolState from '../components/ProtocolStatePage';
+import ProtocolState from '../pages/ProtocolStatePage';
 
 import Comunidad from '../pages/ComunidadPage';
-
 import RegisterSign from '../pages/RegisterSignPage';
 import Protocols from '../pages/ProtocolsPage';
 import RegisterProtocol from '../pages/RegisterProtocolPage';
@@ -21,6 +21,7 @@ import RegisterTeam from '../pages/RegisterTeamPage';
 import SigningRequest from '../pages/SigningRequestPage';
 import Team from '../pages/TeamPage';
 import ValidateSigns from '../pages/ValidateSignsPage';
+import Activate from '../pages/ActivatePage';
 
 
 
@@ -28,15 +29,30 @@ import Navbar from '../components/Navbar';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 
+//import ResponsableRoute from './ResponsableRoute';
+
+
+
+
+
 
 
 
 
 export default function AppRouter(){
-    
+
+    const auth = useAuth();
+    /*
+    try{
+        console.log(auth.user.is_staff);
+
+    }catch(error){
+    }
+    */
+
+
     useEffect(() => {
-        
-        //console.log('use effect');
+        console.log(auth.user);
         
 
     });
@@ -46,7 +62,7 @@ export default function AppRouter(){
                 <Navbar />
                 <Switch>
                     
-                    {/* 
+                    {/*
 
                     <Route exact path = "/profile/:username"  component = {profile}/>
                     <Route exact path = "/categories"  component = {categories}/>
@@ -65,11 +81,11 @@ export default function AppRouter(){
                     <PublicRoute exact path = "/" component = {Home} />
                     <PublicRoute exact path = "/iniciar_sesion"  component = {Login} />
                     <PublicRoute exact path = "/registrarce"  component = {Register} />
-                    {/*
-                    <PrivateRoute exact path = "/notificaciones"  component = {Notifications}/>
-                    <PrivateRoute exact path = "/estado_protocolo"  component = {ProtocolState} />
-                    */}
+
                     
+                    {/*
+                    
+                    <PrivateRoute exact path = "/estado_protocolo"  component = {ProtocolState} />
                     <PrivateRoute exact path = "/comunidad"  component = {Comunidad} />
                     <PrivateRoute exact path = "/registar_firma"  component = {RegisterSign} />
                     <PrivateRoute exact path = "/protocolos"  component = {Protocols}/>
@@ -78,9 +94,24 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/solicitudes_firma"  component = {SigningRequest}/>
                     <PrivateRoute exact path = "/equipo"  component = {Team}/>
                     <PrivateRoute exact path = "/validar_firmas"  component = {ValidateSigns}/>
+                
+                    <PrivateRoute exact path = "/activar_usuario"  component = {Activate}/>
+                    */}
+                    
+                    {/*
+                    <ResponsableRoute exact path = "/activar_usuario"  component = {Activate}/>
+                    */}
+                        
+
+                    
+    
+                    
+                    
                     <Route path = "*" component = {NotFound} />
                     
                 </Switch>
+                
+
             </Router>
 
 
