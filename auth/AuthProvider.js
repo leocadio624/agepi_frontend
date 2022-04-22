@@ -108,29 +108,47 @@ const AuthProvider = ({children}) => {
         isLoggedPriv(path){
 
             let pertenece = false;
-            const pathsAlumno = ['/equipo', '/registrar_equipo', '/protocolos', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma'];
-            const pathsCat = ['/comunidad'];
+            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma'];
+            const pathsCat = ['/protocolos','/comunidad'];
+
+            const paths = ['/activar_usuario'];
 
             if( user === null)
                 return false;
 
+            
+            if(user.is_staff === false && paths.includes(path) )
+                pertenece = true;
+            else
+                pertenece = false;
+            
+                
 
-            if(user.rol_user === 1)
+
+            if(user.is_staff === true && user.rol_user === 1)
                 pertenece = pathsAlumno.includes(path);
-            else if(user.rol_user === 3)
+            else if(user.is_staff === true && user.rol_user === 3)
                 pertenece = pathsCat.includes(path);
             
-            
+
             return !!user && pertenece;
         },
         startRedirect(){
 
+            /*
+            console.log(user.is_staff)
+            console.log(user.rol_user)
+
+            return '/activar_usuario';
+        
+            */
+
             try{
                 if(user.is_staff){
                     if(user.rol_user === 1 || user.rol_user === 2 )
-                    return '/equipo';
-                    if(user.rol_user === 3 || user.rol_user === 4 )
-                    return '/comunidad';
+                        return '/equipo';
+                    else if(user.rol_user === 3 || user.rol_user === 4 )
+                        return '/comunidad';
                 }
                 else
                     return '/activar_usuario';

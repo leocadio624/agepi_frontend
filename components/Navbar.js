@@ -59,10 +59,6 @@ export default function Navbar(){
                                         <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
                                     </li>
                                     <li className = "nav-item">
-                                    <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
-                                    </li>
-
-                                    <li className = "nav-item">
                                         <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
                                     </li>
                                     <li className = "nav-item" >
@@ -89,9 +85,7 @@ export default function Navbar(){
                                     <li className = "nav-item">
                                         <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
                                     </li>
-                                    <li className = "nav-item">
-                                    <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
-                                    </li>
+                                    
                                     <li className = "nav-item">
                                         <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
                                     </li>
@@ -110,10 +104,15 @@ export default function Navbar(){
 
                                 {/*Responsable catt*/}
                                 {auth.user.rol_user === 3 && 
+                                    <>
                                     <li className = "nav-item">
                                         <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
                                     </li>
-                                
+                                    <li className = "nav-item">
+                                    <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
+                                    </li>
+
+                                    </>
                                 }
                                 
                                 
@@ -152,10 +151,10 @@ export default function Navbar(){
                                             <div className = "dropdown-item" onClick = {auth.logout}>
                                                 Salir
                                             </div>
-                                            </li>
+                                        </li>
                                     </ul>
                                 </li>
-                                <button onClick = {auth.logout} >cerrar</button>
+                                
 
                             </>
                             }

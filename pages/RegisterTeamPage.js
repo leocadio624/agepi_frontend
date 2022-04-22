@@ -35,6 +35,7 @@ export default function RegisterTeam(){
 
     useEffect(() => {
         updTableTeam();
+        //loadTables();
         
     },[]);
 
@@ -151,6 +152,52 @@ export default function RegisterTeam(){
         });
 
             
+    }
+    /*
+    * Descripcion:	Refresca tabla de alumnos y profesores
+    * Fecha de la creacion:		17/04/2022
+    * Author:					Eduardo B 
+    */
+    const alumnostb = async () =>{ 
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        //console.log(user);
+        //return;
+
+    
+        axios({
+            method: 'get',
+            url: baseURL+'/teams/alumno_team/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            },
+            params: {
+                'pk_user': user.id
+            }
+        })
+        .then(response =>{
+
+            console.log(response.data)
+            
+
+            
+        }).catch(error => {
+
+            
+            
+        });
+
     }
     /*
     * Descripcion:	Borra el equipo
@@ -413,6 +460,7 @@ export default function RegisterTeam(){
                     <img className="image" src={add}  onClick={handleShow} width = "40" height = "40" alt="User Icon" title= "Crear equipo" style = {{marginLeft:35}}/>
                 </div>
             </div>
+                <button onClick={alumnostb} >alumnos</button>
         
 
 
