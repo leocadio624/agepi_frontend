@@ -1,15 +1,17 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useHistory } from 'react-router-dom';
+import useAuth from '../auth/useAuth';
+
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
 export default function RegisterPage(){
     
-    const history = useHistory();
+    
+    const auth = useAuth();
     const [datos, setDatos] = useState({
         nombre:'',
         apellidos:'',
@@ -38,11 +40,10 @@ export default function RegisterPage(){
 
     const registarUsuario = (event) => {
 
-        history.push('/iniciar_sesion');
-        return;
-
-
         event.preventDefault();
+        
+
+        
 
         let is_student = false;
         let is_employe = false;
@@ -117,42 +118,12 @@ export default function RegisterPage(){
                 confirmButtonColor: '#39ace7',
                 preConfirm: () => {
                     
+                    auth.login({"user": datos.correo, "password":datos.pass})
+   
                 }
                 })
 
             }
-            /*
-            if(response.status === 200){
-                Swal.fire({
-                icon: 'success',
-                html : 'Se ha creado el usuario correctamente',
-                showCancelButton: false,
-                focusConfirm: false,
-                allowEscapeKey : false,
-                allowOutsideClick: false,
-                confirmButtonText:'Aceptar',
-                confirmButtonColor: '#39ace7',
-                preConfirm: () => {
-                }
-                })
-
-            }else if(response.status === 226){
-                
-                Swal.fire({
-                icon: 'info',
-                html : response.data.message,
-                showCancelButton: false,
-                focusConfirm: false,
-                allowEscapeKey : false,
-                allowOutsideClick: false,
-                confirmButtonText:'Aceptar',
-                confirmButtonColor: '#39ace7',
-                preConfirm: () => {
-                }
-                })
-
-            }
-            */
             
 
         }).catch(error => {

@@ -5,7 +5,6 @@ import '../assetss/css/login.css';
 import logo from '../assetss/images/logo.png';
 
 
-
 export default function LoginPage(){
     
     
@@ -49,8 +48,6 @@ export default function LoginPage(){
         history.push(previusObjectURL || '/registar_firma');
         
     }
-
-    
     return(
         <div className="wrapper fadeInDown">
             <div id = "formContent">
@@ -64,7 +61,6 @@ export default function LoginPage(){
                     <input type="password" className="entry_psw third" name="password" placeholder="Contraseña" onChange = {handleInputChange} />
                     <input type="submit" className="fadeIn fourth" value="Entrar"  /> 
                 </form>
-
                 {estado.error === true &&
                     <div className = "alert alert-danger" role="alert" >
                         {estado.message_error}

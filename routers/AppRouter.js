@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 
 //import {BrowserRouter as Router, Route} from 'react-router-dom';
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import useAuth from '../auth/useAuth';
+
 
 import Home from '../pages/HomePage';
 import NotFound from '../pages/NotFoundPage';
@@ -29,7 +29,7 @@ import Navbar from '../components/Navbar';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 
-//import ResponsableRoute from './ResponsableRoute';
+
 
 
 
@@ -41,20 +41,8 @@ import PublicRoute from './PublicRoute';
 
 export default function AppRouter(){
 
-    const auth = useAuth();
-    /*
-    try{
-        console.log(auth.user.is_staff);
-
-    }catch(error){
-    }
-    */
-
-
     useEffect(() => {
-        console.log(auth.user);
         
-
     });
     return(
         
@@ -81,10 +69,13 @@ export default function AppRouter(){
                     <PublicRoute exact path = "/" component = {Home} />
                     <PublicRoute exact path = "/iniciar_sesion"  component = {Login} />
                     <PublicRoute exact path = "/registrarce"  component = {Register} />
+                    
 
                     
-                    {/*
-                    
+                    {/*    
+                    */}
+
+
                     <PrivateRoute exact path = "/estado_protocolo"  component = {ProtocolState} />
                     <PrivateRoute exact path = "/comunidad"  component = {Comunidad} />
                     <PrivateRoute exact path = "/registar_firma"  component = {RegisterSign} />
@@ -94,13 +85,9 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/solicitudes_firma"  component = {SigningRequest}/>
                     <PrivateRoute exact path = "/equipo"  component = {Team}/>
                     <PrivateRoute exact path = "/validar_firmas"  component = {ValidateSigns}/>
-                
                     <PrivateRoute exact path = "/activar_usuario"  component = {Activate}/>
-                    */}
+                
                     
-                    {/*
-                    <ResponsableRoute exact path = "/activar_usuario"  component = {Activate}/>
-                    */}
                         
 
                     

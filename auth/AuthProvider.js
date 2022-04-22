@@ -2,8 +2,6 @@ import {createContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-
-
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 export const AuthContext = createContext();
 
@@ -56,6 +54,7 @@ const AuthProvider = ({children}) => {
                 
                 
                 
+                
                         
             }).catch(error => {
                 
@@ -93,6 +92,7 @@ const AuthProvider = ({children}) => {
             
                 }
                 })
+                
 
                 
             });
@@ -105,57 +105,40 @@ const AuthProvider = ({children}) => {
         isLogged(){
             return !!user;
         },
-        is_Staff(){
+        isLoggedPriv(path){
 
-            //return '/';
+            let pertenece = false;
+            const pathsAlumno = ['/equipo', '/registrar_equipo', '/protocolos', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma'];
+            const pathsCat = ['/comunidad'];
+
+            if( user === null)
+                return false;
+
+
+            if(user.rol_user === 1)
+                pertenece = pathsAlumno.includes(path);
+            else if(user.rol_user === 3)
+                pertenece = pathsCat.includes(path);
+            
+            
+            return !!user && pertenece;
+        },
+        startRedirect(){
 
             try{
-                if(user.is_staff)
+                if(user.is_staff){
+                    if(user.rol_user === 1 || user.rol_user === 2 )
+                    return '/equipo';
+                    if(user.rol_user === 3 || user.rol_user === 4 )
                     return '/comunidad';
+                }
                 else
                     return '/activar_usuario';
+                    
             }catch(error){
                 return '/activar_usuario';
             }
           
-        },
-        is_active(){
-            //return user.is_staff;
-
-            //console.log('is_active');
-
-            try{
-                return user.is_staff;
-            }catch(error){
-                return false;
-            }
-            
-        },
-        getRolUser(){
-
-            
-            try{
-                return user.rol_user;
-            }catch(error){
-                return 0;
-            }
-            
-            
-
-            
-
-            /*
-            console.log(user.is_staff);
-            
-
-            if(user.staff == true)
-                return '/comunidad';
-            else
-                return '/activar_usuario';
-            
-            else
-                return '/activar_usuario';
-            */
         },
         /*
         * Descripcion:	Actualiza el token de acceso en el estado y local storage
@@ -171,6 +154,25 @@ const AuthProvider = ({children}) => {
                     'username'          :user.username,
                     'rol_user'          :user.rol_user,
                     'is_staff'          :user.is_staff,
+                    'email'             :user.email,
+                    'name'              :user.name,
+                    'last_name'         :user.last_name
+                    })
+
+        },
+        /*
+        * Descripcion:	Actualiza variable que controla si un usuario esta activo en la aplicacion
+        * Fecha de la creacion:		21/04/2022
+        * Author:					Eduardo B 
+        */
+        refreshStaff(is_staff){
+            setUser({   
+                    'token'             :user.token,
+                    'refresh_token'     :user.refresh_token,
+                    'id'                :user.id,
+                    'username'          :user.username,
+                    'rol_user'          :user.rol_user,
+                    'is_staff'          :is_staff,
                     'email'             :user.email,
                     'name'              :user.name,
                     'last_name'         :user.last_name

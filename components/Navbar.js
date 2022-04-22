@@ -43,39 +43,80 @@ export default function Navbar(){
                         {auth.isLogged() && 
                         <>  
                             {/*
-                            <div>{JSON.stringify(auth.user.is_staff)}</div>
+                            <div>{JSON.stringify(auth.user.rol_user)}</div>
                             */}
+
                             {auth.user.is_staff === true && 
                             <>
-                            
-                                <li className = "nav-item">
+                                {/*ALumnos*/}
+                                {auth.user.rol_user === 1 &&
+
+                                    <>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
                                     <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
-                                </li>
+                                    </li>
 
-                                <li className = "nav-item">
-                                    <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
-                                
-                                </li>
-                                
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
+                                    </li>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
+                                    </li>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/validar_firmas" className = "nav-link" activeClassName = "active" >Validar firmas</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
+                                    </li>
+                                    </>
 
-                                <li className = "nav-item">
-                                    <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
-                                </li>
-                                <li className = "nav-item" >
-                                    <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
-                                </li>
-                                <li className = "nav-item" >
-                                    <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
-                                </li>
-                                <li className = "nav-item" >
-                                    <NavLink exact to = "/validar_firmas" className = "nav-link" activeClassName = "active" >Validar firmas</NavLink>
-                                </li>
-                                <li className = "nav-item">
-                                    <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
-                                </li>
-                                <li className = "nav-item">
-                                    <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
-                                </li>
+
+                                
+                                }
+                                {/*Profesores*/}
+                                {auth.user.rol_user === 2 && 
+                                
+                                    <>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                    <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
+                                    </li>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
+                                    </li>
+                                    <li className = "nav-item" >
+                                        <NavLink exact to = "/validar_firmas" className = "nav-link" activeClassName = "active" >Validar firmas</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
+                                    </li>
+                                    </>
+
+                                }
+
+                                {/*Responsable catt*/}
+                                {auth.user.rol_user === 3 && 
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/comunidad" className = "nav-link" activeClassName = "active" >Comunidad</NavLink>
+                                    </li>
+                                
+                                }
+                                
+                                
                                 <li className = "nav-item dropdown" style = {{marginRight:45}} >
                                     <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         Opcciones
