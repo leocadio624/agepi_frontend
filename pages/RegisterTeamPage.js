@@ -32,10 +32,15 @@ export default function RegisterTeam(){
 
 
     const [teams, setTeams] = useState([]);
+    const [alumnos, setAlumnos] = useState([]);
+    const [solicitudes, setSolicitudes] = useState([]);
+
+
 
     useEffect(() => {
         updTableTeam();
         //loadTables();
+        alumnostb();
         
     },[]);
 
@@ -103,6 +108,57 @@ export default function RegisterTeam(){
         }
     ];
 
+    const columAlumnos = [
+        {
+            name:'Boleta',
+            selector:row => row.boleta,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Nombre',
+            selector:row => row.name+' '+row.last_name,
+            sortable:true,
+            center:true
+            
+        },
+        {
+            name:'Correo electr\u00F3nico',
+            selector:row => row.email,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Programa acad\u00E9mico',
+            selector:row => row.programa,
+            sortable:true,
+            center:true
+
+        },
+        {   
+            name:'Acciones',
+            cell:(row) =>  <>
+                            {solicitudes.includes(row.pk_user) === true &&
+                                <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
+                                        onClick = {() => cancelarSolicitud(row.pk_user)  }
+                                />
+
+                            }       
+                            {solicitudes.includes(row.pk_user) === false &&
+                                <img  className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
+                                    onClick = {() => enviarSolicitud(row.pk_user)  }
+                                />
+                            }
+                            </> 
+                            ,
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        }
+    ];
+
+
+
 
 
     /*
@@ -112,11 +168,9 @@ export default function RegisterTeam(){
     */
     const updTableTeam = async () => {
 
-        const   user = JSON.parse(localStorage.getItem('user'));    
-        //console.log(user);
-        //return;
-
+        const   user = JSON.parse(localStorage.getItem('user'));            
         let response = null;
+
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         }catch(error){
@@ -140,6 +194,7 @@ export default function RegisterTeam(){
         })
         .then(response =>{
             setTeams(response.data);
+
             
 
         }).catch(error => {
@@ -158,7 +213,58 @@ export default function RegisterTeam(){
     * Fecha de la creacion:		17/04/2022
     * Author:					Eduardo B 
     */
-    const alumnostb = async () =>{ 
+    const alumnostb = async () =>{
+
+        
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+
+        axios({
+
+            method: 'get',
+            url: baseURL+'/teams/alumno_team/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            },
+            params: {
+                'pk_user': user.id
+            }
+        })
+        .then(response =>{
+
+            //console.log(response.data.alumnos)
+            setAlumnos(response.data.alumnos);
+            setSolicitudes(response.data.solicitudes)
+
+            
+
+            
+        }).catch(error => {
+
+            
+            
+        });
+
+    }
+
+    
+    /*
+    * Descripcion:	Envia solicitud de equipo a un alumno
+    * Fecha de la creacion:		17/04/2022
+    * Author:					Eduardo B 
+    */
+    const enviarSolicitud = async (id) =>{
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -172,33 +278,75 @@ export default function RegisterTeam(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        //console.log(user);
-        //return;
-
-    
         axios({
-            method: 'get',
+            method: 'post',
             url: baseURL+'/teams/alumno_team/',
             headers: {
                 'Authorization': `Bearer ${ token }`
             },
-            params: {
-                'pk_user': user.id
+            data:{
+            id          : user.id,
+            fk_user     : id
             }
         })
         .then(response =>{
 
-            console.log(response.data)
-            
-
+            setSolicitudes(response.data.solicitudes);
             
         }).catch(error => {
-
-            
             
         });
 
+
+
+
     }
+    /*
+    * Descripcion:	Cancela una solicitud de equipo enviada
+    * Fecha de la creacion:		17/04/2022
+    * Author:					Eduardo B 
+    */
+    const cancelarSolicitud = async (id) =>{
+
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        axios({
+            method: 'post',
+            url: baseURL+'/teams/alumno_team/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            },
+            data:{
+            id          : user.id,
+            fk_user     : id
+            }
+        })
+        .then(response =>{
+
+            
+            setSolicitudes(response.data.solicitudes)
+            
+
+            
+            
+        }).catch(error => {
+            
+        });
+
+        
+    }
+
     /*
     * Descripcion:	Borra el equipo
     * Fecha de la creacion:		13/04/2022
@@ -460,7 +608,21 @@ export default function RegisterTeam(){
                     <img className="image" src={add}  onClick={handleShow} width = "40" height = "40" alt="User Icon" title= "Crear equipo" style = {{marginLeft:35}}/>
                 </div>
             </div>
-                <button onClick={alumnostb} >alumnos</button>
+
+            <div className= "row row-form" >
+                <div className = "col-lg-12">
+                    <DataTable
+                    columns = {columAlumnos}
+                    data = {alumnos}
+                    title = "Alumnos disponibles"
+                    pagination
+                    paginationComponentOptions = {paginacionOpcciones}
+                    fixedHeaderScrollHeight = "600px"
+                    />
+                </div>
+            </div>
+
+            <button onClick={alumnostb} >alumnos</button>
         
 
 

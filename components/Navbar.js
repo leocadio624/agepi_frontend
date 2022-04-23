@@ -5,6 +5,7 @@ import logo from '../assetss/images/logo.png';
 export default function Navbar(){
     const auth = useAuth();
     return(
+        <div>
         <nav className = "navbar navbar-expand-lg navbar-dark bg-primary" >
             <div className = "container-fluid">
 
@@ -168,5 +169,16 @@ export default function Navbar(){
                 </div>
             </div>
         </nav>
+        
+        
+            {auth.isLogged() && 
+                <div className = "welcome row border" >
+                    <div className = "col-12 d-flex justify-content-end">
+                        Bienvenido : {auth.user.name} {auth.user.last_name}
+                    </div>
+                </div>
+            }
+
+        </div>
     )
 }
