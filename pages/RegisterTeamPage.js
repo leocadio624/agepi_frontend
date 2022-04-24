@@ -2,6 +2,9 @@ import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
+
 import {Modal} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 
@@ -10,12 +13,16 @@ import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
 
 
+
 import add from '../assetss/images/plus.png';
 import save from '../assetss/images/save-file.png';
 import check from '../assetss/images/comprobado.png';
 import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import edit_icon from '../assetss/images/lapiz.png';
+import question from '../assetss/images/question.png';
+
+
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
@@ -33,14 +40,16 @@ export default function RegisterTeam(){
 
     const [teams, setTeams] = useState([]);
     const [alumnos, setAlumnos] = useState([]);
+    const [profesores, setProfesores] = useState([]);
     const [solicitudes, setSolicitudes] = useState([]);
 
 
 
     useEffect(() => {
-        updTableTeam();
+        //updTableTeam();
+
         //loadTables();
-        alumnostb();
+        startModule();
         
     },[]);
 
@@ -129,7 +138,7 @@ export default function RegisterTeam(){
             center:true
         },
         {
-            name:'Programa acad\u00E9mico',
+            name:'Programa academico',
             selector:row => row.programa,
             sortable:true,
             center:true
@@ -146,7 +155,7 @@ export default function RegisterTeam(){
                             }       
                             {solicitudes.includes(row.pk_user) === false &&
                                 <img  className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
-                                    onClick = {() => enviarSolicitud(row.pk_user)  }
+                                onClick = {() => enviarSolicitud(row.pk_user)  }
                                 />
                             }
                             </> 
@@ -156,8 +165,113 @@ export default function RegisterTeam(){
             button: true,
         }
     ];
+    const columProfesores = [
+        {
+            name:'Numero de empleado',
+            selector:row => row.noEmpleado,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Nombre',
+            selector:row => row.name+' '+row.last_name,
+            sortable:true,
+            center:true
+            
+        },
+        {
+            name:'Correo electr\u00F3nico',
+            selector:row => row.email,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Departamento',
+            selector:row => row.departamento,
+            sortable:true,
+            center:true
+
+        },
+        {   
+            name:'Acciones',
+            cell:(row) =>  <>
+
+                            {row.disponible === 1 &&
+                                <>
+                                {solicitudes.includes(row.pk_user) === true &&
+                                    <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
+                                            onClick = {() => cancelarSolicitud(row.pk_user)  }
+                                    />
+                                    
+                                }       
+                                {solicitudes.includes(row.pk_user) === false &&
+                                    <img    className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
+                                            onClick = {() => enviarSolicitud(row.pk_user)  }
+                                    />
+                                }
+                                </>
+
+                            }
+                            {row.disponible === 0 &&
+                                <img    className = "image" src = {question} width = "30" height = "30" alt="User Icon" title = "Esta profesor ya cuenta con 6 equipos de protocolo" />
+                            }
+
+                            </>
+                            ,
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        }
+    ];
+    
+
+    /*
+    * Descripcion: Inicialializa el estado del modulo
+    * Fecha de la creacion:		17/04/2022
+    * Author:					Eduardo B 
+    */
+    const startModule = async () =>{
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
 
 
+        axios({
+        method: 'get',
+        url: baseURL+'/teams/alumno_team/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        params: {
+            'pk_user': user.id
+        }
+        })
+        .then(response =>{
+
+            console.log( response.data.profesores )
+            setTeams(response.data.teams);
+            setSolicitudes(response.data.solicitudes)
+            setAlumnos(response.data.alumnos);
+            setProfesores(response.data.profesores);
+
+            
+
+        }).catch(error => {
+            auth.onError();
+            
+            
+        });
+
+    }
 
 
 
@@ -208,56 +322,9 @@ export default function RegisterTeam(){
 
             
     }
-    /*
-    * Descripcion:	Refresca tabla de alumnos y profesores
-    * Fecha de la creacion:		17/04/2022
-    * Author:					Eduardo B 
-    */
-    const alumnostb = async () =>{
+    
 
-        
-
-        const   user = JSON.parse(localStorage.getItem('user'));    
-        let response = null;
-        try{
-            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
-        }catch(error){
-            if(!error.status)
-                auth.onError()
-        }
-        const body = await response.json();
-        const  token = body.access || '';
-        auth.refreshToken(token);
-
-
-        axios({
-
-            method: 'get',
-            url: baseURL+'/teams/alumno_team/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
-            params: {
-                'pk_user': user.id
-            }
-        })
-        .then(response =>{
-
-            //console.log(response.data.alumnos)
-            setAlumnos(response.data.alumnos);
-            setSolicitudes(response.data.solicitudes)
-
-            
-
-            
-        }).catch(error => {
-
-            
-            
-        });
-
-    }
-
+    
     
     /*
     * Descripcion:	Envia solicitud de equipo a un alumno
@@ -291,7 +358,16 @@ export default function RegisterTeam(){
         })
         .then(response =>{
 
-            setSolicitudes(response.data.solicitudes);
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: response.data.message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(function() {
+                setSolicitudes(response.data.solicitudes);
+            })
+            
             
         }).catch(error => {
             
@@ -303,10 +379,10 @@ export default function RegisterTeam(){
     }
     /*
     * Descripcion:	Cancela una solicitud de equipo enviada
-    * Fecha de la creacion:		17/04/2022
+    * Fecha de la creacion:		22/04/2022
     * Author:					Eduardo B 
     */
-    const cancelarSolicitud = async (id) =>{
+    const cancelarSolicitud = async (pk_user) =>{
 
         
         const   user = JSON.parse(localStorage.getItem('user'));    
@@ -321,28 +397,52 @@ export default function RegisterTeam(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        /*
+        data:{
+        id          : user.id,
+        fk_user     : id
+        }
+        */
+        
         axios({
-            method: 'post',
-            url: baseURL+'/teams/alumno_team/',
+            method: 'delete',
+            url: baseURL+'/teams/alumno_team/'+encodeURIComponent(pk_user)+'/',
             headers: {
                 'Authorization': `Bearer ${ token }`
             },
-            data:{
-            id          : user.id,
-            fk_user     : id
-            }
         })
         .then(response =>{
 
-            
-            setSolicitudes(response.data.solicitudes)
-            
+            if(response.status === 206){
+                auth.onErrorMessage(response.data.message);
+            }
+            else if(response.status === 200){
+                Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: response.data.message,
+                showConfirmButton: false,
+                timer: 1500
+                }).then(function() {
+                    setSolicitudes(response.data.solicitudes);
+                })
 
+
+            }
             
             
+                
+                
+            //setSolicitudes(response.data.solicitudes)
+
+                
         }).catch(error => {
             
         });
+
+        
+
+
 
         
     }
@@ -611,18 +711,33 @@ export default function RegisterTeam(){
 
             <div className= "row row-form" >
                 <div className = "col-lg-12">
-                    <DataTable
-                    columns = {columAlumnos}
-                    data = {alumnos}
-                    title = "Alumnos disponibles"
-                    pagination
-                    paginationComponentOptions = {paginacionOpcciones}
-                    fixedHeaderScrollHeight = "600px"
-                    />
+                <Tabs defaultActiveKey="alumnos" id="uncontrolled-tab-example" className="mb-3" style = {{marginTop:30}}>
+                    <Tab eventKey="alumnos" title="Alumnos">
+
+                        <DataTable
+                        columns = {columAlumnos}
+                        data = {alumnos}
+                        title = "Alumnos disponibles"
+                        pagination
+                        paginationComponentOptions = {paginacionOpcciones}
+                        fixedHeaderScrollHeight = "600px"
+                        />
+                        </Tab>
+                    <Tab eventKey="profesores" title="Profesores">
+                        <DataTable
+                        columns = {columProfesores}
+                        data = {profesores}
+                        title = "Alumnos disponibles"
+                        pagination
+                        paginationComponentOptions = {paginacionOpcciones}
+                        fixedHeaderScrollHeight = "600px"
+                        />
+                    </Tab>
+                </Tabs>
                 </div>
             </div>
 
-            <button onClick={alumnostb} >alumnos</button>
+            <button onClick={startModule} >alumnos</button>
         
 
 

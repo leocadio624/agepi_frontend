@@ -71,6 +71,9 @@ export default function Navbar(){
                                     <li className = "nav-item">
                                         <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
                                     </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/notificaciones" className = "nav-link" activeClassName = "active" >Notificaciones</NavLink>
+                                    </li>
                                     </>
 
 
@@ -83,13 +86,6 @@ export default function Navbar(){
                                     <li className = "nav-item" >
                                         <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
                                     </li>
-                                    <li className = "nav-item">
-                                        <NavLink exact to = "/registrar_equipo" className = "nav-link" activeClassName = "active" >Registro equipo</NavLink>
-                                    </li>
-                                    
-                                    <li className = "nav-item">
-                                        <NavLink exact to = "/registro_protocolo" className = "nav-link" activeClassName = "active" >Registro protocolo</NavLink>
-                                    </li>
                                     <li className = "nav-item" >
                                         <NavLink exact to = "/solicitudes_firma" className = "nav-link" activeClassName = "active" >Solicitudes firma</NavLink>
                                     </li>
@@ -98,6 +94,9 @@ export default function Navbar(){
                                     </li>
                                     <li className = "nav-item">
                                         <NavLink exact to = "/registar_firma" className = "nav-link" activeClassName = "active" >Registar firma</NavLink>
+                                    </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/notificaciones" className = "nav-link" activeClassName = "active" >Notificaciones</NavLink>
                                     </li>
                                     </>
 
@@ -174,7 +173,7 @@ export default function Navbar(){
             {auth.isLogged() && 
                 <div className = "welcome row border" >
                     <div className = "col-12 d-flex justify-content-end">
-                        Bienvenido : {auth.user.name} {auth.user.last_name}
+                        Bienvenid@ : {auth.user.name} {auth.user.last_name}
                     </div>
                 </div>
             }

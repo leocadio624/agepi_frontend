@@ -108,7 +108,8 @@ const AuthProvider = ({children}) => {
         isLoggedPriv(path){
 
             let pertenece = false;
-            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma'];
+            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];
+            const pathsProfesor = ['/activar_usuario', '/equipo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];            
             const pathsCat = ['/protocolos','/comunidad'];
 
             const paths = ['/activar_usuario'];
@@ -127,6 +128,8 @@ const AuthProvider = ({children}) => {
 
             if(user.is_staff === true && user.rol_user === 1)
                 pertenece = pathsAlumno.includes(path);
+            else if(user.is_staff === true && user.rol_user === 2)
+                pertenece = pathsProfesor.includes(path);
             else if(user.is_staff === true && user.rol_user === 3)
                 pertenece = pathsCat.includes(path);
             

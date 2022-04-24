@@ -22,6 +22,7 @@ import SigningRequest from '../pages/SigningRequestPage';
 import Team from '../pages/TeamPage';
 import ValidateSigns from '../pages/ValidateSignsPage';
 import Activate from '../pages/ActivatePage';
+import Notifications from '../pages/NotificationsPage';
 
 
 
@@ -86,6 +87,7 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/equipo"  component = {Team}/>
                     <PrivateRoute exact path = "/validar_firmas"  component = {ValidateSigns}/>
                     <PrivateRoute exact path = "/activar_usuario"  component = {Activate}/>
+                    <PrivateRoute exact path = "/notificaciones"  component = {Notifications}/>
                 
                     
                         

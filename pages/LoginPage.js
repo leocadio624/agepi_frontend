@@ -57,7 +57,7 @@ export default function LoginPage(){
                 <br/>
                 </div>
                 <form onSubmit = {enviarDatos} >
-                    <input type="text" className="entry_text fadeIn second" name="user"  placeholder="Usuario" onChange = {handleInputChange} />
+                    <input type="text" className="entry_text fadeIn second" name="user"  placeholder="Usuario" onChange = {handleInputChange} title = "Correo electr&oacute;nico con el que realizaste tu registro"/>
                     <input type="password" className="entry_psw third" name="password" placeholder="Contraseña" onChange = {handleInputChange} />
                     <input type="submit" className="fadeIn fourth" value="Entrar"  /> 
                 </form>

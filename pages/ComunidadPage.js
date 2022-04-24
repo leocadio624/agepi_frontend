@@ -684,7 +684,7 @@ export default function ComunidadPage(){
                         fixedHeaderScrollHeight = "600px"
                     />
                 </Tab>
-            </Tabs>            
+            </Tabs>
         </div>
     )
 }
