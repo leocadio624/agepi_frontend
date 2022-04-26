@@ -96,7 +96,7 @@ export default function RegisterTeam(){
             name:'Integrantes',
             selector:row => row.integrantes,
             sortable:true,
-            left:true
+            center:true
 
         },
         {   
@@ -357,16 +357,21 @@ export default function RegisterTeam(){
             }
         })
         .then(response =>{
+            if(response.status === 206){
+                auth.onErrorMessage(response.data.message);
 
-            Swal.fire({
+            }else{
+                Swal.fire({
                 position: 'top-end',
                 icon: 'success',
                 title: response.data.message,
                 showConfirmButton: false,
                 timer: 1500
-            }).then(function() {
-                setSolicitudes(response.data.solicitudes);
-            })
+                }).then(function() {
+                    setSolicitudes(response.data.solicitudes);
+                })
+
+            }
             
             
         }).catch(error => {
@@ -698,7 +703,7 @@ export default function RegisterTeam(){
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
-                    <div className = "title" >Protocolos registrados</div>
+                    <div className = "title" >Administraci&oacute;n de equipo de protocolo</div>
                 </div>
             </div>
 
