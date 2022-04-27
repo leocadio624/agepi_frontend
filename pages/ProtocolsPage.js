@@ -88,9 +88,7 @@ export default function ProtocolsPage(){
     
     useEffect(() => {
 
-        
-        
-        //updTable()
+        startModule();
         
         
     },[]);
@@ -101,7 +99,7 @@ export default function ProtocolsPage(){
     * Fecha de la creacion:		08/04/2022
     * Author:					Eduardo B 
     */
-    const updTable = async () => {
+    const startModule = async () => {
 
         
         /*
@@ -324,8 +322,8 @@ export default function ProtocolsPage(){
                 <div className = "col-12 d-flex justify-content-center">
 
                     
-                    <button onClick ={updTable} >Update</button>
                     {/*
+                    <button onClick ={updTable} >Update</button>
                     <button onClick ={sendGetRequest} >sendGetRequest</button>
                         <button onClick ={deleteWord} >deleteWord</button>
                     */}

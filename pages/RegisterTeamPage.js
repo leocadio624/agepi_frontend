@@ -201,6 +201,7 @@ export default function RegisterTeam(){
                                 {solicitudes.includes(row.pk_user) === true &&
                                     <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
                                             onClick = {() => cancelarSolicitud(row.pk_user)  }
+                                            
                                     />
                                     
                                 }       
@@ -257,7 +258,7 @@ export default function RegisterTeam(){
         })
         .then(response =>{
 
-            console.log( response.data.profesores )
+            //console.log( response.data )
             setTeams(response.data.teams);
             setSolicitudes(response.data.solicitudes)
             setAlumnos(response.data.alumnos);

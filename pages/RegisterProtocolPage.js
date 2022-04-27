@@ -1,8 +1,15 @@
 import React, {useState, useEffect, useRef} from 'react';
-import useAuth from '../auth/useAuth';
-import logo from '../assetss/images/user.png';
-import axios from 'axios';
+
+
+
+
 import Swal from 'sweetalert2';
+import axios from 'axios';
+import useAuth from '../auth/useAuth';
+import { fetchWithToken } from "../helpers/fetch";
+
+
+
 import save from '../assetss/images/save-file.png';
 import cancel from '../assetss/images/cancelar.png';
 import add from '../assetss/images/plus.png';
@@ -31,9 +38,6 @@ export default function RegisterPage(){
     const [selectedFile, setSelectedFile] = useState(null);
     const [keyList, setKeyList] = useState( [ {key:""} ] );
 
-    
-
-    
     
 
     useEffect(() => {
@@ -91,7 +95,9 @@ export default function RegisterPage(){
 
     }
 
-    const guardarProtocolo = () => {
+    //const programasAcademicos = async () =>{ 
+
+    const guardarProtocolo = async () => {
         
         var keyWords = [];
         keyList.forEach(function(i){ keyWords.push(i.key) });
@@ -100,18 +106,61 @@ export default function RegisterPage(){
         formData.append('protocol_state', 1);
         formData.append('keyWords', keyWords);
         
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        
+        
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        
+        /*
+        axios({
+            method: 'post',
+            url: baseURL+'/comunidad/programa_academico/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            }
+        })
+        .then(response =>{
 
+            
+            
+            
+        }).catch(error => {
+
+            
+            if(!error.status)
+               auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+            
+            
+        });
+        
+        */
+
+       let headers = {'Authorization': `Bearer ${ token }`}
         axios.post(
             baseURL+'/protocolos/protocolos/',
-            formData
+            formData,
+            headers
         )
         .then(response => {
-            console.log(response)
+            console.log(response.data)
+            
         }).catch(error => {
         
-
-
         })
+        
         
 
     }

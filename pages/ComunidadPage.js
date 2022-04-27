@@ -291,6 +291,8 @@ export default function ComunidadPage(){
         let RegExPatternProfesor = /^[\w-\.]{3,}@ipn\.mx$/;
         
         
+        
+
         if( alumno.boleta.trim() === ''){
             setEstado( {error:true, message_error:'Ingrese un numero de boleta'} )
             boleta.current.focus();
@@ -327,6 +329,8 @@ export default function ComunidadPage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
+
+        
         
       
         
