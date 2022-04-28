@@ -6,8 +6,8 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 
 import {Modal} from 'react-bootstrap';
-import Swal from 'sweetalert2';
 
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
@@ -27,8 +27,8 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function NotificationsPage(){
 
     const auth = useAuth();
-
     const [notificaciones, setNotificaciones] = useState([]);
+
 
     useEffect(() => {
         startModule();
@@ -50,7 +50,7 @@ export default function NotificationsPage(){
     const columnasNotificaciones = [
         {
             name:'Usuario',
-            selector:row => row.user_origen,
+            selector:row => <div>{row.user_origen}</div>,
             sortable:true,
             center:true
         },
@@ -82,9 +82,10 @@ export default function NotificationsPage(){
                     <>  
                         <img    className = "image" src = {check} width = "30" height = "30" alt="User Icon" title= "Aceptar solicitud" 
                                 style = {{marginRight:5}}
-                                onClick = {() => aceptarSolicitud(row.id, row.fk_user_origen, row.fk_user_destino)} id={row.id} 
+                                onClick = {() => aceptarSolicitud(row.id, row.fk_user_origen, row.fk_user_destino)} id={row.id}
                         />
                         <img  className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Rechazar solicitud" 
+                                onClick = {() => rechazarSolicitud(row.id, row.fk_user_origen, row.fk_user_destino)} id={row.id}
                         />
                     </>
                     }
@@ -240,6 +241,68 @@ export default function NotificationsPage(){
 
     }
 
+    /*
+    * Descripcion: Rechaza solicitud de integracion de equipo
+    * miembros de equipo
+    * Fecha de la creacion:		26/04/2022
+    * Author:					Eduardo B 
+    */
+    const rechazarSolicitud = async (id_notificacion, fk_user_origen, id_teamMember) =>{
+
+        /*
+        console.log(id_notificacion);
+        console.log(fk_user_origen);
+        console.log(id_teamMember);
+        return;
+        */
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        
+        axios({
+            method: 'post',
+            url: baseURL+'/notificacion/cancelarInvitacion/',
+            headers: {
+                'Authorization': `Bearer ${ token }`
+            },
+            data : {
+                id_notificacion : id_notificacion,
+                id_user : user.id,
+                fk_user_origen : fk_user_origen,
+                id_teamMember : id_teamMember
+                }
+        })
+        .then(response =>{
+            //console.log(response.data);
+            
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: response.data.message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(function() {
+                startModule();
+            })
+
+            
+        }).catch(error => {
+            
+        });
+        
+
+
+    }
+
     const prueba = async () =>{
         console.log(notificaciones);
 
@@ -253,6 +316,8 @@ export default function NotificationsPage(){
 
     return(
 
+        
+        
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
@@ -263,8 +328,10 @@ export default function NotificationsPage(){
 
                 </div>
             </div>
-            <div className = "row">
+            <div className = "row" >
+                <div className = "col-12 tb-responsive">
 
+            
                     <DataTable
                         columns = {columnasNotificaciones}
                         data = {notificaciones}
@@ -273,6 +340,7 @@ export default function NotificationsPage(){
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"
                     />
+                </div>
 
             </div>
 
@@ -281,8 +349,11 @@ export default function NotificationsPage(){
                     <button  onClick = {prueba} >prueba</button>
                 </div>
             </div>
-
         </div>
 
+            
+        
+        
+        
     )
 }

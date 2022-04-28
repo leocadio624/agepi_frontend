@@ -30,7 +30,7 @@ export default function RegisterPage(){
     const handleInputChange = (event) => {
         setDatos({
             ...datos,
-            [event.target.name]:event.target.value
+            [event.target.name]:(event.target.value).trim()
         })
         setEstado({error:false, message_error:''});
         
