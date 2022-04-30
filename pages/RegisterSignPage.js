@@ -8,6 +8,10 @@ import { fetchWithToken } from "../helpers/fetch";
 import create_file from '../assetss/images/create-file.png';
 import delete_icon from '../assetss/images/delete.png';
 import lupa from '../assetss/images/lupa.png';
+import email from '../assetss/images/email2.png';
+import limpiar from '../assetss/images/iconoBorrar.png';
+
+
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
@@ -68,13 +72,17 @@ export default function RegisterignPage(){
             cell:(row) =>  
                 <>
                     {row.state &&
-                        <img    className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Cancelar firma electronica" 
+                    <>
+                        <img    className = "image" src = {email} width = "30" height = "30" alt="User Icon" title= "Enviar contraseña via correo electr&oacute;nico" 
+                        style = {{marginRight:5}}
+                        onClick = {() => enviarPass(row.id)} id={row.id}
+                        />
+                        <img    className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Cancelar firma electr&oacute;nica" 
                         style = {{marginRight:5}}
                         onClick = {() => cancelarFirma(row.id, row.ruta_public_key, row.ruta_private_key)} id={row.id}
-                        
                         />
+                    </>
                     }
-                    
                 </>
                 ,
                 ignoreRowClick: true,
@@ -229,19 +237,17 @@ export default function RegisterignPage(){
             auth.onErrorMessage(error.response.data.message);
         });
     }
+    const limpiarCampos = async () =>{
+        setVigencia('-1');
+        setDatos({password:''});
+        setEstado({error:false, message_error:''});
+    }
     /*
     * Descripcion: Inhabilita firma electronica de usuario
     * Fecha de la creacion:		30/04/2022
     * Author:					Eduardo B 
     */
     const cancelarFirma = async (id, ruta_public_key, ruta_private_key) =>{
-
-        /*
-        console.log(id)
-        console.log(ruta_public_key)
-        console.log(ruta_private_key)
-        return;
-        */
 
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -286,6 +292,62 @@ export default function RegisterignPage(){
                auth.onError()
             auth.onErrorMessage(error.response.data.message);
         });
+
+    }
+    /*
+    * Descripcion: Inhabilita firma electronica de usuario
+    * Fecha de la creacion:		30/04/2022
+    * Author:					Eduardo B 
+    */
+    const enviarPass = async (id) =>{
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/firma/pass/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data: {
+            pk_firma : id
+        }
+        })
+        .then(response =>{
+
+            Swal.fire({
+            icon: 'success',
+            html : response.data.message,
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                
+            }
+            })
+            
+            
+        }).catch(error =>{
+            if(!error.status)
+               auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+        });
+        
 
     }
     return(
@@ -334,8 +396,8 @@ export default function RegisterignPage(){
             </div>
             <div className = "row" style = {{marginTop:20}} >
                 <div className = "col-12 d-flex justify-content-center">
-                    <img className="image" src={create_file} onClick = {crearFirma} width = "30" height = "30" alt="User Icon" title= "Crear firma electr&oacute;nica" />
-                    
+                    <img className="image" src={create_file} onClick = {crearFirma} width = "30" height = "30" alt="User Icon" title= "Crear firma electr&oacute;nica" style = {{marginRight:5}}/>
+                    <img className="image" src={limpiar} onClick = {limpiarCampos} width = "35" height = "35" alt="User Icon" title= "Limpiar campos" />
                 </div>
             </div>
 
