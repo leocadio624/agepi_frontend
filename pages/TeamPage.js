@@ -21,7 +21,6 @@ export default function Team(){
 
     useEffect(() => {
         startModule();
-        
     },[]);
 
     /*
@@ -118,15 +117,7 @@ export default function Team(){
             
         });
         
-
-        
-        
-        
-
     }
-
-
-
     return(
         <div className = "container">
 
