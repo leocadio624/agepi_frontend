@@ -724,6 +724,7 @@ export default function RegisterTeam(){
                         columns = {columAlumnos}
                         data = {alumnos}
                         title = "Alumnos disponibles"
+                        noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"
@@ -734,6 +735,7 @@ export default function RegisterTeam(){
                         columns = {columProfesores}
                         data = {profesores}
                         title = "Alumnos disponibles"
+                        noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"

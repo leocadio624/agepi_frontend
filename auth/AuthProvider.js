@@ -110,7 +110,7 @@ const AuthProvider = ({children}) => {
             let pertenece = false;
             const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];
             const pathsProfesor = ['/activar_usuario', '/equipo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];            
-            const pathsCat = ['/protocolos','/comunidad'];
+            const pathsCat = ['/protocolos','/comunidad', '/PeriodoEscolar'];
 
             const paths = ['/activar_usuario'];
 

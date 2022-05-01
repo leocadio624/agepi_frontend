@@ -669,6 +669,7 @@ export default function ComunidadPage(){
                                 columns = {columAlumnos}
                                 data = {alumnos}
                                 title = "Alumnos con acceso"
+                                noDataComponent="No existen registros disponibles"
                                 pagination
                                 paginationComponentOptions = {paginacionOpcciones}
                                 fixedHeaderScrollHeight = "600px"
@@ -683,6 +684,7 @@ export default function ComunidadPage(){
                         columns = {columProfesores}
                         data = {profesores}
                         title = "Alumnos con acceso"
+                        noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"

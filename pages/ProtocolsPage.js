@@ -369,8 +369,8 @@ export default function ProtocolsPage(){
                             ))}
                         </tbody>
                     </table>
-                    {/* 
-                    */}
+                    
+                    
                 
                 </Modal.Body>
                 <Modal.Footer className = "panel-footer">

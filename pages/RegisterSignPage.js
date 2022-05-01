@@ -407,6 +407,7 @@ export default function RegisterignPage(){
                         columns = {columnasTabla}
                         data = {firmas}
                         title = "Firmas generadas"
+                        noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"

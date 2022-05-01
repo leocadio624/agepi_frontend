@@ -111,6 +111,9 @@ export default function Navbar(){
                                     <li className = "nav-item">
                                     <NavLink exact to = "/protocolos" className = "nav-link" activeClassName = "active" >Protocolos</NavLink>
                                     </li>
+                                    <li className = "nav-item">
+                                        <NavLink exact to = "/PeriodoEscolar" className = "nav-link" activeClassName = "active" >Periodo Escolar</NavLink>
+                                    </li>
 
                                     </>
                                 }

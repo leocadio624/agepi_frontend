@@ -336,6 +336,7 @@ export default function NotificationsPage(){
                         columns = {columnasNotificaciones}
                         data = {notificaciones}
                         title = "Notificaciones disponibles"
+                        noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
                         fixedHeaderScrollHeight = "600px"
