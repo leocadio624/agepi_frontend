@@ -793,6 +793,7 @@ export default function RegisterTeam(){
                             columns = {columnas}
                             data = {teams}
                             title = "Equipo"
+                            noDataComponent="No existen registros disponibles"
                             pagination
                             paginationComponentOptions = {paginacionOpcciones}
                             fixedHeaderScrollHeight = "600px"

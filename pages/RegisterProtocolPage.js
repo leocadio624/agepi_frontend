@@ -20,10 +20,17 @@ export default function RegisterPage(){
 
     
     const auth = useAuth();
-    const sumary = useRef();
-    const countSumary = useRef();
+    const ref_title = useRef();
+    const ref_sumary = useRef();
+    const ref_inscripccion = useRef();
+    const ref_periodo = useRef();
     const file_ref = useRef();
+    
+
+    const countSumary = useRef();
     const form_ref = useRef();
+
+    
     
 
     const [datos, setDatos] = useState({
@@ -33,16 +40,25 @@ export default function RegisterPage(){
     })
 
     
-    const [period, setPeriod] = useState(-1);
-    const [typeRegister, setTypeRegister] = useState(-1);
+    const [period, setPeriod] = useState('-1');
+    const [typeRegister, setTypeRegister] = useState('-1');
+
+    const [periodos, setPeriodos] = useState([]);
+    const [inscripcciones, setInscripcciones] = useState([]);
+
+
+
+
     const [selectedFile, setSelectedFile] = useState(null);
     const [keyList, setKeyList] = useState( [ {key:""} ] );
 
     
 
     useEffect(() => {
+        startModule();
         
     },[]);
+
 
 
         
@@ -54,11 +70,11 @@ export default function RegisterPage(){
 
         setDatos({
             ...datos,
-            [event.target.name]:event.target.value
+            [event.target.name]:(event.target.value).trim()
         })
         
         if( event.target.name === 'sumary')
-            updateContadorTa(sumary.current, countSumary.current, 4000);
+            updateContadorTa(ref_sumary.current, countSumary.current, 4000);
         
     }
     const handleAddKey = () => {
@@ -95,58 +111,111 @@ export default function RegisterPage(){
 
     }
 
-    //const programasAcademicos = async () =>{ 
+    const startModule = async () =>{ 
 
-    const guardarProtocolo = async () => {
-        
-        var keyWords = [];
-        keyList.forEach(function(i){ keyWords.push(i.key) });
-
-        var formData = new FormData( form_ref.current );
-        formData.append('protocol_state', 1);
-        formData.append('keyWords', keyWords);
-        
-        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
+        
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         }catch(error){
             if(!error.status)
             auth.onError()
         }
-        
-        
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
-        
-        /*
+
         axios({
-            method: 'post',
-            url: baseURL+'/comunidad/programa_academico/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
+        method: 'get',
+        url: baseURL+'/protocolos/start_module/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }
         })
-        .then(response =>{
+        .then(response =>{            
+            
+            setPeriodos(response.data.periodos);
+            setInscripcciones(response.data.inscripcciones);
+
 
             
-            
-            
-        }).catch(error => {
-
-            
+        }).catch(error =>{
             if(!error.status)
-               auth.onError()
+                auth.onError()
             auth.onErrorMessage(error.response.data.message);
-            
-            
+
         });
+
+
+    }
+
+    const guardarProtocolo = async () => {
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        let indice = 1;
+
+
+        if(datos.title === ''){
+            auth.swalFire('Ingrese un t\u00EDtulo de protocolo');
+            ref_title.current.focus()
+            return;
+        }
+        if(datos.sumary === ''){
+            auth.swalFire('Ingrese un resumen de protocolo');
+            ref_sumary.current.focus()
+            return;
+        }
+        if(parseInt(period) === -1){
+            auth.swalFire('Seleccione un per\u00EDodo escolar');
+            ref_periodo.current.focus()
+            return;
+        }
+        if(parseInt(typeRegister) === -1){
+            auth.swalFire('Seleccione un tipo de registro');
+            ref_inscripccion.current.focus()
+            return;
+        }
+        if(selectedFile === null){
+            auth.swalFire('Seleccione el archivo de t\u00FA protocolo en formato PDF');
+            file_ref.current.focus()
+            return;
+        }
+        if(keyList.length < 6){
+            auth.swalFire('Debe de ingresar al menos 6 palabras clave');
+            return;
+        }
+        keyList.forEach(function(i){ 
+            if( (i.key).trim() === ''){
+                auth.swalFire('Ingrese el valor de la palabra clave '+(indice)+'');
+                return;
+            }
+            indice += 1
+        });
+
+
+        var keyWords = [];
+        keyList.forEach(function(i){ keyWords.push((i.key).trim()) });
+
+        var formData = new FormData( form_ref.current );
+        formData.append('pk_user', user.id);
+        formData.append('fk_protocol_state', 1);
+        formData.append('fk_periodo', period);
+        formData.append('fk_inscripccion', typeRegister);
+        formData.append('keyWords', keyWords);
+
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
         
-        */
 
        let headers = {'Authorization': `Bearer ${ token }`}
         axios.post(
@@ -178,7 +247,10 @@ export default function RegisterPage(){
     
 
     return(
-
+        
+        <div>
+        {periodos.length !== 0 && inscripcciones.length !== 0 &&
+        <>
         <div className = "container panel shadow">
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
@@ -192,13 +264,13 @@ export default function RegisterPage(){
                         <div className = "label-form" >T&iacute;tulo</div>
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6"> 
-                        <input className = "form-control" type="text" name = "title" placeholder = "Titulo de protocolo" onChange = {handleInputChange} />
+                        <input ref={ref_title} className = "form-control" type="text" name = "title" placeholder = "Titulo de protocolo" onChange = {handleInputChange} />
                     </div>
                     <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                         <div className = "label-form" >Resumen</div>
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6">
-                        <textarea  ref={sumary}  className = "form-control" name = "sumary" rows="3" onChange = {handleInputChange} ></textarea>
+                        <textarea  ref={ref_sumary}  className = "form-control" name = "sumary" rows="3" onChange = {handleInputChange} ></textarea>
                         <blockquote className="blockquote text-center">
                             <p  ref={countSumary} className = "mb-0 font-weight-lighter" style ={{fontSize:13}} >0/4000</p>
                         </blockquote>
@@ -219,17 +291,18 @@ export default function RegisterPage(){
 
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6">
-
+                    
                         <select className = "form-select" 
                             value = {period}
+                            ref={ref_periodo}
                             onChange = {(e) =>{
                                 setPeriod(e.target.value);
                             }}
                         >
                             <option value = "-1"  >Seleccione una opcci&oacute;n</option>
-                            <option value = "2" >2</option>
-                            <option value = "3" >3</option>
-                            <option value = "4" >4</option>
+                            {periodos.map((obj, index) =>(
+                                <option key = {index} value = {obj.id} >{obj.periodo}</option>
+                            ))}
                         </select>
 
                     </div>
@@ -240,13 +313,15 @@ export default function RegisterPage(){
                     <div className = "col-lg-4 col-md-4 col-sm-6">
                         <select className = "form-select"
                             value = {typeRegister}
+                            ref={ref_inscripccion}
                             onChange = {(e) =>{
                                 setTypeRegister(e.target.value);
                             }}
                         >
-                            <option value = "-1">Seleccione una opcci&oacute;n</option>
-                            <option value = "1" >Inicial</option>
-                            <option value = "2" >Complementario</option>
+                            <option value = "-1"  >Seleccione una opcci&oacute;n</option>
+                            {inscripcciones.map((obj, index) =>(
+                                <option key = {index} value = {obj.id} >{obj.descp}</option>
+                            ))}
                         </select>
                     </div>
 
@@ -329,13 +404,13 @@ export default function RegisterPage(){
                                 onChange = {(e) => handleKeyChange(e, index)}
 
                                 />
-                                {keyList.length - 1 === index && keyList.length < 6 &&(
-                                    <img className="image" src={add} onClick = {handleAddKey} width = "30" height = "30" alt="User Icon" title= "Agregar palabra clave" />
+                                {keyList.length - 1 === index && keyList.length < 10 &&(
+                                    <img className="image2" src={add} onClick = {handleAddKey} width = "30" height = "30" alt="User Icon" title= "Agregar palabra clave" />
                                 )}
                             </div>
                             <div className = "col-3" >
                                 {keyList.length > 1 &&(
-                                    <img className="image" src={cancel} onClick = {() => handleRemoveKey(index)} width = "30" height = "30" alt="User Icon" title= "Quitar palabra clave" />
+                                    <img className="image2" src={cancel} onClick = {() => handleRemoveKey(index)} width = "30" height = "30" alt="User Icon" title= "Quitar palabra clave" />
                                 )}
                             </div>
                         </div>
@@ -352,7 +427,36 @@ export default function RegisterPage(){
                     <button onClick = {cleanForm} >Borrar</button>
                 </div>
             </div>
+
         </div>
+        </>
+        }
+        { periodos.length === 0 && inscripcciones.length === 0 &&
+        
+            <div className = "row" style = {{marginTop:40}}>
+                <div className = "col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
+                    <div className = "alert alert-info" role="alert" >
+                        Aun no hay un per&iacute;odo de registro de protocolo abierto
+                    </div>
+                </div>
+            </div>
+        
+        }
+        { periodos.length === 0 ^ inscripcciones.length === 0 &&
+        
+            <div className = "row" style = {{marginTop:40}}>
+                <div className = "col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
+                    <div className = "alert alert-info" role="alert" >
+                        Aun no hay un per&iacute;odo de registro de protocolo abierto
+                    </div>
+                </div>
+            </div>
+        
+        }
+
+
+        </div>
+
         
         
     )

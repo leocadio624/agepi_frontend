@@ -124,7 +124,7 @@ export default function Team(){
             {estado.error === true &&
                 <div className = "row" style = {{marginTop:40}}>
                     <div className = "col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
-                        <div className = "alert alert-danger" role="alert" >
+                        <div className = "alert alert-info" role="alert" >
                             {estado.message_error}
                         </div>
                     </div>

@@ -138,13 +138,7 @@ const AuthProvider = ({children}) => {
         },
         startRedirect(){
 
-            /*
-            console.log(user.is_staff)
-            console.log(user.rol_user)
-
-            return '/activar_usuario';
-        
-            */
+            
 
             try{
                 if(user.is_staff){
@@ -198,6 +192,28 @@ const AuthProvider = ({children}) => {
                     'name'              :user.name,
                     'last_name'         :user.last_name
                     })
+
+        },
+        /*
+        * Descripcion:	Se muestra en error 500
+        * Fecha de la creacion:		08/04/2022
+        * Author:					Eduardo B 
+        */
+        swalFire(str){
+            Swal.fire({
+            title: '',
+            icon: 'info',
+            html : '<strong>'+str+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+        
+            }
+            })
 
         },
         /*

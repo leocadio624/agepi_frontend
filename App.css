@@ -67,6 +67,15 @@ body{
   transform: translateY(-3px);
   box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
 }
+.image2{
+  cursor:pointer;
+  margin-top:5px;
+}
+.image2:hover{ 
+  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
+}
+
+
 
 .modal-footer{
   justify-content:center!important;
