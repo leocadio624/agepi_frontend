@@ -273,13 +273,7 @@ export default function ProtocolsPage(){
             });
         }
         
-        
-        
-        
-
-
     }
-
     /*
     * Descripcion:	Despliegue y cierre de centana modal
     * Fecha de la creacion:		08/04/2022

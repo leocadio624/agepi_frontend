@@ -75,16 +75,17 @@ body{
   box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
 }
 
-
-
 .modal-footer{
   justify-content:center!important;
-
 }
 
 .tb-responsive{
   max-width:100%!important;
   overflow-x: auto!important;
+}
+.noPad{
+  padding:0px!important;
+  margin:0px!important;
 }
 
 
@@ -94,7 +95,7 @@ body{
   
 }
 .profile-card:hover {
-  transform: scale(1.1);
+  transform: scale(1.025);
   transition: 0.5s;
 }
 .profile-photo {

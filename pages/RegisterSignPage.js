@@ -10,6 +10,8 @@ import delete_icon from '../assetss/images/delete.png';
 import lupa from '../assetss/images/lupa.png';
 import email from '../assetss/images/email2.png';
 import limpiar from '../assetss/images/iconoBorrar.png';
+import folder from '../assetss/images/folder.png';
+import digital_key from '../assetss/images/digital_key.png';
 
 
 
@@ -72,11 +74,22 @@ export default function RegisterignPage(){
             cell:(row) =>  
                 <>
                     {row.state &&
-                    <>
+                    <>  
                         <img    className = "image" src = {email} width = "30" height = "30" alt="User Icon" title= "Enviar contraseña via correo electr&oacute;nico" 
                         style = {{marginRight:5}}
                         onClick = {() => enviarPass(row.id)} id={row.id}
                         />
+                        {/*
+                        <img    className = "image" src = {folder} width = "30" height = "30" alt="User Icon" title= "Descargar certificado de firma electr&oacute;nica" 
+                        style = {{marginRight:5}}
+                        onClick = {() => descargarArchivo(row.ruta_public_key)} id={row.id}
+                        />
+                        */}
+                        <img    className = "image" src = {digital_key} width = "30" height = "30" alt="User Icon" title= "Descargar llave privada de firma electr&oacute;nica" 
+                        style = {{marginRight:5}}
+                        onClick = {() => descargarArchivo(row.ruta_private_key)} id={row.id}
+                        />
+
                         <img    className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Cancelar firma electr&oacute;nica" 
                         style = {{marginRight:5}}
                         onClick = {() => cancelarFirma(row.id, row.ruta_public_key, row.ruta_private_key)} id={row.id}
@@ -145,6 +158,7 @@ export default function RegisterignPage(){
         })
         .then(response =>{            
             setFirmas(response.data)
+            //console.log(response.data);
             
         }).catch(error =>{
             auth.onError();    
@@ -242,6 +256,65 @@ export default function RegisterignPage(){
         setDatos({password:''});
         setEstado({error:false, message_error:''});
     }
+    /*
+    * Descripcion: Inhabilita firma electronica de usuario
+    * Fecha de la creacion:		30/04/2022
+    * Author:					Eduardo B 
+    */
+    
+    const descargarArchivo = async (ruta_archivo) =>{
+        
+        //ruta_archivo = '/home/hsu/Documentos/entornos_virtuales/django-rest/agepi_backend/firmas/2/lm555.pdf';
+
+        let arr = ruta_archivo.split('/');
+        let nombreArchivo = arr[arr.length-1];
+
+        
+
+
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        axios({
+        method: 'post',
+        url: baseURL+'/firma/descarga_firma/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data: {
+            ruta_archivo:ruta_archivo
+        }
+        })
+        .then(response =>{
+
+            let blob        = new Blob([response.data]);
+            let link        = document.createElement('a');
+            link.href       = window.URL.createObjectURL(blob);
+            link.download   = nombreArchivo;
+            link.click();
+            
+            
+        }).catch(error =>{
+
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+            
+
+        });
+
+    }
+
     /*
     * Descripcion: Inhabilita firma electronica de usuario
     * Fecha de la creacion:		30/04/2022

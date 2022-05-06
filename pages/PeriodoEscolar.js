@@ -33,11 +33,6 @@ export default function RegisterignPage(){
         message_error:''
     })
     const fecha = new Date();
-    /*
-    console.log(fecha);
-    const year = fecha.getFullYear();
-    console.log(year);
-    */
 
     const [periodos, setPeriodos] = useState([]);
     const [inscripcciones, setInscripcciones] = useState([]);
@@ -46,21 +41,7 @@ export default function RegisterignPage(){
     const [periodo, setPeriodo] = useState({val:'-1', opt:'Seleccione una opcci\u00F3n'});
 
     const handleInputChange = (event) => {
-
-        //console.log(event.target.id);
         toggleInscripccion(parseInt(event.target.id), event.target.checked);
-
-        //event.target.checked = !!event.target.checked;
-        /*
-        setDatos({
-            ...datos,
-            [event.target.name]:event.target.value
-        })
-        
-        if( event.target.name === 'sumary')
-            updateContadorTa(sumary.current, countSumary.current, 4000);
-        */
-        
     }
     
 
@@ -113,16 +94,6 @@ export default function RegisterignPage(){
                 <>
                     {row.state &&
                     <>  
-                        {/*
-                        <img    className = "image" src = {email} width = "30" height = "30" alt="User Icon" title= "Enviar contraseña via correo electr&oacute;nico" 
-                        style = {{marginRight:5}}
-                        onClick = {() => enviarPass(row.id)} id={row.id}
-                        />
-                        <img    className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Cancelar firma electr&oacute;nica" 
-                        style = {{marginRight:5}}
-                        onClick = {() => cancelarFirma(row.id, row.ruta_public_key, row.ruta_private_key)} id={row.id}
-                        />
-                        */}
                         <img    className = "image" src = {cancelar} width = "30" height = "30" alt="User Icon" title= "Inhabilitar periodo" 
                         style = {{marginRight:5}}
                         onClick = {() => InhabilitarPeriodo(row.id)} id={row.id}
@@ -152,18 +123,17 @@ export default function RegisterignPage(){
 
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
-        
+
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-
-        
         
         axios({
         method: 'get',
@@ -173,14 +143,16 @@ export default function RegisterignPage(){
         }
         })
         .then(response =>{            
-            console.log(response.data);
+            
             setPeriodos(response.data.periodos);
             setInscripcciones(response.data.inscripcciones);
             
             
         }).catch(error =>{
-            auth.onError();    
+            if(response.status === 401) auth.sesionExpirada();
+                auth.onError();    
         });
+        
         
         
 
@@ -233,9 +205,10 @@ export default function RegisterignPage(){
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
@@ -293,9 +266,10 @@ export default function RegisterignPage(){
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
@@ -371,6 +345,7 @@ export default function RegisterignPage(){
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
             auth.onError()
@@ -378,9 +353,7 @@ export default function RegisterignPage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-
         
-
         axios({
         method: 'post',
         url: baseURL+'/protocolos/inscripccion/',
@@ -397,11 +370,11 @@ export default function RegisterignPage(){
             
             setInscripcciones(response.data.inscripcciones);
             Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: response.data.message,
-                showConfirmButton: false,
-                timer: 1500
+            position: 'top-end',
+            icon: 'success',
+            title: response.data.message,
+            showConfirmButton: false,
+            timer: 1500
             }).then(function(){
             })
             
@@ -448,72 +421,62 @@ export default function RegisterignPage(){
                     <div className = "title" >Administraci&oacute;n de cat&aacute;logos de inscripcci&oacute;n de protocolos</div>
                 </div>
             </div>
-            {/*
-            <Tabs defaultActiveKey="periodos" id="uncontrolled-tab-example" className="mb-3" style = {{marginTop:30}}>
-                <Tab eventKey="periodos" title="Periodos de inscripcci&oacute;n">
-            */}
+            
 
-                    <div className= "row" style = {{marginTop:30}} >
-                        <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
-                            <div className = "label-form" >Año</div>
-                        </div>
-                        <div className = "col-lg-4 col-md-4 col-sm-6"> 
-                            <select className = "form-select" 
-                                value = {anio}
-                                onChange = {(e) =>{
-                                    setAnio(e.target.value);
-                                }}
-                                disabled
-                                ref = {cat_anio}
-                            >
-                                <option value = {anio} >{anio}</option>
-                            </select>
-
-                        </div>
-                        <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
-                            <div className = "label-form" >Per&iacute;odo escolar</div>
-                        </div>
-                        <div className = "col-lg-4 col-md-4 col-sm-6">
-                            <select className = "form-select" 
-                                value = {periodo.val}
-                                onChange = {(e) =>{
-                                    setPeriodo({val:e.target.value, opt:e.target.options[e.target.selectedIndex].text});
-                                }}
-                                ref = {cat_periodo}
-                            >
-                                <option value = "-1"  >Seleccione una opcci&oacute;n</option>
-                                <option value = '2' >Semestre Enero a Junio</option>
-                                <option value = '1' >Semestre Agosto  a Diciembre</option>
-                            </select>
-                        </div>
+                <div className= "row" style = {{marginTop:30}} >
+                    <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
+                        <div className = "label-form" >Año</div>
                     </div>
-                    <div className = "row" style = {{marginTop:20}} >
-                        <div className = "col-12 d-flex justify-content-center">
-                            <img className="image" src={save} onClick = {crearPeriodo} width = "30" height = "30" alt="User Icon" title= "Crear firma electr&oacute;nica" style = {{marginRight:5}}/>
-                            <img className="image" src={search} onClick = {handleShow} width = "30" height = "30" alt="User Icon" title= "Tipos de inscripcci&oacute;n" style = {{marginRight:5}}/>
-                            <img className="image" src={limpiar} onClick = {limpiarCampos} width = "35" height = "35" alt="User Icon" title= "Limpiar campos" />
-                        </div>
+                    <div className = "col-lg-4 col-md-4 col-sm-6"> 
+                        <select className = "form-select" 
+                            value = {anio}
+                            onChange = {(e) =>{
+                                setAnio(e.target.value);
+                            }}
+                            disabled
+                            ref = {cat_anio}
+                        >
+                            <option value = {anio} >{anio}</option>
+                        </select>
+
                     </div>
+                    <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
+                        <div className = "label-form" >Per&iacute;odo escolar</div>
+                    </div>
+                    <div className = "col-lg-4 col-md-4 col-sm-6">
+                        <select className = "form-select" 
+                            value = {periodo.val}
+                            onChange = {(e) =>{
+                                setPeriodo({val:e.target.value, opt:e.target.options[e.target.selectedIndex].text});
+                            }}
+                            ref = {cat_periodo}
+                        >
+                            <option value = "-1"  >Seleccione una opcci&oacute;n</option>
+                            <option value = '2' >Semestre Enero a Junio</option>
+                            <option value = '1' >Semestre Agosto  a Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+                <div className = "row" style = {{marginTop:20}} >
+                    <div className = "col-12 d-flex justify-content-center">
+                        <img className="image" src={save} onClick = {crearPeriodo} width = "30" height = "30" alt="User Icon" title= "Crear firma electr&oacute;nica" style = {{marginRight:5}}/>
+                        <img className="image" src={search} onClick = {handleShow} width = "30" height = "30" alt="User Icon" title= "Tipos de inscripcci&oacute;n" style = {{marginRight:5}}/>
+                        <img className="image" src={limpiar} onClick = {limpiarCampos} width = "35" height = "35" alt="User Icon" title= "Limpiar campos" />
+                    </div>
+                </div>
 
-                    <DataTable
-                        columns = {columnasTabla}
-                        data = {periodos}
-                        title = "Periodos disponibles"
-                        noDataComponent="No existen registros disponibles"
-                        pagination
-                        paginationComponentOptions = {paginacionOpcciones}
-                        fixedHeaderScrollHeight = "600px"
-                    />
+                <DataTable
+                    columns = {columnasTabla}
+                    data = {periodos}
+                    title = "Periodos disponibles"
+                    noDataComponent="No existen registros disponibles"
+                    pagination
+                    paginationComponentOptions = {paginacionOpcciones}
+                    fixedHeaderScrollHeight = "600px"
+                />
 
 
-            {/* 
-                </Tab>
-                <Tab eventKey="registro" title="Tipos de registro">
-
-                </Tab>
-            </Tabs>
-            */}
-
+          
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton  className = "bg-primary" >
                 <Modal.Title >

@@ -46,11 +46,7 @@ export default function RegisterTeam(){
 
 
     useEffect(() => {
-        //updTableTeam();
-
-        //loadTables();
         startModule();
-        
     },[]);
 
     /*
@@ -465,6 +461,7 @@ export default function RegisterTeam(){
         var response = null;
         try {
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
@@ -483,17 +480,22 @@ export default function RegisterTeam(){
             
         })
         .then(response =>{
+            if(response.status === 226){
+                auth.onErrorMessage(response.data.message);
+            }else if(response.status === 200){
 
-            Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: response.data.message,
-            showConfirmButton: false,
-            timer: 1500
-            }).then(function() {
-                updTableTeam();
-            })
-            
+                Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: response.data.message,
+                showConfirmButton: false,
+                timer: 1500
+                }).then(function() {
+                    updTableTeam();
+                })
+                
+               
+            }
             
 
         }).catch(error => {
@@ -745,7 +747,7 @@ export default function RegisterTeam(){
                 </div>
             </div>
 
-            <button onClick={startModule} >alumnos</button>
+            
         
 
 

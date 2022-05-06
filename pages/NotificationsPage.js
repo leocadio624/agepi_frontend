@@ -21,6 +21,7 @@ import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import edit_icon from '../assetss/images/lapiz.png';
 import question from '../assetss/images/question.png';
+import firma from '../assetss/images/firma-digital.png';
 
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
@@ -65,6 +66,7 @@ export default function NotificationsPage(){
             selector:row => <div title = {''+row.str_salida+''}>{row.str_salida}</div>,
             sortable:true,
             left:true
+            
 
         },
         {
@@ -89,6 +91,11 @@ export default function NotificationsPage(){
                         />
                     </>
                     }
+                    {   row.fk_tipoNotificacion === 4 && row.state &&
+                        <a href="/solicitudes_firma" >
+                            <img    className = "image" src = {firma} width = "30" height = "30" alt="User Icon" title= "Firmar protocolo" />
+                        </a>    
+                    }
                 </>
                 ,
                 ignoreRowClick: true,
@@ -109,6 +116,7 @@ export default function NotificationsPage(){
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
             auth.onError()
@@ -133,12 +141,7 @@ export default function NotificationsPage(){
             console.log(response.data)
             setNotificaciones(response.data.notificaciones);
             
-            /*
-            setTeams(response.data.teams);
-            setSolicitudes(response.data.solicitudes)
-            setAlumnos(response.data.alumnos);
-            setProfesores(response.data.profesores);
-            */
+        
             
             
             
@@ -163,6 +166,7 @@ export default function NotificationsPage(){
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
             auth.onError()
@@ -192,17 +196,7 @@ export default function NotificationsPage(){
                 auth.onErrorMessage("No puedes aceptar esta invitaci\u00F3n, ya estas relacionado en el equipo: \""+response.data.team+"\"");
 
             }else if(response.status === 200){
-                /*
-                Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: "Te has unido a el equipo: \""+response.data.team+"\"",
-                showConfirmButton: false,
-                timer: 1500
-                }).then(function() {
-                })
-                */
-
+                
                 Swal.fire({
                 icon: 'success',
                 html : "Te has unido al siguiente equipo:<strong><br>\""+response.data.team+"\"</strong>",
@@ -249,16 +243,12 @@ export default function NotificationsPage(){
     */
     const rechazarSolicitud = async (id_notificacion, fk_user_origen, id_teamMember) =>{
 
-        /*
-        console.log(id_notificacion);
-        console.log(fk_user_origen);
-        console.log(id_teamMember);
-        return;
-        */
+       
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
             auth.onError()
@@ -282,7 +272,7 @@ export default function NotificationsPage(){
                 }
         })
         .then(response =>{
-            //console.log(response.data);
+            
             
             Swal.fire({
                 position: 'top-end',
@@ -303,17 +293,6 @@ export default function NotificationsPage(){
 
     }
 
-    const prueba = async () =>{
-        console.log(notificaciones);
-
-        
-        
-
-
-    }
-
-    
-
     return(
 
         
@@ -322,10 +301,6 @@ export default function NotificationsPage(){
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
                     <div className = "title" >Notificaciones</div>
-
-                    
-
-
                 </div>
             </div>
             <div className = "row" >
@@ -347,7 +322,7 @@ export default function NotificationsPage(){
 
             <div className = "row panel-footer">
                 <div className = "col-12 d-flex justify-content-center">
-                    <button  onClick = {prueba} >prueba</button>
+                    
                 </div>
             </div>
         </div>

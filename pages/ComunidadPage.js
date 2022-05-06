@@ -157,6 +157,7 @@ export default function ComunidadPage(){
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
@@ -167,19 +168,17 @@ export default function ComunidadPage(){
 
     
         axios({
-            method: 'get',
-            url: baseURL+'/comunidad/programa_academico/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
+        method: 'get',
+        url: baseURL+'/comunidad/programa_academico/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }
         })
         .then(response =>{
-
             setProgramas(response.data);
             
             
         }).catch(error => {
-
             if(!error.status)
                auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -199,23 +198,29 @@ export default function ComunidadPage(){
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
+        
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
         }
+        
+
+        //response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+        //if(response.status === 401){ auth.sesionExpirada(); return;}
+
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-
     
         axios({
-            method: 'get',
-            url: baseURL+'/comunidad/comunidad/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
+        method: 'get',
+        url: baseURL+'/comunidad/comunidad/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }
         })
         .then(response =>{
 
@@ -245,29 +250,34 @@ export default function ComunidadPage(){
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
+        
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
         }
+
+        response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
 
     
         axios({
-            method: 'get',
-            url: baseURL+'/comunidad/alumnos/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
+        method: 'get',
+        url: baseURL+'/comunidad/alumnos/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }
         })
         .then(response =>{
             setAlumnos(response.data.alumnos);
             
             
         }).catch(error => {
+            
             if(!error.status){
                auth.onError()
                setAlumnos([]);
@@ -322,6 +332,7 @@ export default function ComunidadPage(){
 
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
@@ -426,6 +437,7 @@ export default function ComunidadPage(){
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
@@ -527,6 +539,7 @@ export default function ComunidadPage(){
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()

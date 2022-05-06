@@ -138,18 +138,16 @@ const AuthProvider = ({children}) => {
         },
         startRedirect(){
 
-            
-
             try{
                 if(user.is_staff){
                     if(user.rol_user === 1 || user.rol_user === 2 )
-                        return '/equipo';
+                    return '/equipo';
                     else if(user.rol_user === 3 || user.rol_user === 4 )
-                        return '/comunidad';
+                    return '/comunidad';
                 }
-                else
+                else{
                     return '/activar_usuario';
-                    
+                }    
             }catch(error){
                 return '/activar_usuario';
             }
@@ -259,6 +257,15 @@ const AuthProvider = ({children}) => {
             }
             })
 
+        },
+        /*
+        * Descripcion:	Cierra la session cuando el token haya expirado
+        * Fecha de la creacion:		08/04/2022
+        * Author:					Eduardo B 
+        */
+        sesionExpirada(){
+            alert('Su sesi\u00F3n de usuario ha expirado');
+            setUser(null);
         }
     }
 
