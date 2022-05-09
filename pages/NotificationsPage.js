@@ -119,7 +119,7 @@ export default function NotificationsPage(){
             if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
@@ -138,11 +138,7 @@ export default function NotificationsPage(){
         })
         .then(response =>{
             
-            console.log(response.data)
             setNotificaciones(response.data.notificaciones);
-            
-        
-            
             
             
         }).catch(error => {

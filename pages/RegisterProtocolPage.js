@@ -2,8 +2,8 @@ import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
 
 import {Modal, Button} from 'react-bootstrap';
-import Swal from 'sweetalert2';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
 
