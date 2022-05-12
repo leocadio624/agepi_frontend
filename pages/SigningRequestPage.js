@@ -39,11 +39,12 @@ export default function SigningRequestPage(){
 
     /*
     * Descripcion: Inicialializa el estado del modulo
-    * Fecha de la creacion:		17/04/2022
+    * Fecha de la creacion:		11/05/2022
     * Author:					Eduardo B 
     */
     const startModule = async () =>{
 
+        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -78,6 +79,7 @@ export default function SigningRequestPage(){
             
             
         });
+        
 
     }
 
@@ -86,7 +88,8 @@ export default function SigningRequestPage(){
     * Fecha de la creacion:		03/05/2022
     * Author:					Eduardo B 
     */
-    const descargarArchivo = async (path) => {
+    const descargarArchivo = async (pk_protocol, path) => {
+
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -100,31 +103,37 @@ export default function SigningRequestPage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-
+        
         axios({
         method: 'post',
-        url: baseURL+'/downloadFile/',
+        url: baseURL+'/protocolos/crearDocumentoFirmas/',
         responseType: 'blob',
         headers: {
             'Authorization': `Bearer ${ token }`
         },
         data : {
-            'pathProtocol'      : path
+            pk_protocol : pk_protocol,
+            fileProtocol : path
         }
         })
         .then(response =>{
+
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
             window.open(fileURL, "_blank", strWindowFeatures);
 
+            
+
         }).catch(error => {
             if(!error.status)
                 auth.onError();
-            auth.onErrorMessage(error.response.data.message);
-                        
+            auth.onErrorMessage(error.response.data.message);                
         });
+
+
         
+
 
 
     }
@@ -243,9 +252,6 @@ export default function SigningRequestPage(){
     const firmarProtocolo = async (event) => {
         event.preventDefault();
 
-        //console.log(fileProtocol);
-        //return;
-
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -274,6 +280,24 @@ export default function SigningRequestPage(){
         data : formData
         })
         .then(response =>{
+
+        
+            Swal.fire({
+            title: '',
+            icon: 'success',
+            html: "<div><strong>"+response.data.message+"</strong></div>",
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                handleClose();
+                startModule();
+
+            }
+            })
             
             
             
@@ -336,9 +360,13 @@ export default function SigningRequestPage(){
         {   
             name:'Acciones',
             cell:(row) =>  <>
-                            <img    className = "image" src = {pdf} width = "30" height = "30" alt="User Icon" title= "Ver detalle protocolo" 
-                                    onClick = {() => descargarArchivo(row.path_protocol)} style = {{marginRight:7}}/>
+            
+                            {   row.numeroFirmas > 0 &&
+                            <img    className = "image" src = {pdf} width = "30" height = "30" alt="User Icon" title= "Ver protocolo" 
+                            onClick = {() => descargarArchivo(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
                             
+
+                            }
                             <img    className = "image" src = {firma} width = "30" height = "30" alt="User Icon" title= "Firmar protocolo" 
                                     onClick = {() => existeFirma(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
 

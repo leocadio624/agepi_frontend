@@ -25,6 +25,8 @@ import Activate from '../pages/ActivatePage';
 import Notifications from '../pages/NotificationsPage';
 import PeriodoEscolar from '../pages/PeriodoEscolar';
 
+//import validarQr from '../pages/validarQr';
+import validarQR2 from '../pages/validarQR2';
 
 
 import Navbar from '../components/Navbar';
@@ -66,16 +68,19 @@ export default function AppRouter(){
     
                     <Route exact path = "/" component = {Home} />
                     <Route path = "*" component = {NotFound} />
+
+                    <PublicRoute exact path = "/validar_firmas_qr/:param"  component = {validarQr} />
                     */}
 
                     <PublicRoute exact path = "/" component = {Home} />
                     <PublicRoute exact path = "/iniciar_sesion"  component = {Login} />
                     <PublicRoute exact path = "/registrarce"  component = {Register} />
+
+                    <PrivateRoute exact path = "/validar_firmas_priv_qr/:param"  component = {validarQR2}/>
                     
 
                     
-                    {/*    
-                    */}
+                    
 
 
                     <PrivateRoute exact path = "/estado_protocolo"  component = {ProtocolState} />
@@ -90,6 +95,8 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/activar_usuario"  component = {Activate}/>
                     <PrivateRoute exact path = "/notificaciones"  component = {Notifications}/>
                     <PrivateRoute exact path = "/PeriodoEscolar"  component = {PeriodoEscolar}/>
+
+
                 
                     
                         

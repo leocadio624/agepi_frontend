@@ -107,12 +107,26 @@ const AuthProvider = ({children}) => {
         },
         isLoggedPriv(path){
 
+            let a = path.split('/');
+            path = a[1];
+            
+
+
+
             let pertenece = false;
-            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];
+            /*
+            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones', '/validar_firmas_priv_qr'];
             const pathsProfesor = ['/activar_usuario', '/equipo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];            
             const pathsCat = ['/protocolos','/comunidad', '/PeriodoEscolar'];
-
             const paths = ['/activar_usuario'];
+            */
+
+            const pathsAlumno = ['activar_usuario', 'equipo', 'registrar_equipo', 'registro_protocolo', 'solicitudes_firma', 'validar_firmas', 'registar_firma', 'notificaciones', 'validar_firmas_priv_qr'];
+            const pathsProfesor = ['activar_usuario', 'equipo', 'solicitudes_firma', 'validar_firmas', 'registar_firma', 'notificaciones'];            
+            const pathsCat = ['protocolos','comunidad', 'PeriodoEscolar'];
+            const paths = ['activar_usuario'];
+
+            
 
             if( user === null)
                 return false;
@@ -142,7 +156,7 @@ const AuthProvider = ({children}) => {
                 if(user.is_staff){
                     if(user.rol_user === 1 || user.rol_user === 2 )
                     return '/equipo';
-                    else if(user.rol_user === 3 || user.rol_user === 4 )
+                    else if(user.rol_user === 3 || user.rol_user === 4)
                     return '/comunidad';
                 }
                 else{
