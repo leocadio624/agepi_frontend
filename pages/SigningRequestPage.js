@@ -13,6 +13,7 @@ import firma from '../assetss/images/firma-digital.png';
 import cancel from '../assetss/images/cancelar.png';
 import engrane from '../assetss/images/engrane.png';
 import lupa from '../assetss/images/lupa.png';
+import ver from '../assetss/images/ver.png';
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 export default function SigningRequestPage(){
@@ -27,10 +28,16 @@ export default function SigningRequestPage(){
     const [firmaSat, setFirmaSat] = useState(false);
     const [solicitudes, setSolicitudes] = useState([]);
 
-    const [publicFile, setPublicFile] = useState(null);
+     const [publicFile, setPublicFile] = useState(null);
     const [privateFile, setPrivateFile] = useState(null);
     const [fileProtocol, setFileProtocol] = useState('');
     const [pkProtocol, setPkProtocol] = useState(0);
+    
+    const [protocolo, setProtocolo] = useState({'numero':'', 'titulo':'', 'resumen':'', 'periodo':''});
+    const [firmantes, setFirmantes] = useState([]);
+    const [showDet, setShowDet] = useState(false);
+
+
     
 
     useEffect(() => {
@@ -70,8 +77,6 @@ export default function SigningRequestPage(){
         
         })
         .then(response =>{
-
-            console.log(response.data);
             setSolicitudes(response.data);
             
         }).catch(error => {
@@ -226,12 +231,7 @@ export default function SigningRequestPage(){
                         
         });
         
-
-
-
-
     }
-
     /*
     * Descripcion: Muestra el password ingresado
     * 'Registrar firma'
@@ -310,13 +310,18 @@ export default function SigningRequestPage(){
         });
 
 
-        /*
-        console.log(formData);
+    }
 
+    /*
+    * Descripcion:	Abre modal con detalles de protocolo
+    * Fecha de la creacion:		12/05/2022
+    * Author:					Eduardo B 
+    */
+    const detallesProtocolo = async (pk_protocol, numero, titulo, resumen, periodo, firmantes) => {
+        setProtocolo({'numero':numero, 'titulo':titulo, 'resumen':resumen, 'periodo':periodo});
+        setFirmantes(firmantes);
+        showModalDetalles();
 
-
-        handleShow();
-        */
     }
     /*
     * Descripcion:	Cambia idioma del data table
@@ -362,13 +367,16 @@ export default function SigningRequestPage(){
             cell:(row) =>  <>
             
                             {   row.numeroFirmas > 0 &&
-                            <img    className = "image" src = {pdf} width = "30" height = "30" alt="User Icon" title= "Ver protocolo" 
+                            <img    className = "image" src = {pdf} width = "30" height = "30" alt="User Icon" title= "Ver archivo protocolo" 
                             onClick = {() => descargarArchivo(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
                             
 
                             }
+                            <img    className = "image" src = {ver} width = "30" height = "30" alt="User Icon" title= "Ver detalles protocolo" 
+                                    onClick = {() => detallesProtocolo(row.pk_protocol, row.numero, row.titulo, row.summary, row.periodo, row.firmantes )} style = {{marginRight:7}}/>
                             <img    className = "image" src = {firma} width = "30" height = "30" alt="User Icon" title= "Firmar protocolo" 
                                     onClick = {() => existeFirma(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
+
 
                             
 
@@ -394,6 +402,23 @@ export default function SigningRequestPage(){
 
     }
     const handleShow = () =>{ setShow(true); } 
+
+    /*
+    * Descripcion:	Despliegue y cierre de centana modal con detalles
+    * de protocolo
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const closeModalDetalles = () =>{ 
+        setProtocolo({'numero':'', 'titulo':'', 'resumen':'', 'periodo':''});
+        setFirmantes([]);
+        setShowDet(false); 
+    }
+    const showModalDetalles = () =>{ 
+        setShowDet(true); 
+    }
+
+    
 
     return(
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
@@ -528,6 +553,65 @@ export default function SigningRequestPage(){
                 <Modal.Footer className = "panel-footer">
                     <img className="image" src={engrane} onClick={firmarProtocolo}  width = "30" height = "30" alt="User Icon" title= "Firmar" />
                     <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" />        
+                </Modal.Footer>
+            </Modal>
+
+            <Modal size = "lg" show={showDet} onHide={closeModalDetalles}>
+                <Modal.Header closeButton  className = "bg-primary" >
+                <Modal.Title >
+                    <div className = "title" >Detalle protocolo</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                            <div className = "label-form" >T&iacute;tulo</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                            <input value = {protocolo.titulo} className = "form-control" type = "text" disable = "true" onChange = {(e) => {return}} />
+                        </div>
+                    </div>
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                            <div className = "label-form" >Resumen protocolo</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                        <textarea value = {protocolo.resumen} className = "form-control"  rows="3" onChange = {(e) => {return}} disable = "true"></textarea>
+                        </div>
+                    </div>
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                            <div className = "label-form" >Per&iacute;odo inscrpcci&oacute;n</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                            <input value = {protocolo.periodo} className = "form-control" type = "text" disable = "true" onChange = {(e) => {return}} />
+                        </div>
+                    </div>
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                            <div className = "label-form" >N&uacute;mero protocolo</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                            <input value = {protocolo.numero} className = "form-control" type = "text" disable = "true" onChange = {(e) => {return}} />
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <h5>Firmantes</h5>
+                    {firmantes.map((i, index) =>(
+                        <div className = "row row-form" key = {index}>
+                            <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                                <label className = ""  >{i.nombre}</label>
+                            </div>
+                            <div className = "col-lg-8 col-md-8 col-sm-12">
+                                <label className = "" style = {{fontSize:13}} >{i.fecha_firma}</label>
+                            </div>
+                        </div>
+
+                    ))}
+                </Modal.Body>
+                <Modal.Footer className = "panel-footer">
+                    <img className="image" src={cancel} onClick={closeModalDetalles} width = "30" height = "30" alt="User Icon" title= "Cerrar" readOnly/>        
                 </Modal.Footer>
             </Modal>
 

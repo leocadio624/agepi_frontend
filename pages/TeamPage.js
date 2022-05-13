@@ -61,7 +61,7 @@ export default function Team(){
         .then(response =>{
 
             let equipos = response.data.equipos;
-            console.log(equipos)
+            
             
             if(equipos.length === 0){
                 setEstado({error:true,message_error:'Aun no estas relacionado en un equipo'})
