@@ -1,11 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react';
-
-
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
 import Swal from 'sweetalert2';
-
 import check from '../assetss/images/comprobado.png';
 import clean from '../assetss/images/iconoBorrar.png';
 
@@ -15,9 +12,10 @@ export default function ValidateSignPage(){
 
     const auth = useAuth();
     const [estado, setEstado] = useState({error:false, message_error:''})    
-    const [datos, setDatos] = useState({numero: '',firma:''})
+    const [datos, setDatos] = useState({firma:''})
     const [protocolos, setProtocolos] = useState([{id: '',numero: ''}])
     const [protocolo, setProtocolo] = useState('-1');
+    const [integrante, setIntegrante] = useState('-1')
     const [integrantes, setIntegrantes] = useState([{pk_user: '',nombre:''}])
     
     const handleInputChange = (event) => {
@@ -27,7 +25,9 @@ export default function ValidateSignPage(){
         })
         setEstado({error:false, message_error:''});
     }
-    const numero_ref = useRef();
+
+    const protocol_ref = useRef();
+    const member_ref = useRef();
     const firma_ref = useRef();
 
 
@@ -73,55 +73,88 @@ export default function ValidateSignPage(){
             });
             setProtocolos(aux_protocol)
             
-            
-
-
-
-            /*
-            let equipos = response.data.equipos;
-            console.log(equipos);
-
-            equipos.forEach(i =>{
-                console.log(i)
-                
-            });
-            */
-            
-            /*
-            console.log(equipos)
-            
-            if(equipos.length === 0){
-                setEstado({error:true,message_error:'Aun no estas relacionado en un equipo'})
-            }
-            if(equipos.length === 1){
-                setNombreEquipo(equipos[0].team);
-                getTeam(equipos[0].fk_team);
-            }else{
-                setEquipos(response.data.equipos)
-            }
-            */
-
-            
-
         }).catch(error =>{
             auth.onError();    
         });
 
-        
-        
-        
+    }
+    /*
+    * Descripcion: Actualiza el catalogo de integrantes de protocolo
+    * Fecha de la creacion:		14/05/2022
+    * Author:					Eduardo B 
+    */
+    const getIntegrantes = async (pk_protocol) =>{
+
+        pk_protocol = parseInt(pk_protocol);        
+        if(pk_protocol === -1){setIntegrantes([]); return;} 
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+       
+        axios({
+        method: 'get',
+        url: baseURL+'/firma/getIntegrantesProtocolo/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        params: {
+            pk_protocol : pk_protocol
+        }
+        })
+        .then(response =>{
+            
+            let aux_integrantes = [];
+            response.data.forEach(i =>{
+                aux_integrantes.push({'pk_user':i.fk_user, 'nombre':i.name+' '+i.last_name});
+            });
+            setIntegrantes(aux_integrantes);
+            
+            
+        }).catch(error =>{
+            auth.onError();    
+            setIntegrantes([]);
+        });
 
     }
-
     const limpiarCampos = () =>{
-        setDatos({numero:'', firma:''});
+        setDatos({firma:''});
         setEstado({error:false, message_error:''});
+        setProtocolo('-1');
+        setIntegrante('-1');
+        setIntegrantes([]);
+
+
+
     }
+    /*
+    * Descripcion: Verifica documento con llave publica
+    * y cadena proporcionada
+    * Fecha de la creacion:		14/05/2022
+    * Author:					Eduardo B 
+    */
     const verificaFirma = async () =>{
 
-        if(datos.numero.trim() === ''){
-            setEstado({error:true, message_error:'Ingrese un n\u00FAmero de protocolo'});
-            numero_ref.current.focus();
+        let protocol = parseInt(protocolo);
+        let member = parseInt(integrante);
+        
+        if( protocol === -1){
+            setEstado({error:true, message_error:'Seleccione un protocolo'});
+            protocol_ref.current.focus();
+            return;
+        }
+        if( member === -1){
+            setEstado({error:true, message_error:'Seleccione un integrante de protocolo'});
+            member_ref.current.focus();
             return;
         }
         if(datos.firma.trim() === ''){
@@ -129,7 +162,6 @@ export default function ValidateSignPage(){
             firma_ref.current.focus();
             return;
         }
-
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -146,35 +178,41 @@ export default function ValidateSignPage(){
 
         axios({
         method: 'post',
-        url: baseURL+'/protocolos/verificaFirma/',
+        url: baseURL+'/firma/verificaFirma/',
         headers: {
             'Authorization': `Bearer ${ token }`
         },
         data: {
-            'numero': datos.numero,
-            'firma': datos.firma
+            'pk_protocol' : protocol,
+            'pk_user': member,
+            'firma': datos.firma.trim()
         }
         })
         .then(response =>{
-            
-            
+
+            Swal.fire({
+            title: '',
+            icon: 'success',
+            html: "<div><strong>"+response.data.message+"</strong></div>",
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                limpiarCampos();
+            }
+            })
+                
         }).catch(error => {
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
             
-            
         });
         
-        
-
-        
-        
-
-
     }
-
-    
     return(
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
             
@@ -194,14 +232,19 @@ export default function ValidateSignPage(){
             }
             <div className = "row row-form">
                 <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
-                    <div className = "label-form" >N&uacute;mero de protocolo</div>
+                    <div className = "label-form" >Protocolo</div>
                 </div>
                 <div className = "col-lg-4 col-md-4 col-sm-6">
                     <select className = "form-select" 
                         value = {protocolo}
+                        ref = {protocol_ref}
                         onChange = {(e) =>{
                             setProtocolo(e.target.value);
-                            console.log(e.target.value);
+                            getIntegrantes(e.target.value);
+
+                            if( parseInt(e.target.value) !== -1)
+                                setEstado({error:false, message_error:''});
+                            
                         }}
                     >
                         <option value = "-1"  >Seleccione una opcci&oacute;n</option>
@@ -216,10 +259,13 @@ export default function ValidateSignPage(){
                 </div>
                 <div className = "col-lg-4 col-md-4 col-sm-6">
                     <select className = "form-select" 
-                        //value = {protocolo}
+                        value = {integrante}
+                        ref = {member_ref}
                         onChange = {(e) =>{
-                            //setProtocolo(e.target.value);
-                            //console.log(e.target.value);
+
+                            setIntegrante(e.target.value);
+                            if( parseInt(e.target.value) !== -1)
+                                setEstado({error:false, message_error:''});
                         }}
                     >
                         <option value = "-1"  >Seleccione una opcci&oacute;n</option>
@@ -228,13 +274,13 @@ export default function ValidateSignPage(){
                         ))}
                     </select>
                 </div>
-
+ 
             </div>
             <div className = "row row-form">
-                <div className = "col-lg-2 col-md-2 col-sm-4 d-flex justify-content-center">
+                <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                     <div className = "label-form" >Firma (sello digital)</div>
                 </div>
-                <div className = "col-lg-4 col-md-4 col-sm-6">
+                <div className = "col-lg-10 col-md-10 col-sm-6">
                     <input type="text" className = "form-control" ref = {firma_ref} name = "firma" value = {datos.firma} onChange = {handleInputChange}  />
                 </div>
             </div>

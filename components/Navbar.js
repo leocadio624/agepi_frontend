@@ -37,7 +37,7 @@ export default function Navbar(){
                                 <NavLink exact to = "/iniciar_sesion" className = "nav-link" activeClassName = "active" ><span className = "glyphicon glyphicon-user"></span>Iniciar sesion</NavLink>
                             </li>
                             <li className = "nav-item" >
-                                <NavLink exact to = "/registrarce" className = "nav-link" activeClassName = "active" >Registrarce</NavLink>                                
+                                <NavLink exact to = "/registrarce" className = "nav-link" activeClassName = "active" >Registrarse</NavLink>                                
                             </li>
                         </>
                         }
@@ -121,7 +121,7 @@ export default function Navbar(){
                                 
                                 <li className = "nav-item dropdown" style = {{marginRight:45}} >
                                     <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Opcciones
+                                        Opciones
                                     </a>
                                     <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                         <li>
@@ -147,7 +147,7 @@ export default function Navbar(){
                                 </li>
                                 <li className = "nav-item dropdown" style = {{marginRight:45}} >
                                     <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Opcciones
+                                        Opciones
                                     </a>
                                     <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                         <li>
