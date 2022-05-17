@@ -281,7 +281,6 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
 
-        
             Swal.fire({
             title: '',
             icon: 'success',
@@ -295,17 +294,23 @@ export default function SigningRequestPage(){
             preConfirm: () => {
                 handleClose();
                 startModule();
-
+                
             }
             })
+
+            /*
+            */
+            
             
             
             
 
         }).catch(error => {
+            
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
+            
                         
         });
 
@@ -374,9 +379,12 @@ export default function SigningRequestPage(){
                             }
                             <img    className = "image" src = {ver} width = "30" height = "30" alt="User Icon" title= "Ver detalles protocolo" 
                                     onClick = {() => detallesProtocolo(row.pk_protocol, row.numero, row.titulo, row.summary, row.periodo, row.firmantes )} style = {{marginRight:7}}/>
-                            <img    className = "image" src = {firma} width = "30" height = "30" alt="User Icon" title= "Firmar protocolo" 
-                                    onClick = {() => existeFirma(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
+                            
+                            {   row.state === true &&
+                                <img    className = "image" src = {firma} width = "30" height = "30" alt="User Icon" title= "Firmar protocolo" 
+                                onClick = {() => existeFirma(row.pk_protocol, row.path_protocol)} style = {{marginRight:7}}/>
 
+                            }
 
                             
 

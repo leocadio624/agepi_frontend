@@ -54,6 +54,9 @@ export default function Navbar(){
 
                                     <>
                                     <li className = "nav-item" >
+                                        <NavLink exact to = "/LineProtocol" className = "nav-link" activeClassName = "active" >Protocolo</NavLink>
+                                    </li>
+                                    <li className = "nav-item" >
                                         <NavLink exact to = "/equipo" className = "nav-link" activeClassName = "active" >Equipo</NavLink>
                                     </li>
                                     <li className = "nav-item">

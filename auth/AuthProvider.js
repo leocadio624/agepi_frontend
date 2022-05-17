@@ -115,13 +115,13 @@ const AuthProvider = ({children}) => {
 
             let pertenece = false;
             /*
-            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones', '/validar_firmas_priv_qr'];
+            const pathsAlumno = ['/activar_usuario', '/equipo', '/registrar_equipo', '/registro_protocolo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones', '/validar_firmas_priv_qr', '/LineProtocol'];
             const pathsProfesor = ['/activar_usuario', '/equipo', '/solicitudes_firma', '/validar_firmas', '/registar_firma', '/notificaciones'];            
             const pathsCat = ['/protocolos','/comunidad', '/PeriodoEscolar'];
             const paths = ['/activar_usuario'];
             */
 
-            const pathsAlumno = ['activar_usuario', 'equipo', 'registrar_equipo', 'registro_protocolo', 'solicitudes_firma', 'validar_firmas', 'registar_firma', 'notificaciones', 'validar_firmas_priv_qr'];
+            const pathsAlumno = ['activar_usuario', 'equipo', 'registrar_equipo', 'registro_protocolo', 'solicitudes_firma', 'validar_firmas', 'registar_firma', 'notificaciones', 'validar_firmas_priv_qr', 'LineProtocol'];
             const pathsProfesor = ['activar_usuario', 'equipo', 'solicitudes_firma', 'validar_firmas', 'registar_firma', 'notificaciones'];            
             const pathsCat = ['protocolos','comunidad', 'PeriodoEscolar'];
             const paths = ['activar_usuario'];

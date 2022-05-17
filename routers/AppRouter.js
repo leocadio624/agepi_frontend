@@ -24,6 +24,7 @@ import ValidateSigns from '../pages/ValidateSignsPage';
 import Activate from '../pages/ActivatePage';
 import Notifications from '../pages/NotificationsPage';
 import PeriodoEscolar from '../pages/PeriodoEscolar';
+import LineProtocol from '../pages/LineProtocolPage';
 
 //import validarQr from '../pages/validarQr';
 import validarQR2 from '../pages/validarQR2';
@@ -95,8 +96,9 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/activar_usuario"  component = {Activate}/>
                     <PrivateRoute exact path = "/notificaciones"  component = {Notifications}/>
                     <PrivateRoute exact path = "/PeriodoEscolar"  component = {PeriodoEscolar}/>
+                    <PrivateRoute exact path = "/LineProtocol"  component = {LineProtocol}/>
 
-
+                    
                 
                     
                         

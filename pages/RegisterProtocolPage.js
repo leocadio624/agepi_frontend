@@ -41,7 +41,8 @@ export default function RegisterPage(){
         numero       : 'Registro de protocolo',
         title        : '',
         sumary       : '',
-        fileProtocol : ''
+        fileProtocol : '',
+        fk_protocol_state :1
     })
 
     
@@ -69,7 +70,6 @@ export default function RegisterPage(){
             ...datos,
             [event.target.name]:event.target.value
         })
-        
         if( event.target.name === 'sumary')
             updateContadorTa(ref_sumary.current, countSumary.current, 4000);
         
@@ -343,7 +343,8 @@ export default function RegisterPage(){
                     numero      : 'Registro de protocolo',
                     title       : '',
                     sumary      : '',
-                    fileProtocol : ''
+                    fileProtocol : '',
+                    fk_protocol_state :1
                 });
         countSumary.current.innerHTML = "0/4000";
         setPeriod('-1');
@@ -405,7 +406,10 @@ export default function RegisterPage(){
     * Fecha de la creacion:		03/05/2022
     * Author:					Eduardo B 
     */
-    const loadProtocol = async (pk_protocol, number, title, sumary, fk_periodo, fk_inscripccion, fileProtocol, fk_team) =>{ 
+    const loadProtocol = async (pk_protocol, number, title, sumary, fk_periodo, fk_inscripccion, fileProtocol, fk_team, fk_protocol_state) =>{ 
+        
+        
+
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -443,14 +447,24 @@ export default function RegisterPage(){
                 numero       : number,
                 title        : title,
                 sumary       : sumary,
-                fileProtocol : fileProtocol
+                fileProtocol : fileProtocol,
+                fk_protocol_state :fk_protocol_state
             });
 
             setPeriod(fk_periodo);
             setTypeRegister(fk_inscripccion);
             setPkTeam(fk_team);
             countSumary.current.innerHTML = ''+(sumary.length).toString()+"/4000";
-            setEdit(true);
+
+            //setEdit(false);
+            
+            
+            if(fk_protocol_state > 1)
+                setEdit(true);
+            else
+                setEdit(false);
+            
+
             handleClose();
             
 
@@ -586,7 +600,8 @@ export default function RegisterPage(){
                                                                 row.fk_periodo,
                                                                 row.fk_inscripccion,
                                                                 row.fileProtocol,
-                                                                row.fk_team
+                                                                row.fk_team,
+                                                                row.fk_protocol_state
                                                                 )} style = {{marginRight:7}}/>
 
                             {row.fk_protocol_state === 1 &&
@@ -619,13 +634,13 @@ export default function RegisterPage(){
                         <div className = "label-form" >T&iacute;tulo</div>
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6"> 
-                        <input ref={ref_title} value = {datos.title} className = "form-control" type="text" name = "title" placeholder = "Titulo de protocolo" onChange = {handleInputChange} />
+                        <input ref={ref_title} value = {datos.title} className = "form-control" type="text" name = "title" placeholder = "T&iacute;tulo de protocolo" onChange = {handleInputChange} readOnly = {edit} />
                     </div>
                     <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                         <div className = "label-form" >Resumen</div>
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6">
-                        <textarea  ref={ref_sumary}  value = {datos.sumary} className = "form-control" name = "sumary" rows="3" onChange = {handleInputChange} ></textarea>
+                        <textarea  ref={ref_sumary}  value = {datos.sumary} className = "form-control" name = "sumary" rows="3" onChange = {handleInputChange} readOnly = {edit} ></textarea>
                         <blockquote className="blockquote text-center">
                             <p  ref={countSumary} className = "mb-0 font-weight-lighter" style ={{fontSize:13}} >0/4000</p>
                         </blockquote>
@@ -653,6 +668,8 @@ export default function RegisterPage(){
                             onChange = {(e) =>{
                                 setPeriod(e.target.value);
                             }}
+                            disabled = {edit}
+                            
                         >
                             <option value = "-1"  >Seleccione una opcci&oacute;n</option>
                             {periodos.map((obj, index) =>(
@@ -672,6 +689,7 @@ export default function RegisterPage(){
                             onChange = {(e) =>{
                                 setTypeRegister(e.target.value);
                             }}
+                            disabled = {edit}
                         >
                             <option value = "-1"  >Seleccione una opcci&oacute;n</option>
                             {inscripcciones.map((obj, index) =>(
@@ -686,7 +704,7 @@ export default function RegisterPage(){
                         <div className = "label-form" >Archivo</div>
                     </div>
                     <div className = "col-lg-4 col-md-4 col-sm-6">
-                        <input className = "form-control" ref = {file_ref} name = "fileProtocol" type="file"
+                        <input className = "form-control" ref = {file_ref} name = "fileProtocol" type="file" readOnly = {edit}
                             onChange = {(e) => {
 
                                 const nameFile = e.target.files[0].name;
@@ -757,14 +775,14 @@ export default function RegisterPage(){
                                 <input name = "key" className = "form-control" type = "text" id = "key" required
                                 value = {singleKey.key}
                                 onChange = {(e) => handleKeyChange(e, index)}
-
+                                readOnly = {edit}
                                 />
-                                {keyList.length - 1 === index && keyList.length < 10 &&(
+                                {keyList.length - 1 === index && keyList.length < 10 && edit === false &&(
                                     <img className="image2" src={add} onClick = {handleAddKey} width = "30" height = "30" alt="User Icon" title= "Agregar palabra clave" />
                                 )}
                             </div>
                             <div className = "col-3" >
-                                {keyList.length > 1 &&(
+                                {keyList.length > 1 && edit === false && (
                                     <img className="image2" src={cancel} onClick = {() => handleRemoveKey(index)} width = "30" height = "30" alt="User Icon" title= "Quitar palabra clave" />
                                 )}
                             </div>
@@ -776,11 +794,13 @@ export default function RegisterPage(){
             </form>
 
 
-            <div className = "row panel-footer">
+            <div className = "row panel-footer" style = {{marginTop:20}}>
                 <div className = "col-12 d-flex justify-content-center">
                     {edit === true &&
                     <>
-                    <img className="image" src={save} onClick = {() => guardarProtocolo(1)} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" style = {{marginRight:5}}/>
+                        {datos.fk_protocol_state === 1 &&
+                            <img className="image" src={save} onClick = {() => guardarProtocolo(1)} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" style = {{marginRight:5}}/>
+                        }
                     <img className="image" src={pdf} onClick = {descargarArchivo} width = "30" height = "30" alt="User Icon" title= "Ver archivo de protocolo" style = {{marginRight:5}}/>
                     </>
                     }
