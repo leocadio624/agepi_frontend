@@ -182,8 +182,8 @@ export default function RegisterTeam(){
             center:true
         },
         {
-            name:'Departamento',
-            selector:row => row.departamento,
+            name:'Academia',
+            selector:row => row.academia,
             sortable:true,
             center:true
 
@@ -233,6 +233,7 @@ export default function RegisterTeam(){
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
                 auth.onError()
@@ -254,11 +255,11 @@ export default function RegisterTeam(){
         })
         .then(response =>{
 
-            //console.log( response.data )
             setTeams(response.data.teams);
             setSolicitudes(response.data.solicitudes)
             setAlumnos(response.data.alumnos);
             setProfesores(response.data.profesores);
+            
 
             
 

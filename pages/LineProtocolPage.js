@@ -55,15 +55,19 @@ export default function AboutPage(){
         })
         .then(response =>{            
 
+            
+            if( response.data.length === 0)
+                return;
+            
             let protocolo = response.data[0]
             let estado = protocolo.fk_protocol_state;
-            
             setProtocol(protocolo);
             setEstadoProtocol(estado);
-
+            
             for(let i=1; i<=estado; i++){
                 document.getElementById('step_'+i.toString()).classList.add("btn-indigo");
             }
+            
             
 
             
@@ -102,7 +106,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+         
         axios({
         method: 'get',
         url: baseURL+'/protocolos/getIntegrantes/',
@@ -167,11 +171,10 @@ export default function AboutPage(){
 
             //console.log(response.data);
             setFirmantes(response.data);
-            /*
             let integrantes = [];
             response.data.forEach(function(i){ integrantes.push({ 'name':i.name, 'last_name':i.last_name}) });
             setIntegrantes(integrantes);
-            */
+            
 
             
             
@@ -267,11 +270,8 @@ export default function AboutPage(){
                             <div className="col-md-12">
                                 <h5>1.- Registro</h5>
                                 <div className = "row row-form">
-                                    <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
-                                    <label className = ""  >Fecha de registro de protocolo</label>
-                                    </div>
-                                    <div className = "col-lg-8 col-md-8 col-sm-12">
-                                        <label className = "" style = {{fontSize:13}} >{protocol.creacion}</label>
+                                    <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
+                                    <label className = ""  style = {{fontSize:13}} >Fecha de registro&nbsp;&nbsp;&nbsp;&nbsp;{protocol.creacion}</label>
                                     </div>
                                 </div>
                             
@@ -299,10 +299,10 @@ export default function AboutPage(){
                                 <h5>3.- Usuarios que ya han firmado el protocolo</h5>
                                 {firmantes.map((i, index) =>(
                                     <div className = "row row-form" key = {index}>
-                                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-start">
+                                        <div className = "col-lg-2 col-md-2 col-sm-12 d-flex justify-content-start">
                                             <label className = "" style = {{fontSize:13}} >{i.name} {i.last_name}</label>
                                         </div>
-                                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                                        <div className = "col-lg-4 col-md-4 col-sm-12">
                                             <label className = "" style = {{fontSize:13}} >{i.created}</label>
                                         </div>
                                     </div>

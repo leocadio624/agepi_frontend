@@ -121,8 +121,8 @@ export default function ComunidadPage(){
             center:true
         },
         {
-            name:'Departamento',
-            selector:row => row.departamento,
+            name:'Academia',
+            selector:row => row.academia,
             sortable:true,
             center:true
 

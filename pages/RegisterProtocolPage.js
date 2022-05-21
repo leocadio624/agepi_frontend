@@ -190,8 +190,8 @@ export default function RegisterPage(){
             file_ref.current.focus()
             return;
         }
-        if(keyList.length < 6){
-            auth.swalFire('Debe de ingresar al menos 6 palabras clave');
+        if(keyList.length < 4){
+            auth.swalFire('Debe de ingresar al menos 4 palabras clave');
             return;
         }
         keyList.forEach(function(i){ 
@@ -248,19 +248,21 @@ export default function RegisterPage(){
                 auth.onErrorMessage(response.data.message);
             }else if(response.status === 200){
 
+                
                 Swal.fire({
-                    icon: 'success',
-                    html : response.data.message,
-                    showCancelButton: false,
-                    focusConfirm: false,
-                    allowEscapeKey : false,
-                    allowOutsideClick: false,
-                    confirmButtonText:'Aceptar',
-                    confirmButtonColor: '#39ace7',
-                    preConfirm: () => {
-                        cleanForm();
-                    }
+                icon: 'success',
+                html : '<strong>'+response.data.message+'</strong>',
+                showCancelButton: false,
+                focusConfirm: false,
+                allowEscapeKey : false,
+                allowOutsideClick: false,
+                confirmButtonText:'Aceptar',
+                confirmButtonColor: '#39ace7',
+                preConfirm: () => {
+                    cleanForm();
+                }
                 })
+                
                 
             }
             
@@ -524,6 +526,7 @@ export default function RegisterPage(){
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
                 //cleanForm();
+                handleClose();
             }
             })
 
@@ -607,7 +610,7 @@ export default function RegisterPage(){
                             {row.fk_protocol_state === 1 &&
                                 <img    className="image" src={firma} onClick = {() => solicitaFirmas(row.id, row.fk_team)} 
                                 width = "30" height = "30" alt="User Icon"
-                                title= "Solicitar firmas protocolos" style = {{marginRight:7}}/>
+                                title= "Solicitar firmas a integrantes" style = {{marginRight:7}}/>
                             }
                             </> 
                             ,
@@ -649,12 +652,6 @@ export default function RegisterPage(){
                         </blockquote>
                     </div>
                 </div>
-
-            
-
-
-            
-            
                 <div className = "row row-form">
                     <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                         <div className = "label-form" >Per&iacute;odo escolar</div>
@@ -709,16 +706,17 @@ export default function RegisterPage(){
 
                                 const nameFile = e.target.files[0].name;
                                 const sizeFile = e.target.files[0].size;
-                                                            
+                                
                                 if(nameFile.toLowerCase().match(/([^\s]*(?=\.(pdf))\.\2)/gm)!=null){                                
-                                    if(sizeFile <= 15728640){
+                                    if(sizeFile <= 10485760){
+                                                    
                                         setSelectedFile(e.target.files[0]);
                                         
                                     }else{
 
                                         Swal.fire({
                                         icon: 'info',
-                                        html : "El archivo no puede ser mayor a 15 MB",
+                                        html : "El archivo no puede ser mayor a 10 MB",
                                         showCancelButton: false,
                                         focusConfirm: false,
                                         allowEscapeKey : false,
@@ -777,7 +775,7 @@ export default function RegisterPage(){
                                 onChange = {(e) => handleKeyChange(e, index)}
                                 readOnly = {edit}
                                 />
-                                {keyList.length - 1 === index && keyList.length < 10 && edit === false &&(
+                                {keyList.length - 1 === index && keyList.length < 4 && edit === false &&(
                                     <img className="image2" src={add} onClick = {handleAddKey} width = "30" height = "30" alt="User Icon" title= "Agregar palabra clave" />
                                 )}
                             </div>

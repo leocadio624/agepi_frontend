@@ -497,7 +497,7 @@ export default function RegisterignPage(){
                                             checked = {i.state}
 
                                             />
-                                    &nbsp;&nbsp;<label className="form-check-label" htmlFor="flexSwitchCheckChecked" >Inscripcci&oacute;n {i.descp}</label>
+                                    &nbsp;&nbsp;<label className="form-check-label" htmlFor="flexSwitchCheckChecked" >{i.descp}</label>
                                 </div>
                             </div>
                         ))}

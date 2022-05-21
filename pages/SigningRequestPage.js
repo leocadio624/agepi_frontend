@@ -122,7 +122,7 @@ export default function SigningRequestPage(){
         }
         })
         .then(response =>{
-
+            
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
@@ -135,6 +135,7 @@ export default function SigningRequestPage(){
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
         });
+        
 
 
         
