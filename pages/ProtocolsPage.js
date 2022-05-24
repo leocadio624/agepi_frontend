@@ -19,6 +19,7 @@ import folder from '../assetss/images/pdf.png';
 import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import lupa  from '../assetss/images/lupa.png';
+import create_file  from '../assetss/images/create-file.png';
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
@@ -51,13 +52,7 @@ export default function ProtocolsPage(){
         setAcademias(aux);
 
     }
-    
-    
-    
-    
-  
 
-    
     useEffect(() => {
         startModule();
     },[]);
@@ -314,6 +309,73 @@ export default function ProtocolsPage(){
 
     }
 
+    /*
+    * Descripcion:	Cambia de estado a todos los protocolos por periodo a estado 5
+    * Fecha de la creacion:		21/05/2022
+    * Author:					Eduardo B 
+    */
+    const enviarProtocolosAcademias = async () =>{
+        
+
+        if(protocols.length === 0){
+            auth.swalFire('No existen protocolos por enviar a las academias');
+            return;
+        }
+        let protocolos = []
+        protocols.forEach(function(i){ protocolos.push(i.id); });
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/asignacionAcademias/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            protocolos : protocolos
+        }
+        })
+        .then(response =>{
+            
+            Swal.fire({
+            icon: 'success',
+            html : '<strong>'+response.data.message+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                filtrarProtocolos();
+            }
+            })
+
+        }).catch(error => {
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+        });
+        
+
+        
+
+
+    }
+
 
     /*
     * Descripcion:	Abre modal para clasificar protocolo
@@ -386,8 +448,11 @@ export default function ProtocolsPage(){
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
                 handleClose();
+                filtrarProtocolos();
             }
             })
+
+           
 
         }).catch(error => {
             if(!error.status)
@@ -537,25 +602,31 @@ export default function ProtocolsPage(){
                 </div>
 
                 <div className = "row" style = {{marginTop:30, marginBottom:50}}>
+
+                
+
                     <div className = "col-12 d-flex justify-content-center">
+                        {parseInt(estado) === 4 && auth.user.rol_user === 3 &&
+                            <img  className = "image" src = {create_file} width = "30" height = "30" alt="User Icon" title= "Enviar protocolos a academias"  onClick = {() => enviarProtocolosAcademias()} style = {{marginRight:7}}/>
+                        }
                         <img  className = "image" src = {lupa} width = "30" height = "30" alt="User Icon" title= "Filtrar protocolos"  onClick = {() => filtrarProtocolos()}/>
                     </div>
                 </div>
 
             
-            <div className = "" style={{marginTop:20, marginBottom:20}}>
+                <div className = "" style={{marginTop:20, marginBottom:20}}>
 
-                <DataTable
-                columns = {columnas}
-                data = {protocols}
-                title = ""
-                noDataComponent="No existen registros disponibles"
-                pagination
-                paginationComponentOptions = {paginacionOpcciones}
-                fixedHeaderScrollHeight = "600px"
-                />
-                
-            </div>
+                    <DataTable
+                    columns = {columnas}
+                    data = {protocols}
+                    title = ""
+                    noDataComponent="No existen registros disponibles"
+                    pagination
+                    paginationComponentOptions = {paginacionOpcciones}
+                    fixedHeaderScrollHeight = "600px"
+                    />
+                    
+                </div>
 
                     
             
@@ -582,7 +653,7 @@ export default function ProtocolsPage(){
                                             className="form-check-input" 
                                             type="checkbox" role="switch"
                                             id = {i.id}
-                                            onChange = {handleInputChange} 
+                                            onChange = {handleInputChange}
                                             checked = {i.estado}
 
                                             />

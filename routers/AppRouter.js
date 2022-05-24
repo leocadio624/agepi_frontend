@@ -25,6 +25,7 @@ import Activate from '../pages/ActivatePage';
 import Notifications from '../pages/NotificationsPage';
 import PeriodoEscolar from '../pages/PeriodoEscolar';
 import LineProtocol from '../pages/LineProtocolPage';
+import protocolos_profesor from '../pages/ProtocolosProfesor';
 
 //import validarQr from '../pages/validarQr';
 import validarQR2 from '../pages/validarQR2';
@@ -97,6 +98,7 @@ export default function AppRouter(){
                     <PrivateRoute exact path = "/notificaciones"  component = {Notifications}/>
                     <PrivateRoute exact path = "/PeriodoEscolar"  component = {PeriodoEscolar}/>
                     <PrivateRoute exact path = "/LineProtocol"  component = {LineProtocol}/>
+                    <PrivateRoute exact path = "/protocolos_profesor"  component = {protocolos_profesor}/>
 
                     
                 

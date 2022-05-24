@@ -4,6 +4,9 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
+import aprobado from '../assetss/images/aprobado.png';
+
+
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function AboutPage(){
@@ -13,7 +16,9 @@ export default function AboutPage(){
     const [estadoProtocol, setEstadoProtocol] = useState(0);
     const [integrantes, setIntegrantes] = useState([{name: '',last_name: ''}]);
     const [firmantes, setFirmantes] = useState([]);
+    const [evaluaciones, setEvaluaciones] = useState([]);
     const [protocol, setProtocol] = useState({id:0, number:'', fk_team:0, fk_protocol_state:0, creacion:''});
+    const [asignacion, setAsignacion] = useState('');
     
 
     
@@ -61,6 +66,7 @@ export default function AboutPage(){
             
             let protocolo = response.data[0]
             let estado = protocolo.fk_protocol_state;
+            if(estado === 6 || estado === 7){estado = estado -1}
             setProtocol(protocolo);
             setEstadoProtocol(estado);
             
@@ -169,7 +175,6 @@ export default function AboutPage(){
         })
         .then(response =>{            
 
-            //console.log(response.data);
             setFirmantes(response.data);
             let integrantes = [];
             response.data.forEach(function(i){ integrantes.push({ 'name':i.name, 'last_name':i.last_name}) });
@@ -190,6 +195,108 @@ export default function AboutPage(){
 
 
     }
+    /*
+    * Descripcion: Obtiene las firmas de un protocolo
+    * Fecha de la creacion:		17/05/2022
+    * Author:					Eduardo B 
+    */
+    const getFechaAceptacion = async (fk_protocol) =>{ 
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/getFechaAsignacion/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+            fk_protocol : fk_protocol
+        }
+        })
+        .then(response =>{            
+            setAsignacion(response.data.fecha_asignacion);
+
+            
+        }).catch(error =>{
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+
+        });
+        
+    
+    }
+    /*
+    * Descripcion: Obtiene los profesores que han seleccionado
+    * el protocolo en la linea de tiempo
+    * Fecha de la creacion:		23/05/2022
+    * Author:					Eduardo B 
+    */
+    const getFechaSeleccion = async (fk_protocol) =>{ 
+    
+        /*
+        console.log(fk_protocol)
+        console.log('getFechaSeleccion')
+        */
+    
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/getProfesoresSeleccion/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+            fk_protocol : fk_protocol
+        }
+        })
+        .then(response =>{            
+            setEvaluaciones(response.data);
+            //console.log(response.data);
+
+            
+        }).catch(error =>{
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+
+        });
+        
+        
+    
+    }
+
+    
+
+    
 
 
     const getEstadoProtocolo = async (event, estado) => {
@@ -197,11 +304,14 @@ export default function AboutPage(){
         
         setEstadoProtocol(estado);
         if(estado <= protocol.fk_protocol_state){
-            
-            if(estado == 2)
+            if(estado === 2)
                 getIntegrantes(protocol.fk_team);
-            else if(estado == 3)
+            else if(estado === 3)
                 getFirmas(protocol.id);
+            else if(estado === 4)
+                getFechaAceptacion(protocol.id);
+            else if(estado === 5)
+                getFechaSeleccion(protocol.id);
 
             
         }
@@ -313,14 +423,51 @@ export default function AboutPage(){
                     {estadoProtocol === 4 &&
                         <div className="row setup-content">
                             <div className="col-md-12">
-                            <h3 className="font-weight-bold pl-0 my-4"><strong>Paso 4</strong></h3>
+                                <h5>4.- Aceptado por departamento</h5>
+                                <div className = "row row-form">
+                                    <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
+                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se acept&oacute; el protocolo&nbsp;&nbsp;&nbsp;&nbsp;{asignacion}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
                     {estadoProtocol === 5 &&
                         <div className="row setup-content">
                             <div className="col-md-12">
-                            <h3 className="font-weight-bold pl-0 my-4"><strong>Paso 5</strong></h3>
+                                <h5>5.- Seleccionado</h5>
+                                
+                                <table className="table table-bordered">
+                                <thead>
+                                    <tr style = {{fontSize:12}} >
+                                    <th scope="col">Sinodales</th>
+                                    <th scope="col">Fecha selecci&oacute;n</th>
+                                    <th scope="col" className = "text-center">Evaluado</th>
+                                    <th scope="col">Fecha evaluaci&oacute;n</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {evaluaciones.map((i, index) =>(
+                                        <tr key = {index} style = {{fontSize:12}}>
+                                            <td>{i.name}</td>
+                                            <td>{i.created_date}</td>
+                                            {i.evaluado === 1 &&
+                                            <td align = "center" >
+                                                <img  className = "image" src = {aprobado} width = "20" height = "20" alt="User Icon" title= "Firmado" />
+                                            </td>
+                                            }
+                                            {i.evaluado === 0 &&
+                                            <td>
+                                                
+                                            </td>
+                                            }
+                                            <td>{i.fecha_evaluacion}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                                </table>
+
+
                             </div>
                         </div>
                     }
