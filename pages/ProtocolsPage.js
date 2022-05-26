@@ -20,6 +20,7 @@ import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import lupa  from '../assetss/images/lupa.png';
 import create_file  from '../assetss/images/create-file.png';
+import edit  from '../assetss/images/edit.png';
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
@@ -409,7 +410,7 @@ export default function ProtocolsPage(){
             auth.swalFire('Debes seleccionar 3 academias por asignaci\u00F3n');
             return
         }
-        const   user = JSON.parse(localStorage.getItem('user'));    
+        const   user = JSON.parse(localStorage.getItem('user'));
         let response = null;
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
@@ -460,6 +461,56 @@ export default function ProtocolsPage(){
             auth.onErrorMessage(error.response.data.message);                
         });
    
+    }
+    /*
+    * Descripcion: Cambia de estado 8 'protocolo dictaminado'
+    * y crea documento de dictamen
+    * Fecha de la creacion:		19/05/2022
+    * Author:					Eduardo B
+    */
+    const generarDictamen = async (pk_protocol) =>{
+
+        //console.log(pk_protocol)
+        //return;
+
+        const   user = JSON.parse(localStorage.getItem('user'));
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/generarDictamen/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            fk_protocol : pk_protocol
+        }
+        })
+        .then(response =>{
+            
+
+            
+
+            
+
+        }).catch(error => {
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+        });
+
+
+
     }
     /*
     * Descripcion:	Despliegue y cierre de centana modal
@@ -533,7 +584,8 @@ export default function ProtocolsPage(){
         },
         {   
             name:'Acciones',
-            cell:(row) =>  <>
+            cell:(row) =>  
+                            <>
                             {row.fk_protocol_state === 3 &&
                                 <img  className = "image" src = {clasificar} width = "25" height = "25" alt="User Icon" title= "Asignar protocolo a academias" 
                                 onClick = {() => clasificarProtocolo(row.id)}  style = {{marginRight:7}}/>
@@ -541,8 +593,12 @@ export default function ProtocolsPage(){
                             <img  className = "image" src = {ver} width = "25" height = "25" alt="User Icon" title= "Ver detalle" 
                                 onClick = {() => watchWordsHandler(row.id, row.number, row.title, row.sumary, row.periodo)}  style = {{marginRight:7}}/>
                             <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
-                                onClick = {() => watchProtocolHandler(row.id, row.fileProtocol)} id={row.id} />
-                            </> 
+                                onClick = {() => watchProtocolHandler(row.id, row.fileProtocol)} id={row.id} style = {{marginRight:7}}/>
+                            {row.fk_protocol_state === 7 &&
+                                <img  className = "image" src = {edit} width = "25" height = "25" alt="User Icon" title= "Generar dictamen" 
+                                onClick = {() => generarDictamen(row.id)}  />
+                            }
+                            </>
                             ,
             ignoreRowClick: true,
             allowOverflow: true,

@@ -19,6 +19,7 @@ export default function AboutPage(){
     const [evaluaciones, setEvaluaciones] = useState([]);
     const [protocol, setProtocol] = useState({id:0, number:'', fk_team:0, fk_protocol_state:0, creacion:''});
     const [asignacion, setAsignacion] = useState('');
+    const [evaluacion, setEvaluacion] = useState('');
     
 
     
@@ -248,11 +249,6 @@ export default function AboutPage(){
     */
     const getFechaSeleccion = async (fk_protocol) =>{ 
     
-        /*
-        console.log(fk_protocol)
-        console.log('getFechaSeleccion')
-        */
-    
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -280,7 +276,54 @@ export default function AboutPage(){
         })
         .then(response =>{            
             setEvaluaciones(response.data);
-            //console.log(response.data);
+        
+        }).catch(error =>{
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+
+        });
+        
+        
+    
+    }
+    /*
+    * Descripcion: Obtiene los profesores que han seleccionado
+    * el protocolo en la linea de tiempo
+    * Fecha de la creacion:		23/05/2022
+    * Author:					Eduardo B 
+    */
+    const getFechaEvaluacion = async (fk_protocol) =>{ 
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/getFechaEvaluacion/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+            fk_protocol : fk_protocol
+        }
+        })
+        .then(response =>{            
+            //console.log(response.data.fecha_evaluacion);
+            setEvaluacion(response.data.fecha_evaluacion)
+            
 
             
         }).catch(error =>{
@@ -294,6 +337,66 @@ export default function AboutPage(){
     
     }
 
+    /*
+    * Descripcion: Obtiene los profesores que han seleccionado
+    * el protocolo en la linea de tiempo
+    * Fecha de la creacion:		23/05/2022
+    * Author:					Eduardo B 
+    */
+    const verEvaluacion = async (fk_seleccion, fk_protocol, fk_user) =>{ 
+
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+    
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/verEvaluacionSinodal/',
+        responseType: 'blob',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+            fk_seleccion : fk_seleccion,
+            fk_protocol : fk_protocol,
+            fk_user : fk_user
+        }
+        })
+        .then(response =>{            
+            
+            var file = new Blob([response.data], {type: 'application/pdf'});
+            var fileURL = URL.createObjectURL(file);
+            var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+            window.open(fileURL, "_blank", strWindowFeatures);
+            /*
+            */
+
+            
+        }).catch(error =>{
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+
+        });
+
+
+
+    }
+
+    
+
     
 
     
@@ -303,6 +406,8 @@ export default function AboutPage(){
         event.preventDefault();
         
         setEstadoProtocol(estado);
+        //console.log(estado)
+
         if(estado <= protocol.fk_protocol_state){
             if(estado === 2)
                 getIntegrantes(protocol.fk_team);
@@ -312,6 +417,8 @@ export default function AboutPage(){
                 getFechaAceptacion(protocol.id);
             else if(estado === 5)
                 getFechaSeleccion(protocol.id);
+            else if(estado === 6)
+                getFechaEvaluacion(protocol.id);
 
             
         }
@@ -436,7 +543,7 @@ export default function AboutPage(){
                         <div className="row setup-content">
                             <div className="col-md-12">
                                 <h5>5.- Seleccionado</h5>
-                                
+
                                 <table className="table table-bordered">
                                 <thead>
                                     <tr style = {{fontSize:12}} >
@@ -453,7 +560,9 @@ export default function AboutPage(){
                                             <td>{i.created_date}</td>
                                             {i.evaluado === 1 &&
                                             <td align = "center" >
-                                                <img  className = "image" src = {aprobado} width = "20" height = "20" alt="User Icon" title= "Firmado" />
+                                                <img  className = "image" src = {aprobado} width = "20" height = "20" alt="User Icon" title= "Ver evaluaci&oacute;n" 
+                                                onClick = {() => verEvaluacion(i.id, i.fk_protocol, i.fk_user)}
+                                                />
                                             </td>
                                             }
                                             {i.evaluado === 0 &&
@@ -474,7 +583,12 @@ export default function AboutPage(){
                     {estadoProtocol === 6 &&
                         <div className="row setup-content">
                             <div className="col-md-12">
-                            <h3 className="font-weight-bold pl-0 my-4"><strong>Paso 6</strong></h3>
+                                <h5>6.- Evaluado</h5>
+                                <div className = "row row-form">
+                                    <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
+                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se finaliz&oacute; la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{evaluacion}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
