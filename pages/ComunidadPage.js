@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {Modal, Button} from 'react-bootstrap';
 
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
@@ -15,9 +16,15 @@ import { fetchWithToken } from "../helpers/fetch";
 
 import addUser from '../assetss/images/perfiles-de-usuario.png';
 import goma from '../assetss/images/iconoBorrar.png';
+import cancel from '../assetss/images/cancelar.png';
 import save from '../assetss/images/save-file.png';
 import delete_icon from '../assetss/images/delete.png';
 import edit_icon from '../assetss/images/lapiz.png';
+import excel from '../assetss/images/excel.png';
+import aprobado from '../assetss/images/aprobado.png';
+import advertencia from '../assetss/images/warning.png';
+import engrane  from '../assetss/images/engrane.png';
+
 const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
@@ -28,6 +35,7 @@ export default function ComunidadPage(){
     const programa = useRef();
 
     const auth = useAuth();
+    const [show, setShow] = useState(false);
     const [programas, setProgramas] = useState([]);
 
     const [alumno, setAlumno] = useState({'id':0, 'boleta':'', 'email_al':'', 'programa':'-1'});
@@ -36,6 +44,15 @@ export default function ComunidadPage(){
 
     const [alumnos, setAlumnos] = useState([]);
     const [profesores, setProfesores] = useState([]);
+
+    
+
+    const [alEmails, setAlEmails] = useState([]);
+    const [alBols, setAlBols] = useState([]);
+    const [cargaAlumnos, setCargaAlumnos] = useState([]);
+    
+    
+
 
     useEffect(() => {
         programasAcademicos();
@@ -109,7 +126,7 @@ export default function ComunidadPage(){
 
     const columProfesores = [
         {
-            name:'N\u00FAmero de empleado',
+            name:'N\u00FAmero empleado',
             selector:row => row.noEmpleado,
             sortable:true,
             center:true
@@ -121,7 +138,7 @@ export default function ComunidadPage(){
             center:true
         },
         {
-            name:'Academia',
+            name:'Programa academico',
             selector:row => row.academia,
             sortable:true,
             center:true
@@ -130,12 +147,58 @@ export default function ComunidadPage(){
         {   
 
             name:'Acciones',
-            cell:(row) =>  <>
-                            <img  className = "image" src = {edit_icon} width = "30" height = "30" alt="User Icon" title= "Editar profesor" 
-                            />
+            cell:(row) =>  
+                            {row.fk_user === 0 &&
+                            <>
+                            <img  className = "image" src = {edit_icon} width = "30" height = "30" alt="User Icon" title= "Editar profesor" />
                             
-                            <img  className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Eliminar profesor" 
-                            />
+                            <img  className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Eliminar profesor" />
+                            </>
+                            }
+
+
+                            ,
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        }
+    ];
+    const columCargaAlumnos = [
+        {
+            name:'Boleta',
+            selector:row => row.boleta,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Correo electr\u00F3nico',
+            selector:row => row.correo,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Programa academico',
+            selector:row => getPrograma(row.programa_academico),
+            sortable:true,
+            center:true
+
+        },
+        {   
+
+            name:'Estado',
+            cell:(row) =>  <>
+                            {row.estado == 1 &&
+                                <img  className = "image" src = {aprobado} width = "20" height = "20" alt="User Icon" title= "Usuario validado"
+                                />
+
+                            }
+                            {row.estado == 0 &&
+                                <img  className = "image" src = {advertencia} width = "20" height = "20" alt="User Icon" title= {row.error} 
+                                />
+                            
+                            }
+
+                            
 
 
                             </> 
@@ -144,7 +207,26 @@ export default function ComunidadPage(){
             allowOverflow: true,
             button: true,
         }
+        
     ];
+
+    function getPrograma(programa){
+        
+        if(programa === 1)
+            return "ISC";
+        else if(programa === 2)
+            return "Ingenieria en ciencia de datos";
+        else if(programa === 3)
+            return "Ingenieria en inteligencia artificial";
+        else
+            return "No disponible";
+
+        
+    
+    }
+    
+
+    
 
     /*
     * Descripcion:	Carga catalogo de programas academicos disponibles
@@ -175,7 +257,11 @@ export default function ComunidadPage(){
         }
         })
         .then(response =>{
-            setProgramas(response.data);
+
+            
+            setProgramas(response.data.programas);
+            setAlEmails(response.data.al_emails);
+            setAlBols(response.data.al_boletas);
             
             
         }).catch(error => {
@@ -597,10 +683,133 @@ export default function ComunidadPage(){
                 auth.onError()
                 
         });
+    }
+    /*
+    * Descripcion:	Convierte cvc a array
+    * Fecha de la creacion:		29/05/2022
+    * Author:					Eduardo B 
+    */
+    const processCSV = (str, delim=',') => {
+        
+        const rows = str.slice(str.indexOf('\n')+1).split('\n');
+        let RegExPatternAlumno = /^[\w-\.]{3,}@alumno.ipn\.mx$/;
 
+        let arr_alum = []
+        let arrProgramas = [1, 2, 3]
+        rows.map( row => {
+            if(row !== ''){
+                const values = row.split(',');
+                arr_alum.push({'boleta':values[0].trim(), 'correo':values[1].trim(), 'programa_academico':parseInt(values[2].trim()), 'estado':1, 'error':''})
+            }
+        })
 
+        arr_alum.forEach(function(i){ 
+            if( alBols.includes(i.boleta) || alEmails.includes(i.correo) ){
+                i.estado = 0;
+                i.error = 'Usuario registrado previamente';
+            }
+            if( arrProgramas.includes(i.programa_academico) === false ){
+                i.estado = 0;
+                i.error = 'Los programas academicos son los siguientes: 1-ISC, 2-Ingenier\u00EDa en ciencia de datos, 3-Ingenier\u00EDa en inteligenca artificial';
+
+            }
+            if( Array.isArray( i.correo.match(RegExPatternAlumno)) === false ){
+                i.estado = 0;
+                i.error = 'Correo electr\u00F3nico no v\u00E1lido(el correo electr\u00F3nico debe ser institucional de tipo alumno)';
+            }
+        });
+        setCargaAlumnos(arr_alum);
+    }
+    /*
+    * Descripcion:	Envia array de cvc a django
+    * Fecha de la creacion:		29/05/2022
+    * Author:					Eduardo B 
+    */
+    const cargarDatosAlumnos = async () =>{ 
+        
+        let posibles = 0;
+        if( cargaAlumnos.length === 0){
+            auth.swalFire('No se ha cargado archivo con alumnos');
+            return;
+        }
+        cargaAlumnos.forEach(function(i){ 
+            if(i.estado===1){posibles += 1}
+        });
+        if( posibles === 0){
+            auth.swalFire('No existen registros por cargar en este archivo');
+            return;
+        }
+    
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        axios({
+        method: 'post',
+        url: baseURL+'/comunidad/cargarDatosAlumnos/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            'alumnos'       : cargaAlumnos,
+        }
+        })
+        .then(response =>{
+
+            setAlEmails(response.data.al_emails);
+            setAlBols(response.data.al_boletas);
+            let aceptados = response.data.aceptados;
+            let cadena = "Se han creado "+aceptados.length+" registros de "+posibles+" posibles."
+            Swal.fire({
+            title: '',
+            icon: 'info',
+            html : '<strong>'+cadena+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                handleClose();
+                loadAlumnos();
+            }
+            })
+
+            
+            
+                    
+        }).catch(error => {
+            if(!error.status)
+                auth.onError()
+                
+        });
+        
+       
 
     }
+    
+
+    /*
+    * Descripcion:	Despliegue y cierre de centana modal
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const handleClose = () =>{
+        setShow(false);
+        setCargaAlumnos([]);
+        
+    } 
+    const handleShow = () =>{ setShow(true); } 
     return(
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
 
@@ -660,16 +869,25 @@ export default function ComunidadPage(){
                     </div>
                     <div className = "row" style = {{marginTop:30}}>
                         <div className = "col-12 d-flex justify-content-center">
-                            
+                            {/*
+                            <img    className="image" src={excel}  width = "30" height = "30" alt="User Icon" title= "Carga masiva de alumnos" style = {{marginLeft:5}}
+                                    onClick={resetFormAlumn}
+                            />
+                            <input src={excel} type="file" id="csvFile" accept=".csv" />
+                            */}
+                            <img    className="image" src={excel}  width = "30" height = "30" alt="User Icon" title= "Carga masiva de alumnos" 
+                                    onClick={handleShow}
+                            />&nbsp;&nbsp;
+
                             {editAlum === false &&  
                             <img className="image" src={addUser}  width = "30" height = "30" alt="User Icon" title= "Agregar alumno" onClick={addAlumno} />
                             }
                             {editAlum === true &&
-                                <img className="image" src={save}  width = "30" height = "30" alt="User Icon" title= "Guardar cambios" style = {{marginLeft:5}} 
+                                <img className="image" src={save}  width = "30" height = "30" alt="User Icon" title= "Guardar cambios" style = {{marginLeft:8}} 
                                     onClick={guardarAlumno}
                                 />
                             }
-                            <img    className="image" src={goma}  width = "40" height = "40" alt="User Icon" title= "Limpiar campos" style = {{marginLeft:5}}
+                            <img    className="image" src={goma}  width = "40" height = "40" alt="User Icon" title= "Limpiar campos" style = {{marginLeft:8}}
                                     onClick={resetFormAlumn}
                             />
 
@@ -704,6 +922,52 @@ export default function ComunidadPage(){
                     />
                 </Tab>
             </Tabs>
+
+            <Modal size = "xl" show={show} onHide={handleClose}>
+                <Modal.Header closeButton  className = "bg-primary" >
+                <Modal.Title >
+                    <div className = "title" >Carga masiva de usuarios de tipo alumno</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+
+                    <input src={excel} type="file" id="csvFile" accept=".csv" 
+                    onChange = {(e) => {
+
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            const text = e.target.result;
+                            try {
+                                processCSV(text);
+                            }catch (error){
+                                setCargaAlumnos([]);
+                            }
+
+                        }
+                        reader.readAsText(file);
+                        
+                    }} 
+                    />
+                    <DataTable
+                        columns = {columCargaAlumnos}
+                        data = {cargaAlumnos}
+                        title = ""
+                        noDataComponent="No se ha cargado archivo con alumnos a registrar"
+                        pagination
+                        paginationComponentOptions = {paginacionOpcciones}
+                        fixedHeaderScrollHeight = "600px"
+                    />
+                    
+                    
+
+                </Modal.Body>
+                <Modal.Footer className = "panel-footer">
+                    <img className="image" src={engrane} onClick={cargarDatosAlumnos} width = "25" height = "25" alt="User Icon" title= "Cargar datos alumnos" />
+                    <img className="image" src={cancel} onClick={handleClose} width = "25" height = "25" alt="User Icon" title= "Cerrar" />
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }

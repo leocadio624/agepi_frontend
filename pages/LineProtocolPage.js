@@ -67,7 +67,7 @@ export default function AboutPage(){
             
             let protocolo = response.data[0]
             let estado = protocolo.fk_protocol_state;
-            if(estado === 6 || estado === 7){estado = estado -1}
+            if(estado === 6 || estado === 7 || estado === 8){estado = estado -1}
             setProtocol(protocolo);
             setEstadoProtocol(estado);
             
@@ -462,7 +462,7 @@ export default function AboutPage(){
                     </div>
                     <div className="steps-step">
                         <a href="#" onClick={(e) => { getEstadoProtocolo(e, 4);}} id = "step_4" type="button" className="btn btn-default btn-circle shadow" disabled="disabled">4</a>
-                        <div className = "label-form" >Aceptado</div>
+                        <div className = "label-form" >Validado</div>
                     </div>
                     <div className="steps-step">
                         <a href="#" onClick={(e) => { getEstadoProtocolo(e, 5);}} id = "step_5" type="button" className="btn btn-default btn-circle shadow" disabled="disabled">5</a>
@@ -530,10 +530,10 @@ export default function AboutPage(){
                     {estadoProtocol === 4 &&
                         <div className="row setup-content">
                             <div className="col-md-12">
-                                <h5>4.- Aceptado por departamento</h5>
+                                <h5>4.- Validado por departamento</h5>
                                 <div className = "row row-form">
                                     <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
-                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se acept&oacute; el protocolo&nbsp;&nbsp;&nbsp;&nbsp;{asignacion}</label>
+                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que el protocolo fue validado se acept&oacute; el protocolo&nbsp;&nbsp;&nbsp;&nbsp;{asignacion}</label>
                                     </div>
                                 </div>
                             </div>

@@ -15,7 +15,10 @@ import { fetchWithoutToken, fetchWithToken } from "../helpers/fetch";
 import ver from '../assetss/images/ver.png';
 import check from '../assetss/images/comprobado.png';
 import clasificar from '../assetss/images/search.png';
-import folder from '../assetss/images/pdf.png';
+
+import pdf from '../assetss/images/pdf.png';
+import folder from '../assetss/images/folder.png';
+
 import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import lupa  from '../assetss/images/lupa.png';
@@ -469,10 +472,7 @@ export default function ProtocolsPage(){
     * Author:					Eduardo B
     */
     const generarDictamen = async (pk_protocol) =>{
-
-        //console.log(pk_protocol)
-        //return;
-
+        
         const   user = JSON.parse(localStorage.getItem('user'));
         let response = null;
         try{
@@ -498,6 +498,88 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
             
+            Swal.fire({
+            icon: 'success',
+            html : '<strong>'+response.data.message+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                filtrarProtocolos();
+            }
+            })
+
+            
+
+            
+
+        }).catch(error => {
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+        });
+
+
+
+    }
+
+    /*
+    * Descripcion: Descarga oficio de dictamen de protocolo
+    * y crea documento de dictamen
+    * Fecha de la creacion:		19/05/2022
+    * Author:					Eduardo B
+    */
+    const verDictamen = async (pk_protocol) =>{
+        
+        const   user = JSON.parse(localStorage.getItem('user'));
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/verDictamen/',
+        responseType: 'blob',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            fk_protocol : pk_protocol
+        }
+        })
+        .then(response =>{
+            
+            var file = new Blob([response.data], {type: 'application/pdf'});
+            var fileURL = URL.createObjectURL(file);
+            var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+            window.open(fileURL, "_blank", strWindowFeatures);
+            
+            /*
+            Swal.fire({
+            icon: 'success',
+            html : '<strong>'+response.data.message+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                filtrarProtocolos();
+            }
+            })
+            */
 
             
 
@@ -592,11 +674,15 @@ export default function ProtocolsPage(){
                             }
                             <img  className = "image" src = {ver} width = "25" height = "25" alt="User Icon" title= "Ver detalle" 
                                 onClick = {() => watchWordsHandler(row.id, row.number, row.title, row.sumary, row.periodo)}  style = {{marginRight:7}}/>
-                            <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
+                            <img  className = "image" src = {pdf} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
                                 onClick = {() => watchProtocolHandler(row.id, row.fileProtocol)} id={row.id} style = {{marginRight:7}}/>
                             {row.fk_protocol_state === 7 &&
                                 <img  className = "image" src = {edit} width = "25" height = "25" alt="User Icon" title= "Generar dictamen" 
                                 onClick = {() => generarDictamen(row.id)}  />
+                            }
+                            {row.fk_protocol_state === 8 &&
+                                <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver dictamen"
+                                onClick = {() => verDictamen(row.id)}  />
                             }
                             </>
                             ,
