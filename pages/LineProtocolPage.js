@@ -20,6 +20,7 @@ export default function AboutPage(){
     const [protocol, setProtocol] = useState({id:0, number:'', fk_team:0, fk_protocol_state:0, creacion:''});
     const [asignacion, setAsignacion] = useState('');
     const [evaluacion, setEvaluacion] = useState('');
+    const [dictamen, setDictamen] = useState('');
     
 
     
@@ -293,7 +294,7 @@ export default function AboutPage(){
     * Fecha de la creacion:		23/05/2022
     * Author:					Eduardo B 
     */
-    const getFechaEvaluacion = async (fk_protocol) =>{ 
+    const getFechaEvaluacion = async (fk_protocol) =>{
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -321,7 +322,7 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
-            //console.log(response.data.fecha_evaluacion);
+
             setEvaluacion(response.data.fecha_evaluacion)
             
 
@@ -336,6 +337,57 @@ export default function AboutPage(){
         
     
     }
+
+    /*
+    * Descripcion: Obtiene la fecha en que se genero el dictamen
+    * el protocolo en la linea de tiempo
+    * Fecha de la creacion:		01/06/2022
+    * Author:					Eduardo B 
+    */
+    const getFechaDictamen = async (fk_protocol) =>{
+
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/getFechaDictamen/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+            fk_protocol : fk_protocol
+        }
+        })
+        .then(response =>{            
+
+            setDictamen(response.data.fecha_dictamen);
+            
+
+            
+        }).catch(error =>{
+            if(!error.status)
+                auth.onError()
+            auth.onErrorMessage(error.response.data.message);
+
+        });
+
+
+    }
+
 
     /*
     * Descripcion: Obtiene los profesores que han seleccionado
@@ -406,8 +458,6 @@ export default function AboutPage(){
         event.preventDefault();
         
         setEstadoProtocol(estado);
-        //console.log(estado)
-
         if(estado <= protocol.fk_protocol_state){
             if(estado === 2)
                 getIntegrantes(protocol.fk_team);
@@ -419,6 +469,10 @@ export default function AboutPage(){
                 getFechaSeleccion(protocol.id);
             else if(estado === 6)
                 getFechaEvaluacion(protocol.id);
+            else if(estado === 7)
+                getFechaDictamen(protocol.id);
+
+                
 
             
         }
@@ -474,7 +528,7 @@ export default function AboutPage(){
                     </div>
                     <div className="steps-step">
                         <a href="#" onClick={(e) => { getEstadoProtocolo(e, 7);}} id = "step_7" type="button" className="btn btn-default btn-circle shadow" disabled="disabled">7</a>
-                        <div className = "label-form" >Finalizado</div>
+                        <div className = "label-form" >Dictaminado</div>
                     </div>
 
 
@@ -595,7 +649,12 @@ export default function AboutPage(){
                     {estadoProtocol === 7 &&
                         <div className="row setup-content">
                             <div className="col-md-12">
-                            <h3 className="font-weight-bold pl-0 my-4"><strong>Paso 7</strong></h3>
+                                <h5>7.- Dictaminado</h5>
+                                <div className = "row row-form">
+                                    <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
+                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se gener&oacute; el dictamen de la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{dictamen}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }

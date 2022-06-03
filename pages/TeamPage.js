@@ -146,7 +146,7 @@ export default function Team(){
             
             Swal.fire({
             title: '',
-            html: "Si sales del equipo, se borrara el equipo<br><strong>\u00bfDeseas continuar\u003F</strong>",
+            html: "Si sales del equipo, el equipo se borrará<br><strong>\u00bfDeseas continuar\u003F</strong>",
             icon: 'info',
             showCancelButton: true,
             focusConfirm: false,
@@ -172,7 +172,6 @@ export default function Team(){
                             auth.onErrorMessage(response.data.message);
                         }else if(response.status === 200){
                             
-
                             Swal.fire({
                             position: 'top-end',
                             icon: 'success',

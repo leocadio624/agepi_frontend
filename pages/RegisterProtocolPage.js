@@ -259,7 +259,7 @@ export default function RegisterPage(){
                 confirmButtonText:'Aceptar',
                 confirmButtonColor: '#39ace7',
                 preConfirm: () => {
-                    cleanForm();
+                    //cleanForm();
                 }
                 })
                 
@@ -458,9 +458,8 @@ export default function RegisterPage(){
             setPkTeam(fk_team);
             countSumary.current.innerHTML = ''+(sumary.length).toString()+"/4000";
 
-            //setEdit(false);
-            
-            
+            console.log(fk_protocol_state);
+
             if(fk_protocol_state > 1)
                 setEdit(true);
             else
@@ -794,12 +793,21 @@ export default function RegisterPage(){
 
             <div className = "row panel-footer" style = {{marginTop:20}}>
                 <div className = "col-12 d-flex justify-content-center">
+                    {/*
+                    {JSON.stringify(edit)}
+                    {JSON.stringify(datos)}
+
+                    */}
+                    
+                        
+                        
+                        
                     {edit === true &&
                     <>
                         {datos.fk_protocol_state === 1 &&
                             <img className="image" src={save} onClick = {() => guardarProtocolo(1)} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" style = {{marginRight:5}}/>
                         }
-                    <img className="image" src={pdf} onClick = {descargarArchivo} width = "30" height = "30" alt="User Icon" title= "Ver archivo de protocolo" style = {{marginRight:5}}/>
+                        <img className="image" src={pdf} onClick = {descargarArchivo} width = "30" height = "30" alt="User Icon" title= "Ver archivo de protocolo" style = {{marginRight:5}}/>
                     </>
                     }
                     {edit === false &&

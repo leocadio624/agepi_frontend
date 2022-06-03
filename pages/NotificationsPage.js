@@ -170,8 +170,7 @@ export default function NotificationsPage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-
-        
+    
         axios({
             method: 'post',
             url: baseURL+'/notificacion/notificaciones/',
@@ -181,6 +180,7 @@ export default function NotificationsPage(){
             data : {
             id_notificacion : id_notificacion,
             id_user : user.id,
+            rol_user : user.rol_user,
             fk_user_origen : fk_user_origen,
             id_teamMember : id_teamMember
             }
@@ -189,7 +189,8 @@ export default function NotificationsPage(){
             
             
             if(response.status === 226){
-                auth.onErrorMessage("No puedes aceptar esta invitaci\u00F3n, ya estas relacionado en el equipo: \""+response.data.team+"\"");
+                auth.onErrorMessage(response.data.message);
+                //auth.onErrorMessage("No puedes aceptar esta invitaci\u00F3n, ya estas relacionado en el equipo: \""+response.data.team+"\"");
 
             }else if(response.status === 200){
                 

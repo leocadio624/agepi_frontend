@@ -20,11 +20,14 @@ export default function SigningRequestPage(){
     
     const public_ref = useRef();
     const private_ref = useRef();
+    const pass_ref = useRef();
     const form_ref = useRef();
+    const form_sat = useRef();
     const [passwordShown, setPasswordShown] = useState(false);
     
     const auth = useAuth();
     const [show, setShow] = useState(false);
+    const [showSat, setShowSat] = useState(false);
     const [firmaSat, setFirmaSat] = useState(false);
     const [solicitudes, setSolicitudes] = useState([]);
 
@@ -197,7 +200,7 @@ export default function SigningRequestPage(){
                 }).then((result) => {
                     
                     if(result.value){
-                        handleShow();
+                        handleShowSat();
                         setFirmaSat(true);
                     }//end-if
                 })
@@ -246,12 +249,14 @@ export default function SigningRequestPage(){
 
     
     /*
-    * Descripcion:	Abre modal para firmar protocolo
+    * Descripcion:	Firma protocolo con firma generada
+    * por aplicacion
     * Fecha de la creacion:		03/05/2022
     * Author:					Eduardo B 
     */
     const firmarProtocolo = async (event) => {
         event.preventDefault();
+
 
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -299,12 +304,97 @@ export default function SigningRequestPage(){
             }
             })
 
-            /*
-            */
+                
+
+        }).catch(error => {
             
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);
             
-            
-            
+                        
+        });
+
+
+    }
+    /*
+    * Descripcion:	Firma protocolo con firma generada
+    * por el SAT
+    * Fecha de la creacion:		02/06/2022
+    * Author:					Eduardo B 
+    */
+    const firmarProtocoloSat = async (event) => {
+        event.preventDefault();
+        
+        
+        
+        if( public_ref.current.value === ''){
+            auth.swalFire('Seleccione un archivo de clave publica');
+            public_ref.current.focus();
+            return;
+        }
+        if( private_ref.current.value === ''){
+            auth.swalFire('Seleccione un archivo de clave publica');
+            private_ref.current.focus();
+            return;
+        }
+        if( public_ref.current.value.trim() === ''){
+            auth.swalFire('Ingrese la contrase\u00F1a de clave privada');
+            pass_ref.current.focus();
+            return;
+        }
+
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        
+        let formData = new FormData( form_sat.current );
+        formData.append('fileProtocol', fileProtocol);
+        formData.append('pk_user', user.id);
+        formData.append('pk_protocol', pkProtocol);
+        
+        console.log(formData);
+        return;
+
+
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/firmaDocumento/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : formData
+        })
+        .then(response =>{
+
+            Swal.fire({
+            title: '',
+            icon: 'success',
+            html: "<div><strong>"+response.data.message+"</strong></div>",
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                handleClose();
+                startModule();
+                
+            }
+            })
+
+                
 
         }).catch(error => {
             
@@ -408,9 +498,21 @@ export default function SigningRequestPage(){
         setShow(false); 
         setFileProtocol(''); 
         setPkProtocol(0);
+        togglePassword();
 
     }
-    const handleShow = () =>{ setShow(true); } 
+    const handleShow = () =>{ setShow(true); }
+
+    const handleCloseSat = () =>{ 
+        setShowSat(false); 
+        setFileProtocol(''); 
+        setPkProtocol(0);
+        togglePassword();
+
+
+    }
+    const handleShowSat = () =>{ setShowSat(true); }
+
 
     /*
     * Descripcion:	Despliegue y cierre de centana modal con detalles
@@ -426,6 +528,9 @@ export default function SigningRequestPage(){
     const showModalDetalles = () =>{ 
         setShowDet(true); 
     }
+
+
+    
 
     
 
@@ -454,7 +559,7 @@ export default function SigningRequestPage(){
                 </div>
             </div>
 
-            <Modal size = "lg" show={show} onHide={handleClose}>
+            <Modal size = "lg" show={showSat} onHide={handleCloseSat}>
                 <Modal.Header closeButton  className = "bg-primary" >
                 <Modal.Title >
                     <div className = "title" >Firma de protocolo</div>
@@ -464,7 +569,7 @@ export default function SigningRequestPage(){
                     
                 <form ref={form_ref}  encType="multipart/form-data" onSubmit = {firmarProtocolo}>
                 
-                    {/*
+                    
                     <div className = "row row-form">
                         <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-center">
                             <div className = "label-form" >Clave publica (archivivo .cer)</div>
@@ -503,7 +608,7 @@ export default function SigningRequestPage(){
                             />
                         </div>
                     </div>
-                    */}
+                    
 
                     <div className = "row row-form">
                         <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-center">
@@ -549,7 +654,77 @@ export default function SigningRequestPage(){
                             <div className = "label-form" >Contrase&ntilde;a de firma electr&oacute;nica</div>
                         </div>
                         <div className = "col-lg-8 col-md-8 col-sm-12">
-                            <input type={passwordShown ? "text" : "password"} className = "form-control" name = "password"  />
+                            <input type={passwordShown ? "text" : "password"} ref = {pass_ref} className = "form-control" name = "password"  />
+                            <img    className="" src={lupa} 
+                                onClick = {togglePassword} width = "20" height = "20" alt="User Icon"
+                                title= {passwordShown ? "Ocultar contrase\u00F1a" : "Mostrar contrase\u00F1a"}  style={{cursor:"pointer"}}/>
+                        </div>
+                    </div>
+
+                </form>
+                    
+                </Modal.Body>
+                <Modal.Footer className = "panel-footer">
+                    <img className="image" src={engrane} onClick={firmarProtocoloSat}  width = "30" height = "30" alt="User Icon" title= "Firmar" />
+                    <img className="image" src={cancel} onClick={handleCloseSat} width = "30" height = "30" alt="User Icon" title= "Cerrar" />        
+                </Modal.Footer>
+            </Modal>
+
+            <Modal size = "lg" show={show} onHide={handleClose}>
+                <Modal.Header closeButton  className = "bg-primary" >
+                <Modal.Title >
+                    <div className = "title" >Firma de protocolo</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    
+                <form ref={form_sat}  encType="multipart/form-data" onSubmit = {firmarProtocolo}>
+                                    
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-center">
+                            <div className = "label-form" >Clave privada (archivivo .key)</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                            <input className = "form-control" ref = {private_ref} name = "private_key" type="file"
+                                onChange = {(e) => {
+
+                                    const nameFile = e.target.files[0].name;
+                                    const sizeFile = e.target.files[0].size;
+                                                                
+                                    if(nameFile.toLowerCase().match(/([^\s]*(?=\.(key))\.\2)/gm)!=null){                                
+                                        setPrivateFile(e.target.files[0]);
+                                        
+
+                                    }else{
+                                        
+                                        Swal.fire({
+                                        icon: 'info',
+                                        html : 'El formato del archivo debe ser .key',
+                                        showCancelButton: false,
+                                        focusConfirm: false,
+                                        allowEscapeKey : false,
+                                        allowOutsideClick: false,
+                                        confirmButtonText:'Aceptar',
+                                        confirmButtonColor: '#39ace7',
+                                        preConfirm: () => {
+                                            private_ref.current.value = null;
+                                            setPrivateFile(null);
+
+                                        }
+                                        })
+                                    }
+
+
+                                }} 
+                            />
+                        </div>
+                    </div>
+                    <div className = "row row-form">
+                        <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-center">
+                            <div className = "label-form" >Contrase&ntilde;a de firma electr&oacute;nica</div>
+                        </div>
+                        <div className = "col-lg-8 col-md-8 col-sm-12">
+                            <input type={passwordShown ? "text" : "password"} ref = {pass_ref} className = "form-control" name = "password"  />
                             <img    className="" src={lupa} 
                                 onClick = {togglePassword} width = "20" height = "20" alt="User Icon"
                                 title= {passwordShown ? "Ocultar contrase\u00F1a" : "Mostrar contrase\u00F1a"}  style={{cursor:"pointer"}}/>
@@ -564,6 +739,7 @@ export default function SigningRequestPage(){
                     <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" />        
                 </Modal.Footer>
             </Modal>
+
 
             <Modal size = "lg" show={showDet} onHide={closeModalDetalles}>
                 <Modal.Header closeButton  className = "bg-primary" >
