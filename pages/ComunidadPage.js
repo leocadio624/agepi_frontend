@@ -36,6 +36,7 @@ export default function ComunidadPage(){
 
     const auth = useAuth();
     const [show, setShow] = useState(false);
+    const [showProf, setShowProf] = useState(false);
     const [programas, setProgramas] = useState([]);
 
     const [alumno, setAlumno] = useState({'id':0, 'boleta':'', 'email_al':'', 'programa':'-1'});
@@ -50,12 +51,13 @@ export default function ComunidadPage(){
     const [alEmails, setAlEmails] = useState([]);
     const [alBols, setAlBols] = useState([]);
     const [cargaAlumnos, setCargaAlumnos] = useState([]);
+    const [cargaProfesores, setCargaProfesores] = useState([]);
     
     
 
 
     useEffect(() => {
-        programasAcademicos();
+        startModule();
         loadTables();
         
     },[]);
@@ -144,6 +146,13 @@ export default function ComunidadPage(){
             center:true
 
         },
+        {
+            name:'Estado',
+            selector:row => row.estado,
+            sortable:true,
+            center:true
+
+        }/*,
         {   
 
             name:'Acciones',
@@ -155,13 +164,12 @@ export default function ComunidadPage(){
                             <img  className = "image" src = {delete_icon} width = "30" height = "30" alt="User Icon" title= "Eliminar profesor" />
                             </>
                             }
-
-
-                            ,
+            ,
             ignoreRowClick: true,
             allowOverflow: true,
             button: true,
         }
+        */
     ];
     const columCargaAlumnos = [
         {
@@ -183,8 +191,7 @@ export default function ComunidadPage(){
             center:true
 
         },
-        {   
-
+        { 
             name:'Estado',
             cell:(row) =>  <>
                             {row.estado == 1 &&
@@ -197,19 +204,18 @@ export default function ComunidadPage(){
                                 />
                             
                             }
-
-                            
-
-
-                            </> 
+                            </>
                             ,
             ignoreRowClick: true,
             allowOverflow: true,
             button: true,
-        }
-        
+        }  
     ];
-
+    /*
+    * Descripcion:	Mapea valor de programa acdaemico
+    * Fecha de la creacion:		17/04/2022
+    * Author:					Eduardo B 
+    */
     function getPrograma(programa){
         
         if(programa === 1)
@@ -220,20 +226,91 @@ export default function ComunidadPage(){
             return "Ingenieria en inteligencia artificial";
         else
             return "No disponible";
-
-        
     
     }
+    const columnCargaProfesores = [
+        {
+            name:'N\u00FAmero empleado',
+            selector:row => row.no_empleado,
+            sortable:true,
+            center:true
+        }
+        ,
+        {
+            name:'Correo electr\u00F3nico',
+            selector:row => row.correo,
+            sortable:true,
+            center:true
+        },
+        {
+            name:'Academia',
+            selector:row => getAcademia(row.academia),
+            sortable:true,
+            center:true
+
+        },
+        {   
+            name:'Estado',
+            cell:(row) =>  <>
+                            {row.estado == 1 &&
+                                <img  className = "image" src = {aprobado} width = "20" height = "20" alt="User Icon" title= "Usuario validado"
+                                />
+
+                            }
+                            {row.estado == 0 &&
+                                <img  className = "image" src = {advertencia} width = "20" height = "20" alt="User Icon" title= {row.error} 
+                                />
+                            }
+                            </> 
+                            ,
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        }
+        
+        
+    ];
+    /*
+    * Descripcion:	Mapea valor de la academia
+    * Fecha de la creacion:		05/06/2022
+    * Author:					Eduardo B 
+    */
+    function getAcademia(pk_academia){
+        
+        if(pk_academia === 1)
+            return "Ciencias básicas";
+        else if(pk_academia === 2)
+            return "Ciencias sociales";
+        else if(pk_academia === 3)
+            return "Proyectos estratégicos y toma de decisiones";
+        else if(pk_academia === 4)
+            return "Ciencias de la computación";
+        else if(pk_academia === 5)
+            return "Ingenieria de software";
+        else if(pk_academia === 6)
+            return "Sistemas distribuidos";
+        else if(pk_academia === 7)
+            return "Sistemas digitales";
+        else if(pk_academia === 8)
+            return "Fundamentos de sistemas eléctricos";
+        else
+            return "No disponible";
+    
+    }
+
+
+    
     
 
     
 
     /*
-    * Descripcion:	Carga catalogo de programas academicos disponibles
+    * Descripcion:	Inicia modulo cargando catalogos
+    * y datos de entrada
     * Fecha de la creacion:		17/04/2022
     * Author:					Eduardo B 
     */
-    const programasAcademicos = async () =>{ 
+    const startModule = async () =>{ 
         
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
@@ -258,7 +335,6 @@ export default function ComunidadPage(){
         })
         .then(response =>{
 
-            
             setProgramas(response.data.programas);
             setAlEmails(response.data.al_emails);
             setAlBols(response.data.al_boletas);
@@ -720,6 +796,44 @@ export default function ComunidadPage(){
         });
         setCargaAlumnos(arr_alum);
     }
+
+
+    /*
+    * Descripcion:	Convierte cvc a array
+    * en carga masiva de profesores
+    * Fecha de la creacion:		05/06/2022
+    * Author:					Eduardo B
+    */
+    const processCSVProfesores = (str, delim=',') => {
+        
+        const rows = str.slice(str.indexOf('\n')+1).split('\n');
+        let RegExPatternProfesor = /^[\w-\.]{3,}@ipn\.mx$/;
+
+        let arr_prof = []
+        let arrAcademias = [1, 2, 3, 4, 5, 6, 7, 8]
+        rows.map( row => {
+            if(row !== ''){
+                const values = row.split(',');
+                arr_prof.push({'no_empleado':values[0].trim(), 'correo':values[1].trim(), 'academia':parseInt(values[2].trim()), 'estado':1, 'error':''})
+            }
+        })        
+        arr_prof.forEach(function(i){ 
+            if( alBols.includes(i.no_empleado) || alEmails.includes(i.correo) ){
+                i.estado = 0;
+                i.error = 'Usuario registrado previamente';
+            }
+            if( arrAcademias.includes(i.academia) === false ){
+                i.estado = 0;
+                i.error = 'Los programas academicos son los siguientes: 1-ISC, 2-Ingenier\u00EDa en ciencia de datos, 3-Ingenier\u00EDa en inteligenca artificial';
+            }
+            if( Array.isArray( i.correo.match(RegExPatternProfesor)) === false ){
+                i.estado = 0;
+                i.error = 'Correo electr\u00F3nico no v\u00E1lido(el correo electr\u00F3nico debe ser institucional de tipo alumno)';
+            }
+        });
+        setCargaProfesores(arr_prof);
+
+    }
     /*
     * Descripcion:	Envia array de cvc a django
     * Fecha de la creacion:		29/05/2022
@@ -765,8 +879,8 @@ export default function ComunidadPage(){
         })
         .then(response =>{
 
-            setAlEmails(response.data.al_emails);
-            setAlBols(response.data.al_boletas);
+            //setAlEmails(response.data.al_emails);
+            //setAlBols(response.data.al_boletas);
             let aceptados = response.data.aceptados;
             let cadena = "Se han creado "+aceptados.length+" registros de "+posibles+" posibles."
             Swal.fire({
@@ -780,8 +894,9 @@ export default function ComunidadPage(){
             confirmButtonText:'Aceptar',
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
+                startModule();
+                loadTables();
                 handleClose();
-                loadAlumnos();
             }
             })
 
@@ -797,7 +912,90 @@ export default function ComunidadPage(){
        
 
     }
-    
+
+    /*
+    * Descripcion:	Envia array de cvc a django
+    * Fecha de la creacion:		29/05/2022
+    * Author:					Eduardo B 
+    */
+    const cargarDatosProfesores = async () =>{ 
+        
+        let posibles = 0;
+        if( cargaProfesores.length === 0){
+            auth.swalFire('No se ha cargado archivo con alumnos');
+            return;
+        }
+        cargaProfesores.forEach(function(i){
+            if(i.estado===1){posibles += 1}
+        });
+        if( posibles === 0){
+            auth.swalFire('No existen registros por cargar en este archivo');
+            return;
+        }
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        
+        axios({
+        method: 'post',
+        url: baseURL+'/comunidad/cargarDatosProfesores/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            profesores : cargaProfesores
+        }
+        })
+        .then(response =>{
+
+            /*
+            setAlEmails(response.data.al_emails);
+            setAlBols(response.data.al_boletas);
+            */
+            let aceptados = response.data.aceptados;
+            let cadena = "Se han creado "+aceptados.length+" registros de "+posibles+" posibles."
+            Swal.fire({
+            title: '',
+            icon: 'info',
+            html : '<strong>'+cadena+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                startModule();
+                loadTables();
+                handleCloseProf();
+            }
+            })
+            
+
+            
+            
+                    
+        }).catch(error => {
+            if(!error.status)
+                auth.onError()
+                
+        });
+        
+       
+
+    }
+
 
     /*
     * Descripcion:	Despliegue y cierre de centana modal
@@ -807,9 +1005,22 @@ export default function ComunidadPage(){
     const handleClose = () =>{
         setShow(false);
         setCargaAlumnos([]);
-        
     } 
-    const handleShow = () =>{ setShow(true); } 
+    const handleShow = () =>{ setShow(true); }
+    /*
+    * Descripcion:	Despliegue y cierre de centana modal
+    * Fecha de la creacion:		08/04/2022
+    * Author:					Eduardo B 
+    */
+    const handleCloseProf = () =>{
+        setShowProf(false);
+        setCargaProfesores([]);
+    } 
+    const handleShowProf = () =>{ setShowProf(true); }
+
+
+
+
     return(
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
 
@@ -853,12 +1064,7 @@ export default function ComunidadPage(){
                         <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                             <div className = "label-form" >Programa acad&eacute;mico</div>
                         </div>
-                        <div className = "col-lg-4 col-md-4 col-sm-6"> 
-
-                            {/*
-                            <div> {JSON.stringify(programas)} </div>
-                            */}
-                            
+                        <div className = "col-lg-4 col-md-4 col-sm-6">                             
                             <select className = "form-select" ref = {programa} name = "programa"  onChange = {handleInputChange} value = {alumno.programa}>
                                 <option value = "-1"  >Seleccione una opcci&oacute;n</option>
                                 {programas.map((obj, index) =>(
@@ -899,7 +1105,7 @@ export default function ComunidadPage(){
                             <DataTable
                                 columns = {columAlumnos}
                                 data = {alumnos}
-                                title = "Alumnos con acceso"
+                                title = "Comunidad alumnos"
                                 noDataComponent="No existen registros disponibles"
                                 pagination
                                 paginationComponentOptions = {paginacionOpcciones}
@@ -911,10 +1117,17 @@ export default function ComunidadPage(){
 
                 </Tab>
                 <Tab eventKey="profesores" title="Profesores">
+
+                <div className = "row" style = {{marginTop:30}}>
+                    <div className = "col-12 d-flex justify-content-center">               
+                        <img className="image" src={excel}  width = "30" height = "30" alt="User Icon" title= "Carga masiva de profesores" onClick={handleShowProf} />
+                    </div>
+                </div>
+
                     <DataTable
                         columns = {columProfesores}
                         data = {profesores}
-                        title = "Alumnos con acceso"
+                        title = "Comunidad profesores"
                         noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}
@@ -931,7 +1144,7 @@ export default function ComunidadPage(){
                 </Modal.Header>
                 <Modal.Body>
 
-                    <input src={excel} type="file" id="csvFile" accept=".csv" 
+                    <input src={excel} type="file"  accept=".csv" 
                     onChange = {(e) => {
 
                         const file = e.target.files[0];
@@ -968,6 +1181,56 @@ export default function ComunidadPage(){
                     <img className="image" src={cancel} onClick={handleClose} width = "25" height = "25" alt="User Icon" title= "Cerrar" />
                 </Modal.Footer>
             </Modal>
+
+            <Modal size = "xl" show={showProf} onHide={handleCloseProf}>
+                <Modal.Header closeButton  className = "bg-primary" >
+                <Modal.Title >
+                    <div className = "title" >Carga masiva de usuarios de tipo profesor</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+
+                    <input src={excel} type="file"  accept=".csv" 
+                    onChange = {(e) => {
+
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            const text = e.target.result;
+                            try {
+                                processCSVProfesores(text);
+                            }catch (error){
+                                setCargaProfesores([]);
+                            }
+
+                        }
+                        reader.readAsText(file);
+                        
+                    }} 
+                    />
+                    
+                    <DataTable
+                        columns = {columnCargaProfesores}
+                        data = {cargaProfesores}
+                        title = ""
+                        noDataComponent="No se ha cargado archivo con alumnos a registrar"
+                        pagination
+                        paginationComponentOptions = {paginacionOpcciones}
+                        fixedHeaderScrollHeight = "600px"
+                    />
+                    
+                    
+                    
+
+                </Modal.Body>
+                <Modal.Footer className = "panel-footer">
+                    <img className="image" src={engrane} onClick={cargarDatosProfesores} width = "25" height = "25" alt="User Icon" title= "Cargar datos profesores" />
+                    <img className="image" src={cancel} onClick={handleCloseProf} width = "25" height = "25" alt="User Icon" title= "Cerrar" />
+                </Modal.Footer>
+            </Modal>
+
+
         </div>
     )
 }

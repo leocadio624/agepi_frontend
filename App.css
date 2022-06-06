@@ -52,7 +52,7 @@ body{
   margin-top:10px!important;
 }
 .label-form{
-  font-size:12px;
+  font-size:14px;
   margin-top:8px;
   font-weight:bold;
 }
@@ -184,6 +184,8 @@ body{
     overflow-x: auto!important;
   }
 }
+
+
 
 
 

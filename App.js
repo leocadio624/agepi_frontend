@@ -9,11 +9,12 @@ import 'bootstrap/dist/js/bootstrap.js';
 
 function App() {
   return (
-    <div> 
+    <div>
       <AuthProvider>
         <AppRouter />
       </AuthProvider>
     </div>
+    
   );
 }
 export default App;

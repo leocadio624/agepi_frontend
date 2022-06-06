@@ -3,6 +3,8 @@ import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
+import validator from 'validator';
+import lupa from '../assetss/images/lupa.png';
 
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
@@ -24,6 +26,7 @@ export default function RegisterPage(){
         error:false,
         message_error:''
     })
+    const [passwordShown, setPasswordShown] = useState(false);
 
 
 
@@ -39,9 +42,13 @@ export default function RegisterPage(){
 
 
     const registarUsuario = (event) => {
-
         event.preventDefault();
         
+        /*
+        let value = 'me'
+        console.log( validator.isStrongPassword(value, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) )
+        return;
+        */
 
         
 
@@ -69,7 +76,16 @@ export default function RegisterPage(){
         }else if( datos.pass.trim() === '' ){
             setEstado({error:true, message_error:'Ingrese una contrase\u00F1a'});
             return;
-        }else if( datos.confirm_pass.trim() === '' ){
+        }
+        /*
+        else if( validator.isStrongPassword(datos.pass, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) === false ){
+            setEstado({error:true, message_error:'La contraseña no cumple con los requisitos, favor de verificarlo'});
+            return;
+
+        }
+        */
+        
+        else if( datos.confirm_pass.trim() === '' ){
             setEstado({error:true, message_error:'Confirme su contrase\u00F1a'});
             return;
         }else if( datos.pass !== datos.confirm_pass ){
@@ -77,8 +93,6 @@ export default function RegisterPage(){
             return;
         }
         
-
-
         is_student = Array.isArray( datos.correo.match(RegExPatternAlumno) ) ? true : false;
         is_employe = !is_student;
         rol_user = is_student ? 1 : 2;
@@ -162,8 +176,16 @@ export default function RegisterPage(){
             })
 
         })
-
     }
+    /*
+    * Descripcion: Muestra el password ingresado
+    * 'Registrar firma'
+    * Fecha de la creacion:		30/04/2022
+    * Author:					Eduardo B 
+    */
+    const togglePassword = () => {
+        setPasswordShown(!passwordShown);
+    };
     return(
 
         <div className="wrapper fadeInDown">
@@ -179,9 +201,24 @@ export default function RegisterPage(){
                     <input type="text" className="entry_text fadeIn first" name="nombre"  placeholder="Nombre completo" onChange = {handleInputChange} />
                     <input type="text" className="entry_text fadeIn second" name="apellidos"  placeholder="Apellidos" onChange = {handleInputChange} />
                     <input type="text" className="entry_text fadeIn second"  name="correo"  placeholder="Correo electr&oacute;nico institucional" onChange = {handleInputChange} />
-                    <input type="password" className="entry_psw fadeIn third" name="pass" placeholder="Contrase&ntilde;a" onChange = {handleInputChange} />
-                    <input type="password" className="entry_psw fadeIn third" name="confirm_pass" placeholder="Confirmaci&oacute;n contrase&ntilde;a" onChange = {handleInputChange} />
-                    <input type="submit" className="fadeIn fourth" value="Registrarce"  /> 
+                    <input  type={passwordShown ? "text" : "password"}
+                            className={passwordShown ? "entry_text fadeIn third" : "entry_psw fadeIn third"}
+                            name="pass"
+                            placeholder="Contrase&ntilde;a" 
+                            onChange = {handleInputChange} 
+                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un caracter numérico"
+                    />
+                    <input  type={passwordShown ? "text" : "password"}
+                            className={passwordShown ? "entry_text fadeIn third" : "entry_psw fadeIn third"}
+                            name="confirm_pass"
+                            placeholder="Confirmaci&oacute;n contrase&ntilde;a" 
+                            onChange = {handleInputChange} 
+                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un caracter numérico"
+                    />
+                    <input type="submit" className="fadeIn fourth" value="Registrarce"  />
+                    <img    className="" src={lupa} 
+                            onClick = {togglePassword} width = "20" height = "20" alt="User Icon"
+                            title= {passwordShown ? "Ocultar contrase\u00F1a" : "Mostrar contrase\u00F1a"}  style={{cursor:"pointer"}}/>
                     
                     
                 </form>

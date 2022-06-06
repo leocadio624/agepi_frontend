@@ -256,8 +256,7 @@ export default function SigningRequestPage(){
     */
     const firmarProtocolo = async (event) => {
         event.preventDefault();
-
-
+        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -328,6 +327,8 @@ export default function SigningRequestPage(){
         
         
         
+
+        
         if( public_ref.current.value === ''){
             auth.swalFire('Seleccione un archivo de clave publica');
             public_ref.current.focus();
@@ -338,7 +339,7 @@ export default function SigningRequestPage(){
             private_ref.current.focus();
             return;
         }
-        if( public_ref.current.value.trim() === ''){
+        if( pass_ref.current.value.trim() === ''){
             auth.swalFire('Ingrese la contrase\u00F1a de clave privada');
             pass_ref.current.focus();
             return;
@@ -363,13 +364,13 @@ export default function SigningRequestPage(){
         formData.append('pk_user', user.id);
         formData.append('pk_protocol', pkProtocol);
         
-        console.log(formData);
-        return;
+        
+        
 
 
         axios({
         method: 'post',
-        url: baseURL+'/protocolos/firmaDocumento/',
+        url: baseURL+'/protocolos/firmaDocumentoSat/',
         headers: {
             'Authorization': `Bearer ${ token }`
         },
@@ -377,6 +378,7 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
 
+            
             Swal.fire({
             title: '',
             icon: 'success',
@@ -388,11 +390,15 @@ export default function SigningRequestPage(){
             confirmButtonText:'Aceptar',
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
-                handleClose();
+                
+                handleCloseSat();
                 startModule();
+                
                 
             }
             })
+            
+            
 
                 
 
@@ -535,6 +541,9 @@ export default function SigningRequestPage(){
     
 
     return(
+
+    
+    
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
@@ -558,16 +567,16 @@ export default function SigningRequestPage(){
                     
                 </div>
             </div>
-
+            {/*FIRMA SAT*/}
             <Modal size = "lg" show={showSat} onHide={handleCloseSat}>
                 <Modal.Header closeButton  className = "bg-primary" >
                 <Modal.Title >
-                    <div className = "title" >Firma de protocolo</div>
+                    <div className = "title" >Firma de protocolo sat</div>
                 </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     
-                <form ref={form_ref}  encType="multipart/form-data" onSubmit = {firmarProtocolo}>
+                <form ref={form_sat}  encType="multipart/form-data" onSubmit = {firmarProtocoloSat}>
                 
                     
                     <div className = "row row-form">
@@ -575,7 +584,7 @@ export default function SigningRequestPage(){
                             <div className = "label-form" >Clave publica (archivivo .cer)</div>
                         </div>
                         <div className = "col-lg-8 col-md-8 col-sm-12">
-                            <input className = "form-control" ref = {public_ref} name = "public_key" type="file"
+                            <input className = "form-control" ref = {public_ref} name = "public_sat" type="file"
                                 onChange = {(e) => {
 
                                     const nameFile = e.target.files[0].name;
@@ -615,7 +624,7 @@ export default function SigningRequestPage(){
                             <div className = "label-form" >Clave privada (archivivo .key)</div>
                         </div>
                         <div className = "col-lg-8 col-md-8 col-sm-12">
-                            <input className = "form-control" ref = {private_ref} name = "private_key" type="file"
+                            <input className = "form-control" ref = {private_ref} name = "private_sat" type="file"
                                 onChange = {(e) => {
 
                                     const nameFile = e.target.files[0].name;
@@ -669,7 +678,7 @@ export default function SigningRequestPage(){
                     <img className="image" src={cancel} onClick={handleCloseSat} width = "30" height = "30" alt="User Icon" title= "Cerrar" />        
                 </Modal.Footer>
             </Modal>
-
+            {/*FIRMA NORMAL*/}
             <Modal size = "lg" show={show} onHide={handleClose}>
                 <Modal.Header closeButton  className = "bg-primary" >
                 <Modal.Title >
@@ -678,7 +687,7 @@ export default function SigningRequestPage(){
                 </Modal.Header>
                 <Modal.Body>
                     
-                <form ref={form_sat}  encType="multipart/form-data" onSubmit = {firmarProtocolo}>
+                <form ref={form_ref}  encType="multipart/form-data" onSubmit = {firmarProtocolo}>
                                     
                     <div className = "row row-form">
                         <div className = "col-lg-4 col-md-4 col-sm-12 d-flex justify-content-center">
@@ -801,6 +810,8 @@ export default function SigningRequestPage(){
             </Modal>
 
         </div>
+
+    
     )
             
 }
