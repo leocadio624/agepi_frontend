@@ -1,4 +1,6 @@
 import React, {useState, useRef} from 'react';
+import {Modal, Button} from 'react-bootstrap';
+import {Spinner} from 'react-bootstrap';
 import { useHistory, useLocation } from 'react-router-dom';
 import useAuth from '../auth/useAuth';
 import '../assetss/css/login.css';
@@ -16,11 +18,11 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 export default function ActivatePage(){
     
-    
+    const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const history = useHistory();
     const location = useLocation();
     const previusObjectURL = location.state?.form;
-    const auth = useAuth();
     const code_activate = useRef();
     
     
@@ -65,6 +67,8 @@ export default function ActivatePage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
+
+        beginTransaction();
         axios({
             method: 'post',
             url: baseURL+'/usuario/activar/',
@@ -78,6 +82,7 @@ export default function ActivatePage(){
         })
         .then(response =>{
 
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : response.data.message,
@@ -98,6 +103,7 @@ export default function ActivatePage(){
             
         }).catch(error => {
 
+            endTransaction();
             setDatos({code_activate:''});
             if(!error.status)
                auth.onError()
@@ -118,8 +124,7 @@ export default function ActivatePage(){
     Descripccion : Reenvia codigo de activacion a email de usuario
     */
     const reenviarCodigo = async () => {
-
-
+        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -149,6 +154,7 @@ export default function ActivatePage(){
             
             if(result.value){
                 
+                beginTransaction();
                 axios({
                 method: 'post',
                 url: baseURL+'/usuario/reenviar_codigo/',
@@ -160,7 +166,7 @@ export default function ActivatePage(){
                 }
                 })
                 .then(response =>{
-                    
+                    endTransaction();
                     Swal.fire({
                     icon: 'success',
                     html : response.data.message,
@@ -175,11 +181,10 @@ export default function ActivatePage(){
                     }
                     })
                 }).catch(error => {
-        
+                    endTransaction();
                     if(!error.status)
                        auth.onError()
                     auth.onErrorMessage(error.response.data.message);
-                    
                     
                 });
 
@@ -190,11 +195,8 @@ export default function ActivatePage(){
 
 
     }
-
-
-
-
-    
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); }
     return(
         <div className="wrapper fadeInDown">
             <div id = "formContent">
@@ -220,6 +222,20 @@ export default function ActivatePage(){
                     </div>
                 }
             </div>
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
         
     )

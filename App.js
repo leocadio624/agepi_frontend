@@ -5,13 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.js';
 
 
-
-
-function App() {
+function App(){
+  
   return (
     <div>
       <AuthProvider>
-        <AppRouter />
+        <AppRouter className = "fondo"/>
       </AuthProvider>
     </div>
     

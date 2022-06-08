@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 
 //import {BrowserRouter as Router, Route} from 'react-router-dom';
 import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
@@ -15,7 +15,7 @@ import ProtocolState from '../pages/ProtocolStatePage';
 
 import Comunidad from '../pages/ComunidadPage';
 import RegisterSign from '../pages/RegisterSignPage';
-import Protocols from '../pages/ProtocolsPage';
+import Protocols from '../pages/ProtocolsCatt';
 import RegisterProtocol from '../pages/RegisterProtocolPage';
 import RegisterTeam from '../pages/RegisterTeamPage';
 import SigningRequest from '../pages/SigningRequestPage';
@@ -35,21 +35,26 @@ import Navbar from '../components/Navbar';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 
-
-
-
-
-
-
-
+//import Loading from '../components/Loading'
+//import useAuth from '../auth/useAuth';
 
 
 
 export default function AppRouter(){
 
+    
+    //const auth = useAuth();
     useEffect(() => {
-        
     });
+
+    /*
+    if(auth.transaction){
+        return(
+        <Loading />
+        )
+    }
+    */
+    
     return(
         
             <Router>

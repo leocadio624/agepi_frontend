@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
+import {Modal, Spinner} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
@@ -19,7 +20,9 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 
 
 export default function RegisterignPage(){
+
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const [datos, setDatos] = useState({
         password:''
     });
@@ -145,7 +148,7 @@ export default function RegisterignPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/firma/firma/',
@@ -156,11 +159,12 @@ export default function RegisterignPage(){
             'pk_user': user.id
         }
         })
-        .then(response =>{            
+        .then(response =>{
+            endTransaction();
             setFirmas(response.data)
-            //console.log(response.data);
             
         }).catch(error =>{
+            endTransaction();
             auth.onError();    
         });
 
@@ -196,7 +200,7 @@ export default function RegisterignPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/firma/firma/',
@@ -213,6 +217,7 @@ export default function RegisterignPage(){
         }
         })
         .then(response =>{
+            endTransaction();
             if(response.status === 226){
                 Swal.fire({
                 icon: 'info',
@@ -246,6 +251,7 @@ export default function RegisterignPage(){
             }
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -264,15 +270,8 @@ export default function RegisterignPage(){
     
     const descargarArchivo = async (ruta_archivo) =>{
         
-        //ruta_archivo = '/home/hsu/Documentos/entornos_virtuales/django-rest/agepi_backend/firmas/2/lm555.pdf';
-
         let arr = ruta_archivo.split('/');
         let nombreArchivo = arr[arr.length-1];
-
-        
-
-
-
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -285,6 +284,7 @@ export default function RegisterignPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/firma/descarga_firma/',
@@ -296,7 +296,7 @@ export default function RegisterignPage(){
         }
         })
         .then(response =>{
-
+            endTransaction();
             let blob        = new Blob([response.data]);
             let link        = document.createElement('a');
             link.href       = window.URL.createObjectURL(blob);
@@ -305,7 +305,7 @@ export default function RegisterignPage(){
             
             
         }).catch(error =>{
-
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -335,7 +335,7 @@ export default function RegisterignPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'delete',
         url: baseURL+'/firma/firma/'+encodeURI(id)+'/',
@@ -348,7 +348,7 @@ export default function RegisterignPage(){
         }
         })
         .then(response =>{
-
+            endTransaction();
             Swal.fire({
             position: 'top-end',
             icon: 'success',
@@ -361,6 +361,7 @@ export default function RegisterignPage(){
             
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -387,7 +388,7 @@ export default function RegisterignPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/firma/pass/',
@@ -399,7 +400,7 @@ export default function RegisterignPage(){
         }
         })
         .then(response =>{
-
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : response.data.message,
@@ -416,6 +417,7 @@ export default function RegisterignPage(){
             
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -423,6 +425,8 @@ export default function RegisterignPage(){
         
 
     }
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); }
     return(
         
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
@@ -487,6 +491,21 @@ export default function RegisterignPage(){
                     />
                 </div>
             </div>        
+
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     )
 }

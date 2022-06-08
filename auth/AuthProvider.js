@@ -280,7 +280,8 @@ const AuthProvider = ({children}) => {
         sesionExpirada(){
             alert('Su sesi\u00F3n de usuario ha expirado');
             setUser(null);
-        }
+        },
+        
     }
 
     return <AuthContext.Provider value = {contextValue} >

@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Modal, Button} from 'react-bootstrap';
+import {Spinner} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 
 
@@ -25,6 +25,8 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function ProtocolsPage(){
     const auth = useAuth();
     const [show, setShow] = useState(false);
+    const [transaction, setTransaction] = useState(false);
+    const [dictamen, setDictamen] = useState('-1');
     const [protocols, setProtocols] = useState([]);
     const [protocolo, setProtocolo] = useState( {'numero':'', 'titulo':'', 'resumen':'', 'periodo':''});
     const [pkProtocol, setPkProtocol] = useState(0);
@@ -92,6 +94,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/protocolsProfesorInit/',
@@ -104,11 +107,12 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
 
-            //console.log(response.data);
+            endTransaction();
             setProtocols(response.data);
 
             
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError()
             
@@ -142,6 +146,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/crearDocumentoFirmas/',
@@ -155,7 +160,7 @@ export default function ProtocolsPage(){
         }
         })
         .then(response =>{            
-
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
@@ -163,6 +168,7 @@ export default function ProtocolsPage(){
 
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -207,7 +213,7 @@ export default function ProtocolsPage(){
         }).then((result) => {
             
             if(result.value){            
-                
+                beginTransaction();
                 axios({
                 method: 'post',
                 url: baseURL+'/protocolos/selectProtocol/',
@@ -221,7 +227,7 @@ export default function ProtocolsPage(){
                 })
                 .then(response =>{            
         
-                    
+                    endTransaction();
                     Swal.fire({
                     icon: 'success',
                     html : '<strong>'+response.data.message+'</strong>',
@@ -238,6 +244,7 @@ export default function ProtocolsPage(){
         
         
                 }).catch(error => {
+                    endTransaction();
                     if(!error.status)
                         auth.onError();
                     auth.onErrorMessage(error.response.data.message);                
@@ -255,9 +262,53 @@ export default function ProtocolsPage(){
     * Fecha de la creacion:		22/05/2022
     * Author:					Eduardo B 
     */
-    const abrirFormulario = async (pk_protocol) =>{
-        setPkProtocol(pk_protocol);
-        handleShow();
+    const verificaEvaluacion = async (pk_protocol) =>{
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+            auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+        
+        
+        beginTransaction();
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/existeEvalucacion/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            fk_user     : user.id,
+            fk_protocol : pk_protocol
+        }
+        })
+        .then(response =>{            
+            endTransaction();
+            if(response.status === 226){
+                auth.swalFire(response.data.message);
+            }else if(response.status === 200){
+                setPkProtocol(pk_protocol);
+                handleShow();
+            }
+            
+
+
+        }).catch(error => {
+            endTransaction();
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+        });
+        
+        
     
     }
     /*
@@ -267,6 +318,7 @@ export default function ProtocolsPage(){
     */
     const generarEvalucacion = async () =>{
 
+        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -280,7 +332,12 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        if( parseInt(dictamen) === -1){
+            auth.swalFire('Seleccione un dictamen para la propuesta');
+            return;
+        }
+
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/generarEvalucacion/',
@@ -289,12 +346,16 @@ export default function ProtocolsPage(){
         },
         data : {
             fk_user     : user.id,
+            name        : user.name,
+            last_name   : user.last_name,
             fk_protocol : pkProtocol,
             preguntas   : preguntas,
-            summary     : datos.summary
+            summary     : datos.summary,
+            dictamen    : parseInt(dictamen) === 1 ? true:false
         }
         })
         .then(response =>{            
+            endTransaction();
 
             Swal.fire({
             icon: 'success',
@@ -312,6 +373,7 @@ export default function ProtocolsPage(){
             
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -346,9 +408,13 @@ export default function ProtocolsPage(){
         ]);
         setDatos({summary:''})
         setShow(false);
+        setDictamen('-1');
         
     } 
     const handleShow = () =>{ setShow(true); } 
+
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); } 
 
     /*
     * Descripcion:	Cambia idioma del data table
@@ -404,7 +470,7 @@ export default function ProtocolsPage(){
                             {row.lista_prof.includes(parseInt(auth.user.id)) &&
                                 <>
                                 <img  className = "image" src = {lapiz} width = "25" height = "25" alt="User Icon" title= "Evaluar protocolo" 
-                                onClick = {() => abrirFormulario(row.id)} id={row.id} style = {{marginRight:7}} />
+                                onClick = {() => verificaEvaluacion(row.id)} id={row.id} style = {{marginRight:7}} />
 
                                 <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
                                 onClick = {() => watchProtocol(row.id, row.fileProtocol)} id={row.id} />
@@ -424,7 +490,9 @@ export default function ProtocolsPage(){
 
     return(
         
+        
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
+
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
                     <div className = "title" >Protocolos disponibles</div>
@@ -495,6 +563,7 @@ export default function ProtocolsPage(){
                                     </div>
                                 }
                                 
+
                                 <div  className = "row" >
                                     <div className = "col-12 d-flex justify-content-start ">
                                         <input  type = "text" id = {i.id} onChange = {handleTextChange} className = "form-control" placeholder = "Observaci&oacute;n"/>
@@ -504,6 +573,29 @@ export default function ProtocolsPage(){
                             
                         ))}
                     </div>
+                    <div  className = "row" style={{marginTop:20}}>
+                        <div className = "col-lg-2 col-md-2 col-sm-12">
+                            <h6>Dictamen</h6>
+                        </div>
+                        <div className = "col-lg-4 col-md-4 col-sm-12">
+                            
+                            <select className = "form-select" 
+                                
+                                value = {dictamen}
+                                onChange = {(e) =>{
+                                    setDictamen(e.target.value);
+                                }}
+                                
+                            >
+                                <option value = "-1"  >Seleccione una opcci&oacute;n</option>
+                                <option  value = "1" >Aprobado</option>
+                                <option  value = "0" >No aprobado</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+
                     <div  className = "row" style={{marginTop:20}}>
                         <div className = "col-12 d-flex justify-content-center">
                             <h6>Recomendaciones detalladas</h6>
@@ -522,6 +614,22 @@ export default function ProtocolsPage(){
                     <img className="image" src={engrane} onClick={generarEvalucacion} width = "25" height = "25" alt="User Icon" title= "Generar evaluaci&oacute;n" />
                     <img className="image" src={cancel} onClick={handleClose} width = "25" height = "25" alt="User Icon" title= "Cerrar" />
                 </Modal.Footer>
+            </Modal>
+
+
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
             </Modal>
 
         </div>

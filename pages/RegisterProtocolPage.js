@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
-
-import {Modal, Button} from 'react-bootstrap';
+import {Modal, Spinner} from 'react-bootstrap';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
@@ -22,6 +21,7 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function RegisterPage(){
 
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const [show, setShow] = useState(false);
     const [edit, setEdit] = useState(false);
     const [pkTeam, setPkTeam] = useState(0);
@@ -126,7 +126,7 @@ export default function RegisterPage(){
         auth.refreshToken(token);
         
         
-
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/start_module/',
@@ -137,12 +137,13 @@ export default function RegisterPage(){
         }
         })
         .then(response =>{            
-            
+            endTransaction();
             setPeriodos(response.data.periodos);
             setInscripcciones(response.data.inscripcciones);
             setPkTeam(response.data.pk_team);
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -234,6 +235,7 @@ export default function RegisterPage(){
         let url = bandera === 0 ? baseURL+'/protocolos/protocolos/' : baseURL+'/protocolos/protocolos/'+encodeURI(datos.pk_protocol)+'/';
         let method = bandera === 0 ? 'post' : 'put';
         
+        beginTransaction();
         axios({
         method: method,
         url : url, 
@@ -244,6 +246,7 @@ export default function RegisterPage(){
         })
         .then(response =>{
             
+            endTransaction();
             if(response.status === 226){
                 auth.onErrorMessage(response.data.message);
             }else if(response.status === 200){
@@ -268,6 +271,8 @@ export default function RegisterPage(){
             
 
         }).catch(error => {
+
+            endTransaction();
             if(!error.status)
                 auth.onError();
                         
@@ -302,7 +307,7 @@ export default function RegisterPage(){
         const token = body.access || '';
         auth.refreshToken(token);
 
-
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/downloadFile/',
@@ -315,12 +320,14 @@ export default function RegisterPage(){
         }
         })
         .then(response =>{
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
             window.open(fileURL, "_blank", strWindowFeatures);
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
                         
@@ -338,6 +345,7 @@ export default function RegisterPage(){
     */
     const cleanForm = () => {
 
+        beginTransaction();
         file_ref.current.value = null;
         setSelectedFile(null);
         setDatos({  
@@ -353,6 +361,7 @@ export default function RegisterPage(){
         setTypeRegister('-1');
         setKeyList([{key:""}]);
         setEdit(false);
+        endTransaction();
 
     }
 
@@ -374,6 +383,7 @@ export default function RegisterPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/team/',
@@ -385,7 +395,7 @@ export default function RegisterPage(){
         }
         })
         .then(response =>{            
-            
+            endTransaction();
             handleShow();
             setProtocolos(response.data.protocolo);
             
@@ -393,6 +403,7 @@ export default function RegisterPage(){
 
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -425,6 +436,7 @@ export default function RegisterPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/palabras_clave_list/',
@@ -437,6 +449,7 @@ export default function RegisterPage(){
         })
         .then(response =>{
 
+            endTransaction();
             let palabras_protocolo = [];
             response.data.forEach(function(i){ palabras_protocolo.push({'key':i.word}) });
             if(palabras_protocolo.length === 0)
@@ -472,6 +485,8 @@ export default function RegisterPage(){
             
 
         }).catch(error =>{
+
+            endTransaction();
             if(!error.status)
                 auth.onError();
                         
@@ -500,6 +515,7 @@ export default function RegisterPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/solicta_firma/',
@@ -514,6 +530,7 @@ export default function RegisterPage(){
         })
         .then(response =>{
 
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : '<strong>'+response.data.message+'</strong>',
@@ -524,7 +541,7 @@ export default function RegisterPage(){
             confirmButtonText:'Aceptar',
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
-                //cleanForm();
+                cleanForm();
                 handleClose();
             }
             })
@@ -536,6 +553,7 @@ export default function RegisterPage(){
 
         }).catch(error =>{
 
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
@@ -552,6 +570,9 @@ export default function RegisterPage(){
     */
     const handleClose = () =>{ setShow(false); }
     const handleShow = () =>{ setShow(true); } 
+
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); }
     /*
     * Descripcion:	Cambia idioma del data table
     * Fecha de la creacion:		08/04/2022
@@ -617,7 +638,7 @@ export default function RegisterPage(){
             allowOverflow: true,
             button: true,
         }
-    ];
+    ];    
     return(
         
         <div>
@@ -843,7 +864,21 @@ export default function RegisterPage(){
                     <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" />
                 </Modal.Footer>
             </Modal>
-
+                
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
 
 
         </div>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-
+import {Modal, Spinner} from 'react-bootstrap';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
@@ -12,6 +12,7 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function AboutPage(){
 
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const step1 = useRef();
     const [estadoProtocol, setEstadoProtocol] = useState(0);
     const [integrantes, setIntegrantes] = useState([{name: '',last_name: ''}]);
@@ -50,8 +51,8 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
-        axios({
+        beginTransaction();
+        axios({ 
         method: 'get',
         url: baseURL+'/protocolos/LineProtocolStart/',
         headers: {
@@ -62,7 +63,7 @@ export default function AboutPage(){
         })
         .then(response =>{            
 
-            
+            endTransaction();
             if( response.data.length === 0)
                 return;
             
@@ -81,6 +82,7 @@ export default function AboutPage(){
             
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -114,7 +116,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-         
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/getIntegrantes/',
@@ -124,8 +126,9 @@ export default function AboutPage(){
             fk_team : fk_team
         }
         })
-        .then(response =>{            
+        .then(response =>{   
 
+            endTransaction();
             let integrantes = [];
             response.data.forEach(function(i){ integrantes.push({ 'name':i.name, 'last_name':i.last_name}) });
             setIntegrantes(integrantes);
@@ -133,6 +136,8 @@ export default function AboutPage(){
             
             
         }).catch(error =>{
+
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -165,7 +170,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/getFirmas/',
@@ -176,7 +181,7 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
-
+            endTransaction();
             setFirmantes(response.data);
             let integrantes = [];
             response.data.forEach(function(i){ integrantes.push({ 'name':i.name, 'last_name':i.last_name}) });
@@ -186,6 +191,7 @@ export default function AboutPage(){
             
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -218,7 +224,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/getFechaAsignacion/',
@@ -230,10 +236,12 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
+            endTransaction();
             setAsignacion(response.data.fecha_asignacion);
 
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -264,7 +272,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/getProfesoresSeleccion/',
@@ -276,9 +284,11 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
+            endTransaction();
             setEvaluaciones(response.data);
         
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -310,7 +320,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/getFechaEvaluacion/',
@@ -322,12 +332,13 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
-
+            endTransaction();
             setEvaluacion(response.data.fecha_evaluacion)
             
 
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -361,7 +372,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/getFechaDictamen/',
@@ -374,11 +385,14 @@ export default function AboutPage(){
         })
         .then(response =>{            
 
+            endTransaction();
             setDictamen(response.data.fecha_dictamen);
             
 
             
         }).catch(error =>{
+
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -412,7 +426,7 @@ export default function AboutPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-    
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/verEvaluacionSinodal/',
@@ -427,16 +441,17 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
-            
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
             window.open(fileURL, "_blank", strWindowFeatures);
-            /*
-            */
+            
+            
 
             
         }).catch(error =>{
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -471,23 +486,12 @@ export default function AboutPage(){
                 getFechaEvaluacion(protocol.id);
             else if(estado === 7)
                 getFechaDictamen(protocol.id);
-
-                
-
             
         }
 
-        
-
-        
-    
-        
-
-
-
     }
-
-
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); }
     return(
         
         <div className = "container panel shadow linea" style={{backgroundColor: "white"}} >
@@ -663,9 +667,20 @@ export default function AboutPage(){
 
                 </form>
             
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
-        
-        
-        
     )
 }

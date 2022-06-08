@@ -1,4 +1,6 @@
 import React, {useState} from 'react';
+import {Modal, Button} from 'react-bootstrap';
+import {Spinner} from 'react-bootstrap';
 import logo from '../assetss/images/user.png';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -8,12 +10,10 @@ import lupa from '../assetss/images/lupa.png';
 
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
-
-
 export default function RegisterPage(){
     
-    
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const [datos, setDatos] = useState({
         nombre:'',
         apellidos:'',
@@ -23,6 +23,10 @@ export default function RegisterPage(){
     })
     
     const [estado, setEstado] = useState({
+        error:false,
+        message_error:''
+    })
+    const [advertencia, setAdvertencia] = useState({
         error:false,
         message_error:''
     })
@@ -36,22 +40,12 @@ export default function RegisterPage(){
             [event.target.name]:(event.target.value).trim()
         })
         setEstado({error:false, message_error:''});
-        
-        
+           
     }
-
-
     const registarUsuario = (event) => {
         event.preventDefault();
         
-        /*
-        let value = 'me'
-        console.log( validator.isStrongPassword(value, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) )
-        return;
-        */
-
         
-
         let is_student = false;
         let is_employe = false;
         let rol_user = 0;
@@ -79,12 +73,10 @@ export default function RegisterPage(){
         }
         /*
         else if( validator.isStrongPassword(datos.pass, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) === false ){
-            setEstado({error:true, message_error:'La contraseña no cumple con los requisitos, favor de verificarlo'});
+            setAdvertencia({error:true, message_error:'La contraseña no cumple con los requisitos, favor de verificarlo'});
             return;
-
         }
         */
-        
         else if( datos.confirm_pass.trim() === '' ){
             setEstado({error:true, message_error:'Confirme su contrase\u00F1a'});
             return;
@@ -98,7 +90,7 @@ export default function RegisterPage(){
         rol_user = is_student ? 1 : 2;
         
 
-
+        beginTransaction();
         axios.post(
             baseURL+'/usuario/usuario/',
             {
@@ -116,9 +108,9 @@ export default function RegisterPage(){
             }
         )
         .then(response => {
-
+            endTransaction();
             if(response.status === 206 || response.status === 226){
-                setEstado({error:true, message_error:response.data.message});
+                setAdvertencia({error:true, message_error:response.data.message});
             }else if(response.status === 201){
                 
                 Swal.fire({
@@ -141,7 +133,7 @@ export default function RegisterPage(){
             
 
         }).catch(error => {
-        
+            endTransaction();
             if(!error.status){
 
                 Swal.fire({
@@ -186,6 +178,8 @@ export default function RegisterPage(){
     const togglePassword = () => {
         setPasswordShown(!passwordShown);
     };
+    const beginTransaction = () =>{ setTransaction(true); } 
+    const endTransaction = () =>{ setTransaction(false); }
     return(
 
         <div className="wrapper fadeInDown">
@@ -215,7 +209,7 @@ export default function RegisterPage(){
                             onChange = {handleInputChange} 
                             title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un caracter numérico"
                     />
-                    <input type="submit" className="fadeIn fourth" value="Registrarce"  />
+                    <input type="submit" className="fadeIn fourth" value="Registrarse"  />
                     <img    className="" src={lupa} 
                             onClick = {togglePassword} width = "20" height = "20" alt="User Icon"
                             title= {passwordShown ? "Ocultar contrase\u00F1a" : "Mostrar contrase\u00F1a"}  style={{cursor:"pointer"}}/>
@@ -228,8 +222,27 @@ export default function RegisterPage(){
                         {estado.message_error}  
                     </div>
                 }
+                {advertencia.error === true &&
+                    <div className = "alert alert-info" role="alert" >
+                        {advertencia.message_error}  
+                    </div>
+                }
 
             </div>
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     )
 }

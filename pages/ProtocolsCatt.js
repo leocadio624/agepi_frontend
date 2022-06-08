@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Modal, Button} from 'react-bootstrap';
+import {Modal, Spinner} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 
 
@@ -31,6 +31,7 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function ProtocolsPage(){
 
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const [show, setShow] = useState(false);
     const [showDet, setShowDet] = useState(false); //modal detalles protocolo
     const [protocols, setProtocols] = useState([]);
@@ -59,6 +60,7 @@ export default function ProtocolsPage(){
 
     useEffect(() => {
         startModule();
+        console.log('catt');
     },[]);
 
 
@@ -83,7 +85,7 @@ export default function ProtocolsPage(){
         auth.refreshToken(token);
 
         
-        
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/ProtocolCattStart/',
@@ -92,7 +94,7 @@ export default function ProtocolsPage(){
         }
         })
         .then(response =>{
-            
+            endTransaction();
             let aux_academias = [];
             setPeriodos(response.data.periodos);
             setEstados(response.data.estados);
@@ -103,6 +105,7 @@ export default function ProtocolsPage(){
 
             
         }).catch(error => {
+            endTransaction();
             setProtocols([]);
             if(!error.status)
                 auth.onError()
@@ -182,7 +185,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/protocolos/palabras_clave_list/',
@@ -194,11 +197,15 @@ export default function ProtocolsPage(){
         }
         })
         .then(response =>{
+
+            endTransaction();
             setKeyList(response.data)
             //setShow(true);
-            //console.log(response.data);
+            
             
         }).catch(error => {
+
+            endTransaction();
             if(!error.status)
                 auth.onError();
                 
@@ -234,6 +241,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/crearDocumentoFirmas/',
@@ -248,6 +256,7 @@ export default function ProtocolsPage(){
         })
         .then(response =>{            
 
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
@@ -255,6 +264,7 @@ export default function ProtocolsPage(){
 
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -286,7 +296,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/filtrarProtocolos/',
@@ -299,9 +309,11 @@ export default function ProtocolsPage(){
         }
         })
         .then(response =>{
+            endTransaction();
             setProtocols(response.data);
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -341,7 +353,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/asignacionAcademias/',
@@ -353,7 +365,7 @@ export default function ProtocolsPage(){
         }
         })
         .then(response =>{
-            
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : '<strong>'+response.data.message+'</strong>',
@@ -369,6 +381,7 @@ export default function ProtocolsPage(){
             })
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -426,7 +439,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/asignacionProtocolo/',
@@ -440,7 +453,7 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
             
-
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : '<strong>'+response.data.message+'</strong>',
@@ -459,6 +472,7 @@ export default function ProtocolsPage(){
            
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -486,6 +500,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/generarDictamen/',
@@ -498,6 +513,7 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
             
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : '<strong>'+response.data.message+'</strong>',
@@ -517,6 +533,7 @@ export default function ProtocolsPage(){
             
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -547,6 +564,7 @@ export default function ProtocolsPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/verDictamen/',
@@ -560,6 +578,7 @@ export default function ProtocolsPage(){
         })
         .then(response =>{
             
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
@@ -586,6 +605,8 @@ export default function ProtocolsPage(){
             
 
         }).catch(error => {
+            
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
@@ -668,6 +689,23 @@ export default function ProtocolsPage(){
             name:'Acciones',
             cell:(row) =>  
                             <>
+
+                            {/*
+                            <img  className = "image" src = {clasificar} width = "25" height = "25" alt="User Icon" title= "Asignar protocolo a academias" 
+                                onClick = {() => clasificarProtocolo(row.id)}  style = {{marginRight:7}}/>
+                            <img  className = "image" src = {ver} width = "25" height = "25" alt="User Icon" title= "Ver detalle" 
+                                onClick = {() => watchWordsHandler(row.id, row.number, row.title, row.sumary, row.periodo)}  style = {{marginRight:7}}/>
+                            <img  className = "image" src = {pdf} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
+                                onClick = {() => watchProtocolHandler(row.id, row.fileProtocol)} id={row.id} style = {{marginRight:7}}/>    
+                            <img  className = "image" src = {edit} width = "25" height = "25" alt="User Icon" title= "Generar dictamen" 
+                                onClick = {() => generarDictamen(row.id)}  />
+                            <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver dictamen"
+                                onClick = {() => verDictamen(row.id)}  />
+                            */}
+
+
+                            {/*
+                            */}
                             {row.fk_protocol_state === 3 &&
                                 <img  className = "image" src = {clasificar} width = "25" height = "25" alt="User Icon" title= "Asignar protocolo a academias" 
                                 onClick = {() => clasificarProtocolo(row.id)}  style = {{marginRight:7}}/>
@@ -691,7 +729,8 @@ export default function ProtocolsPage(){
             button: true,
         }
     ];
-
+    const beginTransaction = () =>{ setTransaction(true); }
+    const endTransaction = () =>{ setTransaction(false); }
 
 
     return(
@@ -785,8 +824,6 @@ export default function ProtocolsPage(){
                 </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-
-
                     <div className="form-check form-switch">
                         {academias.map((i, index) =>(
                             <div  className = "row" key = {index}>
@@ -805,16 +842,10 @@ export default function ProtocolsPage(){
                             </div>
                         ))}
                     </div>
-
-
-                  
-                    
-                    
-                
                 </Modal.Body>
                 <Modal.Footer className = "panel-footer">
-                    <img className="image" src={check}  onClick={crearClasificacionProtocolo} width = "30" height = "30" alt="User Icon" title= "Crear asignaci&oacute;n" />
-                    <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" />
+                    <img className="image" src={check}  onClick={crearClasificacionProtocolo} width = "25" height = "25" alt="User Icon" title= "Crear asignaci&oacute;n" />
+                    <img className="image" src={cancel} onClick={handleClose} width = "25" height = "25" alt="User Icon" title= "Cerrar" />
                 </Modal.Footer>
             </Modal>
 
@@ -874,6 +905,20 @@ export default function ProtocolsPage(){
                 <Modal.Footer className = "panel-footer">
                     <img className="image" src={cancel} onClick={closeModalDetalles} width = "30" height = "30" alt="User Icon" title= "Cerrar" readOnly/>        
                 </Modal.Footer>
+            </Modal>
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
             </Modal>
         </div>
 
