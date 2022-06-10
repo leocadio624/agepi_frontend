@@ -464,7 +464,7 @@ export default function ProtocolsPage(){
                                 onClick = {() => selectProtocol(row.id)} id={row.id} style = {{marginRight:7}} />
 
                                 <img  className = "image" src = {folder} width = "25" height = "25" alt="User Icon" title= "Ver protocolo" 
-                                onClick = {() => watchProtocol(row.id, row.fileProtocol)} id={row.id} />
+                                onClick = {() =>  (row.id, row.fileProtocol)} id={row.id} />
                                 </>
                             }
                             {row.lista_prof.includes(parseInt(auth.user.id)) &&

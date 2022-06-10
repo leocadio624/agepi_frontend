@@ -42,7 +42,7 @@ export default function RegisterPage(){
         title        : '',
         sumary       : '',
         fileProtocol : '',
-        fk_protocol_state :1
+        fk_protocol_state :0
     })
 
     
@@ -58,6 +58,7 @@ export default function RegisterPage(){
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [keyList, setKeyList] = useState( [ {key:""} ] );
+    const [crearRegistro, setCrearRegistro] = useState(true);
 
     useEffect(() => {
         startModule();
@@ -71,7 +72,7 @@ export default function RegisterPage(){
             [event.target.name]:event.target.value
         })
         if( event.target.name === 'sumary')
-            updateContadorTa(ref_sumary.current, countSumary.current, 4000);
+            updateContadorTa(ref_sumary.current, countSumary.current, 250);
         
     }
     const handleAddKey = () => {
@@ -137,10 +138,17 @@ export default function RegisterPage(){
         }
         })
         .then(response =>{            
+            
             endTransaction();
             setPeriodos(response.data.periodos);
             setInscripcciones(response.data.inscripcciones);
             setPkTeam(response.data.pk_team);
+
+            response.data.inscripcciones.forEach(function(i){ 
+                if(i.id === 2 || i.id === 4){
+                    setCrearRegistro(false);
+                }
+            });
             
         }).catch(error =>{
             endTransaction();
@@ -153,8 +161,14 @@ export default function RegisterPage(){
 
     }
 
+    /*
+    * Descripcion:Crea y actualiza el registro de un protocolo
+    * Fecha de la creacion:		09/06/2022
+    * Author:					Eduardo B 
+    */
     const guardarProtocolo = async (bandera) => {
         
+
         if(pkTeam === 0){
             auth.swalFire('Para registrar un protocolo debes de estar relacionado en un equipo');
             return;
@@ -248,10 +262,10 @@ export default function RegisterPage(){
             
             endTransaction();
             if(response.status === 226){
-                auth.onErrorMessage(response.data.message);
+                auth.swalFire(response.data.message);
             }else if(response.status === 200){
 
-                
+                /*
                 Swal.fire({
                 icon: 'success',
                 html : '<strong>'+response.data.message+'</strong>',
@@ -262,9 +276,10 @@ export default function RegisterPage(){
                 confirmButtonText:'Aceptar',
                 confirmButtonColor: '#39ace7',
                 preConfirm: () => {
-                    //cleanForm();
+                    cleanForm();
                 }
                 })
+                */
                 
                 
             }
@@ -283,7 +298,6 @@ export default function RegisterPage(){
 
         
     }
-
     /*
     * Descripcion:	Visualiza el archivo de protocolo
     * Fecha de la creacion:		03/05/2022
@@ -354,9 +368,9 @@ export default function RegisterPage(){
                     title       : '',
                     sumary      : '',
                     fileProtocol : '',
-                    fk_protocol_state :1
+                    fk_protocol_state :0
                 });
-        countSumary.current.innerHTML = "0/4000";
+        countSumary.current.innerHTML = "0/250";
         setPeriod('-1');
         setTypeRegister('-1');
         setKeyList([{key:""}]);
@@ -399,9 +413,6 @@ export default function RegisterPage(){
             handleShow();
             setProtocolos(response.data.protocolo);
             
-
-
-            
         }).catch(error =>{
             endTransaction();
             if(!error.status)
@@ -421,8 +432,6 @@ export default function RegisterPage(){
     */
     const loadProtocol = async (pk_protocol, number, title, sumary, fk_periodo, fk_inscripccion, fileProtocol, fk_team, fk_protocol_state) =>{ 
         
-        
-
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -469,16 +478,14 @@ export default function RegisterPage(){
             setPeriod(fk_periodo);
             setTypeRegister(fk_inscripccion);
             setPkTeam(fk_team);
-            countSumary.current.innerHTML = ''+(sumary.length).toString()+"/4000";
+            countSumary.current.innerHTML = ''+(sumary.length).toString()+"/250";
 
-            console.log(fk_protocol_state);
-
-            if(fk_protocol_state > 1)
-                setEdit(true);
-            else
+            //console.log( fk_protocol_state )
+            if(fk_protocol_state === 1 || fk_protocol_state === 8){
                 setEdit(false);
-            
-
+            }else{
+                setEdit(true);
+            }
             handleClose();
             
 
@@ -546,11 +553,6 @@ export default function RegisterPage(){
             }
             })
 
-            
-            
-
-            
-
         }).catch(error =>{
 
             endTransaction();
@@ -571,7 +573,7 @@ export default function RegisterPage(){
     const handleClose = () =>{ setShow(false); }
     const handleShow = () =>{ setShow(true); } 
 
-    const beginTransaction = () =>{ setTransaction(true); } 
+    const beginTransaction = () =>{ setTransaction(true); }
     const endTransaction = () =>{ setTransaction(false); }
     /*
     * Descripcion:	Cambia idioma del data table
@@ -665,7 +667,7 @@ export default function RegisterPage(){
                     <div className = "col-lg-4 col-md-4 col-sm-6">
                         <textarea  ref={ref_sumary}  value = {datos.sumary} className = "form-control" name = "sumary" rows="3" onChange = {handleInputChange} readOnly = {edit} ></textarea>
                         <blockquote className="blockquote text-center">
-                            <p  ref={countSumary} className = "mb-0 font-weight-lighter" style ={{fontSize:13}} >0/4000</p>
+                            <p  ref={countSumary} className = "mb-0 font-weight-lighter" style ={{fontSize:13}} >0/250</p>
                         </blockquote>
                         <blockquote className="blockquote text-center">
                             <footer className="blockquote-footer font-weight-lighter" style ={{fontSize:13}} >M&aacute;ximo 4000 car&aacute;cteres</footer>
@@ -815,27 +817,27 @@ export default function RegisterPage(){
             <div className = "row panel-footer" style = {{marginTop:20}}>
                 <div className = "col-12 d-flex justify-content-center">
                     {/*
-                    {JSON.stringify(edit)}
-                    {JSON.stringify(datos)}
-
+                        {JSON.stringify(edit)}
+                        {JSON.stringify(datos)}
+                        {JSON.stringify(inscripcciones)}
                     */}
                     
-                        
-                        
-                        
-                    {edit === true &&
+                
+                    {edit === false &&
                     <>
                         {datos.fk_protocol_state === 1 &&
                             <img className="image" src={save} onClick = {() => guardarProtocolo(1)} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" style = {{marginRight:5}}/>
                         }
-                        <img className="image" src={pdf} onClick = {descargarArchivo} width = "30" height = "30" alt="User Icon" title= "Ver archivo de protocolo" style = {{marginRight:5}}/>
+                        {datos.fk_protocol_state === 8 &&
+                            <img className="image" src={save} onClick = {() => guardarProtocolo(1)} width = "30" height = "30" alt="User Icon" title= "Guardar protocolo" style = {{marginRight:5}}/>
+                        } 
                     </>
                     }
-                    {edit === false &&
-                    <>
-                    <img className="image" src={check} onClick = {() => guardarProtocolo(0)} width = "30" height = "30" alt="User Icon" title= "Crear registro de protocolo" style = {{marginRight:5}}/>
-                    </>
-                    
+                    {datos.pk_protocol === 0 && crearRegistro &&  
+                        <img className="image" src={check} onClick = {() => guardarProtocolo(0)} width = "30" height = "30" alt="User Icon" title= "Crear registro de protocolo" style = {{marginRight:5}}/>
+                    }
+                    {datos.pk_protocol !== 0 &&
+                        <img className="image" src={pdf} onClick = {descargarArchivo} width = "30" height = "30" alt="User Icon" title= "Ver archivo de protocolo" style = {{marginRight:5}}/>
                     }
                     <img className="image" src={edit_icon} onClick = {pruebas} width = "30" height = "30" alt="User Icon" title= "Ver protocolo" style = {{marginRight:5}}/>
                     <img className="image" src={clean} onClick = {cleanForm} width = "35" height = "35" alt="User Icon" title= "Limpiar campos" />

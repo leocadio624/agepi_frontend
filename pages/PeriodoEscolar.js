@@ -480,7 +480,7 @@ export default function RegisterignPage(){
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton  className = "bg-primary" >
                 <Modal.Title >
-                    <div className = "title" >Cat&aacute;logos de inscripcciones</div>
+                    <div className = "title" >Cat&aacute;logo de inscripcciones</div>
                 </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

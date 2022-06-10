@@ -1,7 +1,7 @@
 //import { useParams } from 'react-router-dom'
 import React, {useState, useEffect, useRef} from 'react';
 import DataTable from 'react-data-table-component';
-import {Modal, Button} from 'react-bootstrap';
+import {Modal, Spinner} from 'react-bootstrap';
 
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
@@ -26,6 +26,7 @@ export default function SigningRequestPage(){
     const [passwordShown, setPasswordShown] = useState(false);
     
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const [show, setShow] = useState(false);
     const [showSat, setShowSat] = useState(false);
     const [firmaSat, setFirmaSat] = useState(false);
@@ -45,6 +46,7 @@ export default function SigningRequestPage(){
 
     useEffect(() => {
         startModule();
+
     },[]);
 
     /*
@@ -67,8 +69,9 @@ export default function SigningRequestPage(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-       
-       axios({
+    
+        beginTransaction();
+        axios({
         method: 'get',
         url: baseURL+'/protocolos/solicitudes_firma/',
         headers: {
@@ -81,10 +84,11 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
             setSolicitudes(response.data);
+            endTransaction();
             
         }).catch(error => {
             auth.onError();
-            
+            endTransaction();
             
         });
         
@@ -112,6 +116,7 @@ export default function SigningRequestPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
         
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/crearDocumentoFirmas/',
@@ -126,17 +131,19 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
             
+            endTransaction();
             var file = new Blob([response.data], {type: 'application/pdf'});
             var fileURL = URL.createObjectURL(file);
             var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
             window.open(fileURL, "_blank", strWindowFeatures);
-
             
 
         }).catch(error => {
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);                
+            endTransaction();
+
         });
         
 
@@ -171,6 +178,7 @@ export default function SigningRequestPage(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/existeFirma/',
@@ -184,6 +192,7 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
 
+            endTransaction();
             if(response.status === 206){
                 Swal.fire({
                 title: '',
@@ -229,6 +238,7 @@ export default function SigningRequestPage(){
 
 
         }).catch(error => {
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
@@ -276,6 +286,7 @@ export default function SigningRequestPage(){
         formData.append('pk_user', user.id);
         formData.append('pk_protocol', pkProtocol);
 
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/firmaDocumento/',
@@ -286,6 +297,7 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
 
+            endTransaction();
             Swal.fire({
             title: '',
             icon: 'success',
@@ -306,7 +318,7 @@ export default function SigningRequestPage(){
                 
 
         }).catch(error => {
-            
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
@@ -324,10 +336,6 @@ export default function SigningRequestPage(){
     */
     const firmarProtocoloSat = async (event) => {
         event.preventDefault();
-        
-        
-        
-
         
         if( public_ref.current.value === ''){
             auth.swalFire('Seleccione un archivo de clave publica');
@@ -364,10 +372,7 @@ export default function SigningRequestPage(){
         formData.append('pk_user', user.id);
         formData.append('pk_protocol', pkProtocol);
         
-        
-        
-
-
+        beginTransaction();
         axios({
         method: 'post',
         url: baseURL+'/protocolos/firmaDocumentoSat/',
@@ -378,7 +383,7 @@ export default function SigningRequestPage(){
         })
         .then(response =>{
 
-            
+            endTransaction();            
             Swal.fire({
             title: '',
             icon: 'success',
@@ -404,6 +409,7 @@ export default function SigningRequestPage(){
 
         }).catch(error => {
             
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
@@ -534,16 +540,9 @@ export default function SigningRequestPage(){
     const showModalDetalles = () =>{ 
         setShowDet(true); 
     }
-
-
-    
-
-    
-
+    const beginTransaction = () =>{ setTransaction(true); }
+    const endTransaction = () =>{ setTransaction(false); }    
     return(
-
-    
-    
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
             <div className = "row panel-header">
                 <div className = "col-12 d-flex justify-content-center">
@@ -807,6 +806,20 @@ export default function SigningRequestPage(){
                 <Modal.Footer className = "panel-footer">
                     <img className="image" src={cancel} onClick={closeModalDetalles} width = "30" height = "30" alt="User Icon" title= "Cerrar" readOnly/>        
                 </Modal.Footer>
+            </Modal>
+            <Modal size = "sm" show={transaction} centered >
+                <Modal.Header closeButton  className = "bg-dark" >
+                <Modal.Title >
+                    <div className = "title" >Procesando...</div>
+                </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "row" >
+                        <div className = "col-12 d-flex justify-content-center" >
+                            <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                        </div>
+                    </div>
+                </Modal.Body>
             </Modal>
 
         </div>

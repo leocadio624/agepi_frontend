@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
 import aprobado from '../assetss/images/aprobado.png';
+import pdf from '../assetss/images/pdf.png';
 
 
 
@@ -461,14 +462,57 @@ export default function AboutPage(){
 
 
     }
+    /*
+    * Descripcion: Descarga pdf de dictamen
+    * Fecha de la creacion:		08/06/2022
+    * Author:					Eduardo B 
+    */
+    const verDictamen = async () =>{ 
+        
+        const   user = JSON.parse(localStorage.getItem('user'));
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
 
-    
+        beginTransaction();
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/verDictamen/',
+        responseType: 'blob',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            fk_protocol : protocol.id
+        }
+        })
+        .then(response =>{
+            
+            endTransaction();
+            var file = new Blob([response.data], {type: 'application/pdf'});
+            var fileURL = URL.createObjectURL(file);
+            var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+            window.open(fileURL, "_blank", strWindowFeatures);
+            
+        }).catch(error => {            
 
-    
+            endTransaction();
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+            
+        });
 
-    
 
-
+    }
     const getEstadoProtocolo = async (event, estado) => {
         event.preventDefault();
         
@@ -490,7 +534,7 @@ export default function AboutPage(){
         }
 
     }
-    const beginTransaction = () =>{ setTransaction(true); } 
+    const beginTransaction = () =>{ setTransaction(true); }
     const endTransaction = () =>{ setTransaction(false); }
     return(
         
@@ -591,7 +635,9 @@ export default function AboutPage(){
                                 <h5>4.- Validado por departamento</h5>
                                 <div className = "row row-form">
                                     <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
-                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que el protocolo fue validado se acept&oacute; el protocolo&nbsp;&nbsp;&nbsp;&nbsp;{asignacion}</label>
+                                    {asignacion != '' &&
+                                        <label className = ""  style = {{fontSize:13}} >Fecha en la que el protocolo fue validado se acept&oacute; el protocolo&nbsp;&nbsp;&nbsp;&nbsp;{asignacion}</label>
+                                    }                                        
                                     </div>
                                 </div>
                             </div>
@@ -644,7 +690,9 @@ export default function AboutPage(){
                                 <h5>6.- Evaluado</h5>
                                 <div className = "row row-form">
                                     <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
-                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se finaliz&oacute; la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{evaluacion}</label>
+                                        {evaluacion != '' &&
+                                        <label className = ""  style = {{fontSize:13}} >Fecha en la que se finaliz&oacute; la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{evaluacion}</label>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -656,8 +704,16 @@ export default function AboutPage(){
                                 <h5>7.- Dictaminado</h5>
                                 <div className = "row row-form">
                                     <div className = "col-lg-6 col-md-6 col-sm-12 d-flex justify-content-start">
-                                    <label className = ""  style = {{fontSize:13}} >Fecha en la que se gener&oacute; el dictamen de la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{dictamen}</label>
+                                        {dictamen != '' &&
+                                        <>
+                                        <label className = ""  style = {{fontSize:13, marginTop:8}} >Fecha en la que se gener&oacute; el dictamen de la evaluaci&oacute;n:&nbsp;&nbsp;&nbsp;&nbsp;{dictamen}</label>
+                                        <img  className = "image" src = {pdf} width = "25" height = "25" alt="User Icon" title= "Ver evaluaci&oacute;n" 
+                                        onClick = {() => verDictamen()}
+                                        />
+                                        </>
+                                        }
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>

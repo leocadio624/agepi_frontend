@@ -4,15 +4,12 @@ import DataTable from 'react-data-table-component';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-
-import {Modal} from 'react-bootstrap';
+import {Modal, Spinner} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
-
-
 
 import add from '../assetss/images/plus.png';
 import save from '../assetss/images/save-file.png';
@@ -29,6 +26,7 @@ const baseURL = `${process.env.REACT_APP_API_URL}`;
 export default function RegisterTeam(){
 
     const auth = useAuth();
+    const [transaction, setTransaction] = useState(false);
     const name_team = useRef();
 
     const [datos, setDatos] = useState({name_team:''});
@@ -242,7 +240,7 @@ export default function RegisterTeam(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-
+        beginTransaction();
         axios({
         method: 'get',
         url: baseURL+'/teams/alumno_team/',
@@ -255,6 +253,7 @@ export default function RegisterTeam(){
         })
         .then(response =>{
 
+            endTransaction();
             setTeams(response.data.teams);
             setSolicitudes(response.data.solicitudes)
             setAlumnos(response.data.alumnos);
@@ -264,8 +263,8 @@ export default function RegisterTeam(){
             
 
         }).catch(error => {
+            endTransaction();
             auth.onError();
-            
             
         });
 
@@ -293,25 +292,26 @@ export default function RegisterTeam(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
-            method: 'get',
-            url: baseURL+'/teams/team_list/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
-            params: {
-                'pk_user': user.id
-            }
+        method: 'get',
+        url: baseURL+'/teams/team_list/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        params: {
+            'pk_user': user.id
+        }
         })
         .then(response =>{
+            endTransaction();
             setTeams(response.data);
 
             
 
         }).catch(error => {
 
-            
+            endTransaction();
             if(!error.status)
                 auth.onError();
             auth.onErrorMessage(error.response.data.message);
@@ -343,20 +343,23 @@ export default function RegisterTeam(){
         const  token = body.access || '';
         auth.refreshToken(token);
 
+        beginTransaction();
         axios({
-            method: 'post',
-            url: baseURL+'/teams/alumno_team/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
-            data:{
-            id          : user.id,
-            fk_user     : id
-            }
+        method: 'post',
+        url: baseURL+'/teams/alumno_team/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data:{
+        id          : user.id,
+        fk_user     : id
+        }
         })
         .then(response =>{
+
+            endTransaction();
             if(response.status === 206){
-                auth.onErrorMessage(response.data.message);
+                auth.swalFire(response.data.message);
 
             }else{
                 Swal.fire({
@@ -373,7 +376,8 @@ export default function RegisterTeam(){
             
             
         }).catch(error => {
-            
+            endTransaction();
+
         });
 
 
@@ -407,17 +411,18 @@ export default function RegisterTeam(){
         }
         */
         
+        beginTransaction();
         axios({
-            method: 'delete',
-            url: baseURL+'/teams/alumno_team/'+encodeURIComponent(pk_user)+'/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
+        method: 'delete',
+        url: baseURL+'/teams/alumno_team/'+encodeURIComponent(pk_user)+'/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
         })
         .then(response =>{
-
+            endTransaction();
             if(response.status === 206){
-                auth.onErrorMessage(response.data.message);
+                auth.swalFire(response.data.message);
             }
             else if(response.status === 200){
                 Swal.fire({
@@ -432,15 +437,9 @@ export default function RegisterTeam(){
 
 
             }
-            
-            
-                
-                
-            //setSolicitudes(response.data.solicitudes)
-
-                
+                        
         }).catch(error => {
-            
+            endTransaction();
         });
 
         
@@ -449,7 +448,6 @@ export default function RegisterTeam(){
 
         
     }
-
     /*
     * Descripcion:	Borra el equipo
     * Fecha de la creacion:		13/04/2022
@@ -471,18 +469,19 @@ export default function RegisterTeam(){
         const token = body.access || '';
         auth.refreshToken(token);
 
-
+        beginTransaction();
         axios({
-            method: 'delete',
-            url: baseURL+'/teams/teams/'+encodeURIComponent(id)+'/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
+        method: 'delete',
+        url: baseURL+'/teams/teams/'+encodeURIComponent(id)+'/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }
             
         })
         .then(response =>{
+            endTransaction();
             if(response.status === 226){
-                auth.onErrorMessage(response.data.message);
+                auth.swalFire(response.data.message);
             }else if(response.status === 200){
 
                 Swal.fire({
@@ -500,6 +499,8 @@ export default function RegisterTeam(){
             
 
         }).catch(error => {
+
+            endTransaction();
             if(!error.status)
                 auth.onError()
             auth.onErrorMessage(error.response.data.message);
@@ -526,23 +527,22 @@ export default function RegisterTeam(){
         const token = body.access || '';
         auth.refreshToken(token);
 
-        
+        beginTransaction();
         axios({
-            method: 'get',
-            url: baseURL+'/teams/teams/'+encodeURIComponent(id)+'/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            }
-            
+        method: 'get',
+        url: baseURL+'/teams/teams/'+encodeURIComponent(id)+'/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        }  
         })
         .then(response =>{
-            
+            endTransaction();
             setDatos({name_team:response.data.nombre});
             setEdit(true);
 
 
         }).catch(error => {
-            
+            endTransaction();
             if(!error.status)
                 auth.onError();
             
@@ -577,21 +577,20 @@ export default function RegisterTeam(){
         const token = body.access || '';
         auth.refreshToken(token);
 
-
+        beginTransaction();
         axios({
-            method: 'post',
-            url: baseURL+'/teams/teams/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
-            data : {
-                'fk_user'   : user.id,
-                'nombre'    : datos.name_team.trim()
-            }
-            
+        method: 'post',
+        url: baseURL+'/teams/teams/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            'fk_user'   : user.id,
+            'nombre'    : datos.name_team.trim()
+        }
         })
         .then(response =>{
-
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : response.data.message,
@@ -608,7 +607,7 @@ export default function RegisterTeam(){
             })
                  
         }).catch(error => {
-            
+            endTransaction();
             setDatos({name_team:''});
             if(!error.status)
                 auth.onError()
@@ -639,22 +638,23 @@ export default function RegisterTeam(){
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
-            
         let team = teams[0];
+
+        beginTransaction();
         axios({
-            method: 'put',
-            url: baseURL+'/teams/teams/'+encodeURIComponent(team.id)+'/',
-            headers: {
-                'Authorization': `Bearer ${ token }`
-            },
-            data : {
-                'id'        : team.id,
-                'fk_user'   : team.fk_user,
-                'nombre'    : datos.name_team.trim()
-            }
+        method: 'put',
+        url: baseURL+'/teams/teams/'+encodeURIComponent(team.id)+'/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            'id'        : team.id,
+            'fk_user'   : team.fk_user,
+            'nombre'    : datos.name_team.trim()
+        }
         })
         .then(response =>{
-
+            endTransaction();
             Swal.fire({
             icon: 'success',
             html : response.data.message,
@@ -675,7 +675,7 @@ export default function RegisterTeam(){
             
                  
         }).catch(error => {
-            
+            endTransaction();
             setEdit(false);
             setDatos({name_team:''});
 
@@ -702,6 +702,8 @@ export default function RegisterTeam(){
         setShow(true);
         setEdit(false);
     }
+    const beginTransaction = () =>{ setTransaction(true); }
+    const endTransaction = () =>{ setTransaction(false); }
     return(
         
         <div className = "container panel shadow" style={{backgroundColor: "white"}} >
@@ -819,7 +821,20 @@ export default function RegisterTeam(){
                         <img className="image" src={cancel} onClick={handleClose} width = "30" height = "30" alt="User Icon" title= "Cerrar" /> 
                     </Modal.Footer>
                 </Modal>
-        
+                <Modal size = "sm" show={transaction} centered >
+                    <Modal.Header closeButton  className = "bg-dark" >
+                    <Modal.Title >
+                        <div className = "title" >Procesando...</div>
+                    </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className = "row" >
+                            <div className = "col-12 d-flex justify-content-center" >
+                                <Spinner animation="border" style={{ width: "3rem", height: "3rem" }} />
+                            </div>
+                        </div>
+                    </Modal.Body>
+                </Modal>
         </div>
 
     )
