@@ -46,6 +46,7 @@ export default function ProtocolsPage(){
     const [academias, setAcademias] = useState([]);
     const [pkProtocol, setPkProtocol] = useState(0);
     
+    
 
     const handleInputChange = (event) => {
 
@@ -60,8 +61,15 @@ export default function ProtocolsPage(){
 
     useEffect(() => {
         startModule();
-        console.log('catt');
     },[]);
+
+    
+    useEffect(() => {
+        filtrarProtocolos();
+    },[estado]);
+    
+
+
 
 
     /*
@@ -71,6 +79,7 @@ export default function ProtocolsPage(){
     */
     const startModule = async () => {
 
+        
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -99,7 +108,7 @@ export default function ProtocolsPage(){
             setPeriodos(response.data.periodos);
             setEstados(response.data.estados);
             setProtocols(response.data.protocolos);
-
+            
             response.data.academias.forEach(function(i){ aux_academias.push({'id':i.id ,'academia':i.academia,'estado':false});});
             setAcademias(aux_academias);
 
@@ -387,11 +396,69 @@ export default function ProtocolsPage(){
             auth.onErrorMessage(error.response.data.message);                
         });
         
+    }
+    /*
+    * Descripcion:	Valida un protocolo reestructurado,
+    * pasando protocolo 3-firmado a 5-seleccionado
+    * Fecha de la creacion:		11/06/2022
+    * Author:					Eduardo B 
+    */
+    const validarProtocolo = async (pk_protocol) =>{
+        
+        const   user = JSON.parse(localStorage.getItem('user'));    
+        let response = null;
+        try{
+            response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
+        }catch(error){
+            if(!error.status)
+                auth.onError()
+        }
+        const body = await response.json();
+        const  token = body.access || '';
+        auth.refreshToken(token);
+
+        beginTransaction();
+        axios({
+        method: 'post',
+        url: baseURL+'/protocolos/validarProtocolo/',
+        headers: {
+            'Authorization': `Bearer ${ token }`
+        },
+        data : {
+            pk_protocol : pk_protocol
+        }
+        })
+        .then(response =>{
+            endTransaction();
+            
+            Swal.fire({
+            icon: 'success',
+            html : '<strong>'+response.data.message+'</strong>',
+            showCancelButton: false,
+            focusConfirm: false,
+            allowEscapeKey : false,
+            allowOutsideClick: false,
+            confirmButtonText:'Aceptar',
+            confirmButtonColor: '#39ace7',
+            preConfirm: () => {
+                filtrarProtocolos();
+            }
+            })
+            
+
+        }).catch(error => {
+            endTransaction();
+            if(!error.status)
+                auth.onError();
+            auth.onErrorMessage(error.response.data.message);                
+        });
+
 
         
 
-
     }
+
 
 
     /*
@@ -704,11 +771,15 @@ export default function ProtocolsPage(){
                             */}
 
 
-                            {/*
-                            */}
-                            {row.fk_protocol_state === 3 &&
+                            
+                            
+                            {row.fk_protocol_state === 3 && (row.fk_inscripccion === 1 || row.fk_inscripccion === 3 )&&
                                 <img  className = "image" src = {clasificar} width = "25" height = "25" alt="User Icon" title= "Asignar protocolo a academias" 
                                 onClick = {() => clasificarProtocolo(row.id)}  style = {{marginRight:7}}/>
+                            }
+                            {row.fk_protocol_state === 3 && (row.fk_inscripccion === 2  )&&
+                                <img  className = "image" src = {check} width = "25" height = "25" alt="User Icon" title= "Validar protocolo" 
+                                onClick = {() => validarProtocolo(row.id)}  style = {{marginRight:7}}/>
                             }
                             <img  className = "image" src = {ver} width = "25" height = "25" alt="User Icon" title= "Ver detalle" 
                                 onClick = {() => watchWordsHandler(row.id, row.number, row.title, row.sumary, row.periodo)}  style = {{marginRight:7}}/>

@@ -169,7 +169,7 @@ export default function Team(){
                     })
                     .then(response =>{
                         if(response.status === 226){
-                            auth.onErrorMessage(response.data.message);
+                            auth.swalFire(response.data.message);
                         }else if(response.status === 200){
                             
                             Swal.fire({
@@ -245,7 +245,7 @@ export default function Team(){
                         */
 
                         if(response.status === 226){
-                            auth.onErrorMessage(response.data.message);
+                            auth.swalFire(response.data.message);
                         }else if(response.status === 200){
                             
 

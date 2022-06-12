@@ -201,7 +201,7 @@ export default function ValidateSignPage(){
             confirmButtonText:'Aceptar',
             confirmButtonColor: '#39ace7',
             preConfirm: () => {
-                limpiarCampos();
+                //limpiarCampos();
             }
             })
                 

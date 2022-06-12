@@ -71,12 +71,10 @@ export default function RegisterPage(){
             setEstado({error:true, message_error:'Ingrese una contrase\u00F1a'});
             return;
         }
-        /*
         else if( validator.isStrongPassword(datos.pass, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) === false ){
             setAdvertencia({error:true, message_error:'La contraseña no cumple con los requisitos, favor de verificarlo'});
             return;
         }
-        */
         else if( datos.confirm_pass.trim() === '' ){
             setEstado({error:true, message_error:'Confirme su contrase\u00F1a'});
             return;
@@ -200,14 +198,14 @@ export default function RegisterPage(){
                             name="pass"
                             placeholder="Contrase&ntilde;a" 
                             onChange = {handleInputChange} 
-                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un caracter numérico"
+                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un car&aacute;cter numérico"
                     />
                     <input  type={passwordShown ? "text" : "password"}
                             className={passwordShown ? "entry_text fadeIn third" : "entry_psw fadeIn third"}
                             name="confirm_pass"
                             placeholder="Confirmaci&oacute;n contrase&ntilde;a" 
                             onChange = {handleInputChange} 
-                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un caracter numérico"
+                            title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un car&aacute;cter numérico"
                     />
                     <input type="submit" className="fadeIn fourth" value="Registrarse"  />
                     <img    className="" src={lupa} 

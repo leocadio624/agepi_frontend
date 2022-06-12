@@ -70,6 +70,7 @@ export default function AboutPage(){
             
             let protocolo = response.data[0]
             let estado = protocolo.fk_protocol_state;
+            
             if(estado === 6 || estado === 7 || estado === 8){estado = estado -1}
             setProtocol(protocolo);
             setEstadoProtocol(estado);
@@ -285,6 +286,7 @@ export default function AboutPage(){
         }
         })
         .then(response =>{            
+            
             endTransaction();
             setEvaluaciones(response.data);
         
@@ -412,7 +414,6 @@ export default function AboutPage(){
     */
     const verEvaluacion = async (fk_seleccion, fk_protocol, fk_user) =>{ 
 
-
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         try{
@@ -515,23 +516,50 @@ export default function AboutPage(){
     }
     const getEstadoProtocolo = async (event, estado) => {
         event.preventDefault();
-        
+
         setEstadoProtocol(estado);
-        if(estado <= protocol.fk_protocol_state){
-            if(estado === 2)
-                getIntegrantes(protocol.fk_team);
-            else if(estado === 3)
-                getFirmas(protocol.id);
-            else if(estado === 4)
-                getFechaAceptacion(protocol.id);
-            else if(estado === 5)
-                getFechaSeleccion(protocol.id);
-            else if(estado === 6)
-                getFechaEvaluacion(protocol.id);
-            else if(estado === 7)
-                getFechaDictamen(protocol.id);
-            
+        if(estado === 6 || estado === 7 || estado === 8 ){
+            if(estado < protocol.fk_protocol_state){
+                
+                
+    
+                if(estado === 2)
+                    getIntegrantes(protocol.fk_team);
+                else if(estado === 3)
+                    getFirmas(protocol.id);
+                else if(estado === 4)
+                    getFechaAceptacion(protocol.id);
+                else if(estado === 5)
+                    getFechaSeleccion(protocol.id);
+                else if(estado === 6)
+                    getFechaEvaluacion(protocol.id);
+                else if(estado === 7)
+                    getFechaDictamen(protocol.id);
+                
+            }
+
+        }else{
+
+            if(estado <= protocol.fk_protocol_state){
+                
+                if(estado === 2)
+                    getIntegrantes(protocol.fk_team);
+                else if(estado === 3)
+                    getFirmas(protocol.id);
+                else if(estado === 4)
+                    getFechaAceptacion(protocol.id);
+                else if(estado === 5)
+                    getFechaSeleccion(protocol.id);
+                else if(estado === 6)
+                    getFechaEvaluacion(protocol.id);
+                else if(estado === 7)
+                    getFechaDictamen(protocol.id);
+                
+            }
+
+
         }
+
 
     }
     const beginTransaction = () =>{ setTransaction(true); }

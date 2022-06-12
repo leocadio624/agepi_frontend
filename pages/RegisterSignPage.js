@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
 import { fetchWithToken } from "../helpers/fetch";
+import validator from 'validator';
 
 import create_file from '../assetss/images/create-file.png';
 import delete_icon from '../assetss/images/delete.png';
@@ -187,14 +188,19 @@ export default function RegisterignPage(){
             return;
         }
 
+        if( validator.isStrongPassword(datos.password, {minLength: 8, minLowercase: 1,minUppercase: 1, minNumbers: 1, minSymbols: 0}) === false ){
+            setEstado({error:true, message_error:'La contraseña no cumple con los requisitos, favor de verificarlo'});
+            return;
+        }
         const   user = JSON.parse(localStorage.getItem('user'));    
         let response = null;
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
@@ -327,45 +333,73 @@ export default function RegisterignPage(){
         
         try{
             response = await fetchWithToken('api/token/refresh/',{'refresh':user.refresh_token},'post');
+            if(response.status === 401){ auth.sesionExpirada(); return;}
         }catch(error){
             if(!error.status)
-            auth.onError()
+                auth.onError()
         }
         const body = await response.json();
         const  token = body.access || '';
         auth.refreshToken(token);
         
-        beginTransaction();
-        axios({
-        method: 'delete',
-        url: baseURL+'/firma/firma/'+encodeURI(id)+'/',
-        headers: {
-            'Authorization': `Bearer ${ token }`
-        },
-        data: {
-            ruta_public_key : ruta_public_key,
-            ruta_private_key: ruta_private_key
-        }
+
+        let html =  "<div style = 'font-size:16px;'>\u00bfEst\u00E1s seguro que deseas cancelar tu firma\u003F</div><br><div style = 'font-size:14px;'><strong>Se cancelaran las firmas que hayas realizado con tu firma</strong></div>";
+        Swal.fire({
+        title: '',
+        //html: "\u00bfEst\u00E1s seguro que deseas cancelar tu firma\u003F",
+        html: html,
+        icon: 'info',
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+        allowEscapeKey : false,
+        allowOutsideClick: false
+        }).then((result) => {
+            
+            if(result.value){
+                
+                beginTransaction();
+                axios({
+                method: 'delete',
+                url: baseURL+'/firma/firma/'+encodeURI(id)+'/',
+                headers: {
+                    'Authorization': `Bearer ${ token }`
+                },
+                data: {
+                    ruta_public_key : ruta_public_key,
+                    ruta_private_key: ruta_private_key
+                }
+                })
+                .then(response =>{
+                    endTransaction();
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                    }).then(function(){
+                        startModule();
+                    })
+                    
+                    
+                }).catch(error =>{
+                    endTransaction();
+                    if(!error.status)
+                       auth.onError()
+                    auth.onErrorMessage(error.response.data.message);
+                });
+                
+
+
+            }//end-if
         })
-        .then(response =>{
-            endTransaction();
-            Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: response.data.message,
-            showConfirmButton: false,
-            timer: 1500
-            }).then(function(){
-                startModule();
-            })
-            
-            
-        }).catch(error =>{
-            endTransaction();
-            if(!error.status)
-               auth.onError()
-            auth.onErrorMessage(error.response.data.message);
-        });
+
+
+        
 
     }
     /*
@@ -458,13 +492,16 @@ export default function RegisterignPage(){
                         <option value = "1" >1 a&ntilde;o</option>
                         <option value = "2" >2 a&ntilde;os</option>
                         <option value = "3" >3 a&ntilde;os</option>
+                        <option value = "4" >4 a&ntilde;os</option>
                     </select>
                 </div>
                 <div className = "col-lg-2 col-md-2 col-sm-6 d-flex justify-content-center">
                         <div className = "label-form" >Contrase&ntilde;a de clave privada</div>
                 </div>
                 <div className = "col-lg-4 col-md-4 col-sm-6">
-                    <input type={passwordShown ? "text" : "password"} className = "form-control" name = "password" onChange = {handleInputChange} value = {datos.password} />
+                    <input type={passwordShown ? "text" : "password"} className = "form-control" name = "password" onChange = {handleInputChange} value = {datos.password} 
+                        title = "La contraseña debe contener al menos ocho caracteres, una letra minúscula, una letra mayúscula y un car&aacute;cter numérico"
+                        />
                     <img    className="" src={lupa} 
                             onClick = {togglePassword} width = "20" height = "20" alt="User Icon"
                             title= {passwordShown ? "Ocultar contrase\u00F1a" : "Mostrar contrase\u00F1a"}  style={{cursor:"pointer"}}/>

@@ -265,7 +265,7 @@ export default function RegisterPage(){
                 auth.swalFire(response.data.message);
             }else if(response.status === 200){
 
-                /*
+                
                 Swal.fire({
                 icon: 'success',
                 html : '<strong>'+response.data.message+'</strong>',
@@ -279,7 +279,7 @@ export default function RegisterPage(){
                     cleanForm();
                 }
                 })
-                */
+                
                 
                 
             }
@@ -480,7 +480,6 @@ export default function RegisterPage(){
             setPkTeam(fk_team);
             countSumary.current.innerHTML = ''+(sumary.length).toString()+"/250";
 
-            //console.log( fk_protocol_state )
             if(fk_protocol_state === 1 || fk_protocol_state === 8){
                 setEdit(false);
             }else{
