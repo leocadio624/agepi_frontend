@@ -17,7 +17,8 @@ import check from '../assetss/images/comprobado.png';
 import cancel from '../assetss/images/cancelar.png';
 import delete_icon from '../assetss/images/delete.png';
 import edit_icon from '../assetss/images/lapiz.png';
-import question from '../assetss/images/question.png';
+import faq from '../assetss/images/faq.png';
+import warning from '../assetss/images/warning.png';
 
 
 const baseURL = `${process.env.REACT_APP_API_URL}`;
@@ -140,19 +141,28 @@ export default function RegisterTeam(){
         },
         {   
             name:'Acciones',
-            cell:(row) =>  <>
-                            {solicitudes.includes(row.pk_user) === true &&
-                                <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
-                                        onClick = {() => cancelarSolicitud(row.pk_user)  }
-                                />
+            cell:(row) =>  
+                        <>
+                            {row.periodo_escolar === 1 &&
+                                <>
+                                {solicitudes.includes(row.pk_user) === true &&
+                                    <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
+                                            onClick = {() => cancelarSolicitud(row.pk_user)  }
+                                    />
 
-                            }       
-                            {solicitudes.includes(row.pk_user) === false &&
-                                <img  className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
-                                onClick = {() => enviarSolicitud(row.pk_user)  }
-                                />
+                                }       
+                                {solicitudes.includes(row.pk_user) === false &&
+                                    <img  className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
+                                    onClick = {() => enviarSolicitud(row.pk_user)  }
+                                    />
+                                }
+                                </>
                             }
-                            </> 
+                            {row.periodo_escolar === 0 &&
+                                <img    className = "image" src = {faq} width = "25" height = "25" alt="User Icon" title = "Aun no hay un per&iacute;odo de inscripcci&oacute;n abierto" />
+                            }
+                        </>
+                            
                             ,
             ignoreRowClick: true,
             allowOverflow: true,
@@ -186,29 +196,42 @@ export default function RegisterTeam(){
             center:true
 
         },
+        {
+            name:'Solicitudes disponibles',
+            selector:row => row.solicitudes_disp,
+            sortable:true,
+            center:true
+
+        },
         {   
             name:'Acciones',
             cell:(row) =>  <>
-
-                            {row.disponible === 1 &&
+                            {/*Eciste un periodo escolar*/}
+                            {row.periodo_escolar === 1 &&
                                 <>
-                                {solicitudes.includes(row.pk_user) === true &&
-                                    <img    className = "image" src = {cancel} width = "30" height = "30" alt="User Icon" title= "Cancelar solicitud de equipo" 
-                                            onClick = {() => cancelarSolicitud(row.pk_user)  }
-                                            
-                                    />
-                                    
-                                }       
-                                {solicitudes.includes(row.pk_user) === false &&
-                                    <img    className = "image" src = {check} width = "30" height = "30" alt="User Icon" title = "Enviar solicitud de equipo" 
-                                            onClick = {() => enviarSolicitud(row.pk_user)  }
-                                    />
+                                {row.solicitudes_disp !== 0 &&
+                                    <>
+                                    {solicitudes.includes(row.pk_user) === true &&
+                                        <img    className = "image" src = {cancel} width = "25" height = "25" alt="User Icon" title= "Cancelar solicitud de equipo" 
+                                                onClick = {() => cancelarSolicitud(row.pk_user)  }
+                                                
+                                        />
+                                        
+                                    }       
+                                    {solicitudes.includes(row.pk_user) === false &&
+                                        <img    className = "image" src = {check} width = "25" height = "25" alt="User Icon" title = "Enviar solicitud de equipo" 
+                                                onClick = {() => enviarSolicitud(row.pk_user)  }
+                                        />
+                                    }
+                                    </>
+                                }                                
+                                {row.solicitudes_disp === 0 &&                                    
+                                    <img    className = "image" src = {warning} width = "25" height = "25" alt="User Icon" title= "Este profesor ya no puede aceptar solicitudes de protocolo"  />
                                 }
                                 </>
-
                             }
-                            {row.disponible === 0 &&
-                                <img    className = "image" src = {question} width = "30" height = "30" alt="User Icon" title = "Esta profesor ya cuenta con 6 equipos de protocolo" />
+                            {row.periodo_escolar === 0 &&
+                                <img    className = "image" src = {faq} width = "25" height = "25" alt="User Icon" title = "Aun no hay un per&iacute;odo de inscripcci&oacute;n abierto" />
                             }
 
                             </>
@@ -739,7 +762,7 @@ export default function RegisterTeam(){
                         <DataTable
                         columns = {columProfesores}
                         data = {profesores}
-                        title = "Alumnos disponibles"
+                        title = "Profesores disponibles"
                         noDataComponent="No existen registros disponibles"
                         pagination
                         paginationComponentOptions = {paginacionOpcciones}

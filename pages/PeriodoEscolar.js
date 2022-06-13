@@ -215,6 +215,15 @@ export default function RegisterignPage(){
         auth.refreshToken(token);
 
         
+        let aux = anio;
+        if( parseInt(periodo.val) === 1 ){
+            aux = aux + 1;
+        }
+
+        
+        
+
+
         axios({
         method: 'post',
         url: baseURL+'/protocolos/periodo/',
@@ -223,7 +232,7 @@ export default function RegisterignPage(){
         },
         data: {
             'periodo'   : periodo.val,
-            'anio'      : anio,
+            'anio'      : aux,
             'descp'     : periodo.opt
         }
         })
@@ -459,7 +468,7 @@ export default function RegisterignPage(){
                 </div>
                 <div className = "row" style = {{marginTop:20}} >
                     <div className = "col-12 d-flex justify-content-center">
-                        <img className="image" src={save} onClick = {crearPeriodo} width = "30" height = "30" alt="User Icon" title= "Crear firma electr&oacute;nica" style = {{marginRight:5}}/>
+                        <img className="image" src={save} onClick = {crearPeriodo} width = "30" height = "30" alt="User Icon" title= "Registrar per&iacute;odo escolar" style = {{marginRight:5}}/>
                         <img className="image" src={search} onClick = {handleShow} width = "30" height = "30" alt="User Icon" title= "Tipos de inscripcci&oacute;n" style = {{marginRight:5}}/>
                         <img className="image" src={limpiar} onClick = {limpiarCampos} width = "35" height = "35" alt="User Icon" title= "Limpiar campos" />
                     </div>
